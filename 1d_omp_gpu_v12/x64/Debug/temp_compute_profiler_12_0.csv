@@ -1,0 +1,6 @@
+# CUDA_PROFILE_LOG_VERSION 2.0
+# CUDA_DEVICE 0 GeForce GTX 480
+# CUDA_CONTEXT 1
+# CUDA_PROFILE_CSV 1
+# TIMESTAMPFACTOR 12396522d4e54be9
+method,gputime,cputime,gridsizeX,gridsizeY,gridsizeZ,threadblocksizeX,threadblocksizeY,threadblocksizeZ,dynsmemperblock,stasmemperblock,regperthread,occupancy,streamid,localblocksize,thread_inst_executed_0,l2_subp1_read_tex_sector_queries,memtransfersize,memtransferhostmemtype
