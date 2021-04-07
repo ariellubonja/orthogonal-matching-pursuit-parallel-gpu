@@ -104,6 +104,7 @@ def algorithmV0(y, X, n_nonzero_coefs=None):
     pass
 
 if __name__ == "__main__":
+    # TODO: https://roman-kh.github.io/numpy-multicore/
     y, X, w = make_sparse_coded_signal(
         n_samples=n_samples,
         n_components=n_components,
@@ -123,13 +124,13 @@ if __name__ == "__main__":
     print('')
 
     # Multi core
-    no_workers = 2  # os.cpu_count()
+    no_workers = 2 # os.cpu_count()
     # TODO: Gramian can be calculated once locally, and sent to each thread.
-    print('Multi core.', no_workers, "workers on", os.cpu_count(), "(logical) cores.")
+    print('Multi core. With', no_workers, "workers on", os.cpu_count(), "(logical) cores.")
     inputs = np.array_split(y, no_workers, axis=-1)
-    with elapsed_timer() as elapsed:
-        with multiprocessing.Pool(no_workers, initializer=init_threads, initargs=(solveomp, X, omp_args)) as p:  # num_workers=0
-            result = p.imap(solveomp, inputs)
+    with multiprocessing.Pool(no_workers, initializer=init_threads, initargs=(solveomp, X, omp_args)) as p:  # num_workers=0
+        with elapsed_timer() as elapsed:
+            result = p.map(solveomp, inputs)
     print('Samples per second:', n_samples / elapsed())
 
     # dataset = RandomSparseDataset(n_samples, n_components, n_features, n_nonzero_coefs)
