@@ -1,0 +1,4 @@
+Many cores or few cores. And or many processors.
+Show if significant speed increase can be had!
+
+So, we will try and scale the algorithm up.
