@@ -143,21 +143,29 @@ if __name__ == "__main__":
         n_nonzero_coefs=n_nonzero_coefs,
         random_state=0)
 
-    print('Single core. Naive.')
+    print("Settings used for the test: ")
+    print("Number of Samples: " + str(n_samples))
+    print("Number of Components: " + str(n_components))
+    print("Number of Features: " + str(n_features))
+    print("Number of Nonzero Coefficients: " + str(n_nonzero_coefs))
+    print("\n")
+
+    print('Single core. Naive Implementation, based on our Homework.')
     with elapsed_timer() as elapsed:
         xests = omp_naive(X, y, n_nonzero_coefs)
     print('Samples per second:', n_samples/elapsed())
+    print("\n")
     # exit()
     # precompute=True seems slower for single core. Dunno why.
     omp_args = dict(n_nonzero_coefs=n_nonzero_coefs, precompute=False, fit_intercept=False)
 
     # Single core
-    print('Single core')
+    print('Single core. Sklearn')
     omp = OrthogonalMatchingPursuit(**omp_args)
     with elapsed_timer() as elapsed:
         omp.fit(X, y)
     print('Samples per second:', n_samples/elapsed())
-    print('')
+    print("\n")
 
     naive_err = np.linalg.norm(y.T - (X @ xests[:, :, None]).squeeze(-1), 2, 1)
     scipy_err = np.linalg.norm(y.T - (X @ omp.coef_[:, :, None]).squeeze(-1), 2, 1)
