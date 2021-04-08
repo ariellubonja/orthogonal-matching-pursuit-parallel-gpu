@@ -1,0 +1,21 @@
+right click sln -> resolve files
+
+Severity	Code	Description	Project	File	Line	Suppression State
+Error	MSB4019	The imported project "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\BuildCustomizations\cuda64.targets" was not found. Confirm that the expression in the Import declaration "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\\BuildCustomizations\cuda64.targets" is correct, and that the file exists on disk.	1d_omp_gpu_v12	C:\Users\ariel\Google Drive\Documents\Johns Hopkins University\Classes\EN.520.648 Compressed Sensing & Sparse Recovery\Project\1d_omp_gpu_v12\1d_omp_gpu_v6\1d_omp_gpu_v6.vcxproj	226	
+
+	--https://stackoverflow.com/questions/12136808/cuda-4-2-props-and-target-file-is-missing-visual-studio-2010
+
+		-Renamed CUDA 11.2.targets to cuda64.targets
+
+
+-cudart64_40_12.dll missing
+
+	-go back, follow 2nd solution in SO post, about changing CUDA version in vcxproj (v4.0 to v11.2)
+		-again cudart64_40_12 missing
+
+installing CUDA 4.0 from this site fails https://developer.nvidia.com/cuda-toolkit-40
+	-no compatible hardware found :(
+
+
+	-downloaded -cudart64_40_12.dll missing from shady site, put it in Nvidia folder, works :D
+		https://www.pconlife.com/viewfileinfo/cudart64-40-12-dll/
