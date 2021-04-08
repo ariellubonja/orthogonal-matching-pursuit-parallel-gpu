@@ -117,10 +117,15 @@ def omp_naive(X, y, n_nonzero_coefs):
         sets[k, :] = best_idxs
         problems[:, :, k] = Xt[best_idxs, :]
         current_problems = problems[:, :, :k+1]
-        for idx in range(r.shape[0]):
-            solution, *_ = np.linalg.lstsq(current_problems[idx], y[idx], rcond=None)
-            # solution = np.linalg.pinv(current_problems[idx]) @ y[idx]
-            solutions[idx, :k+1] = solution
+        if False:
+            for idx in range(r.shape[0]):
+                # Safest:  solution, *_ = np.linalg.lstsq(current_problems[idx], y[idx], rcond=None)
+                # Less safe (and slower): solution = np.linalg.pinv(current_problems[idx]) @ y[idx]
+                solution = np.linalg.solve(current_problems[idx].T @ current_problems[idx], current_problems[idx].T @ y[idx])
+                # ^ Fastest, but may be unsafe if the matrix is badly conditioned. Maybe that is impossible/super unlikely?
+                solutions[idx, :k+1] = solution
+        current_problemst = current_problems.transpose([0, 2, 1])
+        solutions[:, :k+1] = np.linalg.solve(current_problemst @ current_problems, current_problemst @ y[:, :, None]).squeeze(-1)
         r = y - (current_problems @ solutions[:, :k+1, None]).squeeze(-1)
         # maybe memoize in case y is large, such that probability of repeats is significant.
     else:
@@ -142,7 +147,7 @@ if __name__ == "__main__":
     with elapsed_timer() as elapsed:
         xests = omp_naive(X, y, n_nonzero_coefs)
     print('Samples per second:', n_samples/elapsed())
-
+    # exit()
     # precompute=True seems slower for single core. Dunno why.
     omp_args = dict(n_nonzero_coefs=n_nonzero_coefs, precompute=False, fit_intercept=False)
 
