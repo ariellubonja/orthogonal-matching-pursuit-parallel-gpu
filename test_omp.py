@@ -46,7 +46,7 @@ if False:
 
 n_components, n_features = 512, 100
 n_nonzero_coefs = 17
-n_samples = 20000
+n_samples = 10000
 
 def solveomp(y):
     solveomp.omp.fit(solveomp.X, y)
@@ -103,6 +103,32 @@ def algorithmV0(y, X, n_nonzero_coefs=None):
         k += 1
     pass
 
+import scipy.sparse
+def omp_naive(X, y, n_nonzero_coefs):
+    hermit = X @ X.T
+    Xt = np.ascontiguousarray(X.T)
+    y = np.ascontiguousarray(y.T)
+    r = y.copy()  # Maybe no transpose?
+    sets = np.zeros((n_nonzero_coefs, r.shape[0]), dtype=np.int32)
+    problems = np.zeros((r.shape[0], hermit.shape[0], n_nonzero_coefs))
+    solutions = np.zeros((r.shape[0], n_nonzero_coefs))
+    for k in range(n_nonzero_coefs):
+        best_idxs = np.abs(Xt @ r[:, :, None]).squeeze(-1).argmax(1)
+        sets[k, :] = best_idxs
+        problems[:, :, k] = Xt[best_idxs, :]
+        current_problems = problems[:, :, :k+1]
+        for idx in range(r.shape[0]):
+            solution, *_ = np.linalg.lstsq(current_problems[idx], y[idx], rcond=None)
+            # solution = np.linalg.pinv(current_problems[idx]) @ y[idx]
+            solutions[idx, :k+1] = solution
+        r = y - (current_problems @ solutions[:, :k+1, None]).squeeze(-1)
+        # maybe memoize in case y is large, such that probability of repeats is significant.
+    else:
+        xests = np.zeros((r.shape[0], X.shape[1]))
+        np.put_along_axis(xests, sets.T, solutions, -1)
+        return xests
+
+
 if __name__ == "__main__":
     # TODO: https://roman-kh.github.io/numpy-multicore/
     y, X, w = make_sparse_coded_signal(
@@ -111,6 +137,11 @@ if __name__ == "__main__":
         n_features=n_features,
         n_nonzero_coefs=n_nonzero_coefs,
         random_state=0)
+
+    print('Single core. Naive.')
+    with elapsed_timer() as elapsed:
+        xests = omp_naive(X, y, n_nonzero_coefs)
+    print('Samples per second:', n_samples/elapsed())
 
     # precompute=True seems slower for single core. Dunno why.
     omp_args = dict(n_nonzero_coefs=n_nonzero_coefs, precompute=False, fit_intercept=False)
@@ -123,6 +154,16 @@ if __name__ == "__main__":
     print('Samples per second:', n_samples/elapsed())
     print('')
 
+    naive_err = np.linalg.norm(y.T - (X @ xests[:, :, None]).squeeze(-1), 2, 1)
+    scipy_err = np.linalg.norm(y.T - (X @ omp.coef_[:, :, None]).squeeze(-1), 2, 1)
+    avg_ylen = np.linalg.norm(y, 2, 0)
+    # print(np.median(naive_err) / avg_ylen, np.median(scipy_err) / avg_ylen)
+    plt.plot(np.sort(naive_err / avg_ylen))
+    plt.plot(np.sort(scipy_err / avg_ylen), '--')
+    plt.legend(["Naive", "Scipy"])
+    plt.title("Distribution of errors.")
+    plt.show()
+    exit(0)
     # Multi core
     no_workers = 2 # os.cpu_count()
     # TODO: Gramian can be calculated once locally, and sent to each thread.
