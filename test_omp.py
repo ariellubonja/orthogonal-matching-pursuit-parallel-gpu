@@ -14,6 +14,7 @@ import torch.utils
 import torch.utils.data
 from torch.utils.data import *
 from torch.utils.data.sampler import *
+from line_profiler import line_profiler
 
 from contextlib import contextmanager
 from timeit import default_timer
@@ -104,33 +105,30 @@ def algorithmV0(y, X, n_nonzero_coefs=None):
     pass
 
 import scipy.sparse
+
+
 def omp_naive(X, y, n_nonzero_coefs):
     Xt = np.ascontiguousarray(X.T)
     y = np.ascontiguousarray(y.T)
-    r = y.copy()  # Maybe no transpose?
+    r = y.copy()  # Maybe no transpose? Remove this line?
     sets = np.zeros((n_nonzero_coefs, r.shape[0]), dtype=np.int32)
     problems = np.zeros((r.shape[0], X.shape[0], n_nonzero_coefs))
     solutions = np.zeros((r.shape[0], n_nonzero_coefs))
+    xests = np.zeros((r.shape[0], X.shape[1]))
     for k in range(n_nonzero_coefs):
-        best_idxs = np.abs(Xt @ r[:, :, None]).squeeze(-1).argmax(1)
+        projections = Xt @ r[:, :, None]
+        best_idxs = np.abs(projections).squeeze(-1).argmax(1)
         sets[k, :] = best_idxs
         problems[:, :, k] = Xt[best_idxs, :]
         current_problems = problems[:, :, :k+1]
-        if False:
-            for idx in range(r.shape[0]):
-                # Safest:  solution, *_ = np.linalg.lstsq(current_problems[idx], y[idx], rcond=None)
-                # Less safe (and slower): solution = np.linalg.pinv(current_problems[idx]) @ y[idx]
-                solution = np.linalg.solve(current_problems[idx].T @ current_problems[idx], current_problems[idx].T @ y[idx])
-                # ^ Fastest. Also safe since an orthonormal matrix is never badly conditioned.
-                solutions[idx, :k+1] = solution
         current_problemst = current_problems.transpose([0, 2, 1])
-        solutions[:, :k+1] = np.linalg.solve(current_problemst @ current_problems, current_problemst @ y[:, :, None]).squeeze(-1)
-        r = y - (current_problems @ solutions[:, :k+1, None]).squeeze(-1)
+        solutions = np.linalg.solve(current_problemst @ current_problems,
+                                    current_problemst @ y[:, :, None]).squeeze(-1)
+        r = y - (current_problems @ solutions[:, :, None]).squeeze(-1)
         # maybe memoize in case y is large, such that probability of repeats is significant.
     else:
-        xests = np.zeros((r.shape[0], X.shape[1]))
         np.put_along_axis(xests, sets.T, solutions, -1)
-        return xests
+    return xests
 
 
 if __name__ == "__main__":
@@ -154,7 +152,8 @@ if __name__ == "__main__":
         xests = omp_naive(X, y, n_nonzero_coefs)
     print('Samples per second:', n_samples/elapsed())
     print("\n")
-    # exit()
+    exit()
+
     # precompute=True seems slower for single core. Dunno why.
     omp_args = dict(n_nonzero_coefs=n_nonzero_coefs, precompute=False, fit_intercept=False)
 
