@@ -46,7 +46,7 @@ if False:
 
 n_components, n_features = 512, 100
 n_nonzero_coefs = 17
-n_samples = 10000
+n_samples = 20000
 
 def solveomp(y):
     solveomp.omp.fit(solveomp.X, y)
@@ -105,12 +105,11 @@ def algorithmV0(y, X, n_nonzero_coefs=None):
 
 import scipy.sparse
 def omp_naive(X, y, n_nonzero_coefs):
-    hermit = X @ X.T
     Xt = np.ascontiguousarray(X.T)
     y = np.ascontiguousarray(y.T)
     r = y.copy()  # Maybe no transpose?
     sets = np.zeros((n_nonzero_coefs, r.shape[0]), dtype=np.int32)
-    problems = np.zeros((r.shape[0], hermit.shape[0], n_nonzero_coefs))
+    problems = np.zeros((r.shape[0], X.shape[0], n_nonzero_coefs))
     solutions = np.zeros((r.shape[0], n_nonzero_coefs))
     for k in range(n_nonzero_coefs):
         best_idxs = np.abs(Xt @ r[:, :, None]).squeeze(-1).argmax(1)
@@ -122,7 +121,7 @@ def omp_naive(X, y, n_nonzero_coefs):
                 # Safest:  solution, *_ = np.linalg.lstsq(current_problems[idx], y[idx], rcond=None)
                 # Less safe (and slower): solution = np.linalg.pinv(current_problems[idx]) @ y[idx]
                 solution = np.linalg.solve(current_problems[idx].T @ current_problems[idx], current_problems[idx].T @ y[idx])
-                # ^ Fastest, but may be unsafe if the matrix is badly conditioned. Maybe that is impossible/super unlikely?
+                # ^ Fastest. Also safe since an orthonormal matrix is never badly conditioned.
                 solutions[idx, :k+1] = solution
         current_problemst = current_problems.transpose([0, 2, 1])
         solutions[:, :k+1] = np.linalg.solve(current_problemst @ current_problems, current_problemst @ y[:, :, None]).squeeze(-1)
@@ -147,7 +146,7 @@ if __name__ == "__main__":
     with elapsed_timer() as elapsed:
         xests = omp_naive(X, y, n_nonzero_coefs)
     print('Samples per second:', n_samples/elapsed())
-    # exit()
+    exit()
     # precompute=True seems slower for single core. Dunno why.
     omp_args = dict(n_nonzero_coefs=n_nonzero_coefs, precompute=False, fit_intercept=False)
 
@@ -166,7 +165,7 @@ if __name__ == "__main__":
     plt.plot(np.sort(naive_err / avg_ylen))
     plt.plot(np.sort(scipy_err / avg_ylen), '--')
     plt.legend(["Naive", "Scipy"])
-    plt.title("Distribution of errors.")
+    plt.title("Distribution of relative errors.")
     plt.show()
     exit(0)
     # Multi core
