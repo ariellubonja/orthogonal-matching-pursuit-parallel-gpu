@@ -45,9 +45,9 @@ if False:
 # We can take a single solver, and multiple problems, and spread it out on processing units.
 # ^ This can be done simply with the multiprocessing Python module.
 
-n_components, n_features = 512, 100
+n_components, n_features = 512*4, 100*4
 n_nonzero_coefs = 17
-n_samples = 10000
+n_samples = 2500
 
 def solveomp(y):
     solveomp.omp.fit(solveomp.X, y)
@@ -57,54 +57,44 @@ def init_threads(func, X, omp_args):
     func.omp = OrthogonalMatchingPursuit(**omp_args)
     func.X = X
 
-
-def algorithmV0(y, X, n_nonzero_coefs=None):
-    # Based on https://github.com/zhuhufei/OMP/blob/master/codeAug2020.m
-    # From "Efficient Implementations for Orthogonal Matching Pursuit" (2020)
+# kernprof -l -v test_omp.py and @profile
+# Based on https://github.com/zhuhufei/OMP/blob/master/codeAug2020.m
+# From "Efficient Implementations for Orthogonal Matching Pursuit" (2020)
+@profile
+def omp_v0(y, X, XTX, XTy, n_nonzero_coefs=None):
     if n_nonzero_coefs is None:
         n_nonzero_coefs = X.shape[1]
-    dictsize = X.shape[0]
-    D = X.dot(X.T)
-    # Initialize
-    r = y
-    L = np.zeros_like(X, shape=(n_nonzero_coefs, n_nonzero_coefs))
-    gamma = np.zeros_like(X, shape=(n_nonzero_coefs, 1))
 
-    projections = X.T @ y
-    F = np.identity(n_nonzero_coefs, dtype=X.dtype)
-    a_F = np.zeros_like(gamma)
-    temp_F_k_k = 0
+    N = y.shape[1]
+    innerp = lambda x: np.einsum('ij,ij->i', x, x)
+    normr2 = innerp(y.T)  # Norm squared of residual.
+    projections = XTy
 
-    innerp = {0: projections}
-    amplitudes = {}
-    D_mybest = np.zeros_like(X, D.shape[0], n_nonzero_coefs)
-    s = np.zeros_like(X, (dictsize, 1))
+    gamma = np.zeros(shape=(n_nonzero_coefs, N), dtype=np.int64)
+    F = np.repeat(np.identity(n_nonzero_coefs, dtype=X.dtype)[np.newaxis], N, 0)
+    a_F = np.zeros_like(X, shape=(n_nonzero_coefs, N, 1))
+    D_mybest = np.zeros_like(X, shape=(N, XTX.shape[0], n_nonzero_coefs))
+    temp_F_k_k = 1
+    xests = np.zeros((N, X.shape[1]))
     for k in range(n_nonzero_coefs):
-        projsq = projections * projections
-        maxindex = np.argmax(projsq)
-        alpha = projsq[maxindex]
-        newgam = maxindex[0]
-        gamma[k] = newgam
+        maxindices = np.argmax(projections * projections, 1)  # Maybe replace square with abs?
+        gamma[k] = maxindices
         if k == 0:
-            D_mybest[:, 1] = D[:, newgam]
-            a_F[1] = projections(newgam)
-            projections = projections - D_mybest[:, 1]*a_F[1]
-            normr2 = normr2 - a_F[1] ^ 2
+            D_mybest[:, :, k] = XTX[:, maxindices].T
         else:
-            temp_F_k_k = np.sqrt(1 / (1 - np.sum(D_mybest[newgam, :] * D_mybest[newgam,:])))
-            F[:, k] = -temp_F_k_k * (F * D_mybest[newgam, :].T)
-            F[k, k] = temp_F_k_k
-            D_mybest[:, k]=temp_F_k_k * (D[:, newgam] - D_mybest * D_mybest[newgam,:].T);
-            a_F[k] = temp_F_k_k * projections(newgam)
-            projections = projections - D_mybest[:, k]*a_F[k]
-            normr2 = normr2 - a_F[k] * a_F[k]
+            D_mybest_maxindices = np.take_along_axis(D_mybest, maxindices[:, None, None], 1).squeeze(1)
+            temp_F_k_k = np.sqrt(1/(1-innerp(D_mybest_maxindices)))[:, None]
+            F[:, :, k] = -temp_F_k_k * (F @ D_mybest_maxindices[:, :, None]).squeeze(-1)
+            F[:, k, k] = temp_F_k_k[..., 0]
 
-        amplitudes[k] = np.zeros_like(s)
-        amplitudes[k][gamma[:k]] = F[:k, :k]*a_F[:k]
-        k += 1
-    pass
-
-import scipy.sparse
+            D_mybest[:, :, k] = temp_F_k_k * (XTX[:, maxindices].T - (D_mybest @ D_mybest_maxindices[:, :, None]).squeeze(-1)) # To translate D_mybest*D_mybest(newgam,:).' from MATLAB. It seems to just be a matmul.
+        a_F[k] = temp_F_k_k * np.take_along_axis(projections, maxindices[:, None], 1)  # TODO: Figure out if we should use XTy.T or XTy, which is faster?
+        projections = projections - D_mybest[:, :, k] * a_F[k]
+        normr2 = normr2 - (a_F[k] * a_F[k]).squeeze(-1)
+    else:
+        np.put_along_axis(xests, gamma.T, (F @ a_F.squeeze(-1).T[:, :, None]).squeeze(-1), -1)
+    # F[:, :k, :k] @ a_F.T[:k, :, None]
+    return xests
 
 
 def omp_naive(X, y, n_nonzero_coefs):
@@ -122,10 +112,16 @@ def omp_naive(X, y, n_nonzero_coefs):
         problems[:, :, k] = Xt[best_idxs, :]
         current_problems = problems[:, :, :k+1]
         current_problemst = current_problems.transpose([0, 2, 1])
+        # Memory complexity is k*N*M <= N^2 * M
         solutions = np.linalg.solve(current_problemst @ current_problems,
                                     current_problemst @ y[:, :, None]).squeeze(-1)
         r = y - (current_problems @ solutions[:, :, None]).squeeze(-1)
         # maybe memoize in case y is large, such that probability of repeats is significant.
+        # If we can move all the batched stuff to RHS (using dense representations) it may be faster.
+        # maybe memoize in case y is large, such that probability of repeats is significant. <- In case sparsity is low (e.g. < 32), this may be the fastest method, only limited by memory. (binomial(n, n*0.2))   else:
+        # https://en.wikipedia.org/wiki/Singular_value_decomposition#Relation_to_eigenvalue_decomposition
+        # https://en.wikipedia.org/wiki/Woodbury_matrix_identity
+        # Test if _^2 is faster than abs(_)
     else:
         np.put_along_axis(xests, sets.T, solutions, -1)
     return xests
@@ -147,13 +143,20 @@ if __name__ == "__main__":
     print("Number of Nonzero Coefficients: " + str(n_nonzero_coefs))
     print("\n")
 
-    print('Single core. Naive Implementation, based on our Homework.')
+    print('Single core. Implementation of algorithm v0.')
     with elapsed_timer() as elapsed:
-        xests = omp_naive(X, y, n_nonzero_coefs)
+        xests_v0 = omp_v0(y, X, X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
     print('Samples per second:', n_samples/elapsed())
     print("\n")
-    exit()
+    exit(0)
 
+    print('Single core. Naive Implementation, based on our Homework.')
+    with elapsed_timer() as elapsed:
+        xests_naive = omp_naive(X, y, n_nonzero_coefs)
+    print('Samples per second:', n_samples/elapsed())
+    print("\n")
+
+    exit(0)
     # precompute=True seems slower for single core. Dunno why.
     omp_args = dict(n_nonzero_coefs=n_nonzero_coefs, precompute=False, fit_intercept=False)
 
@@ -165,13 +168,15 @@ if __name__ == "__main__":
     print('Samples per second:', n_samples/elapsed())
     print("\n")
 
-    naive_err = np.linalg.norm(y.T - (X @ xests[:, :, None]).squeeze(-1), 2, 1)
-    scipy_err = np.linalg.norm(y.T - (X @ omp.coef_[:, :, None]).squeeze(-1), 2, 1)
+    err_naive = np.linalg.norm(y.T - (X @ xests_naive[:, :, None]).squeeze(-1), 2, 1)
+    err_v0 = np.linalg.norm(y.T - (X @ xests_v0[:, :, None]).squeeze(-1), 2, 1)
+    err_sklearn = np.linalg.norm(y.T - (X @ omp.coef_[:, :, None]).squeeze(-1), 2, 1)
     avg_ylen = np.linalg.norm(y, 2, 0)
     # print(np.median(naive_err) / avg_ylen, np.median(scipy_err) / avg_ylen)
-    plt.plot(np.sort(naive_err / avg_ylen))
-    plt.plot(np.sort(scipy_err / avg_ylen), '--')
-    plt.legend(["Naive", "Scipy"])
+    plt.plot(np.sort(err_naive / avg_ylen), label='Naive')
+    plt.plot(np.sort(err_v0 / avg_ylen), '.', label='v0')
+    plt.plot(np.sort(err_sklearn / avg_ylen), '--', label='SKLearn')
+    plt.legend()
     plt.title("Distribution of relative errors.")
     plt.show()
     exit(0)
