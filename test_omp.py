@@ -113,8 +113,11 @@ def omp_naive(X, y, n_nonzero_coefs):
     solutions = np.zeros((r.shape[0], n_nonzero_coefs))
     for k in range(n_nonzero_coefs):
         best_idxs = np.abs(Xt @ r[:, :, None]).squeeze(-1).argmax(1)
+        # Indices of best columns
         sets[k, :] = best_idxs
+        # Actual columns at those indexes
         problems[:, :, k] = Xt[best_idxs, :]
+        # Matrix of the columns used to represent y
         current_problems = problems[:, :, :k+1]
         if False:
             for idx in range(r.shape[0]):
@@ -127,10 +130,11 @@ def omp_naive(X, y, n_nonzero_coefs):
         solutions[:, :k+1] = np.linalg.solve(current_problemst @ current_problems, current_problemst @ y[:, :, None]).squeeze(-1)
         r = y - (current_problems @ solutions[:, :k+1, None]).squeeze(-1)
         # maybe memoize in case y is large, such that probability of repeats is significant.
-    else:
-        xests = np.zeros((r.shape[0], X.shape[1]))
-        np.put_along_axis(xests, sets.T, solutions, -1)
-        return xests
+    #     We could get 20 matches of the "cache" for 10000 different random ys.
+    # else:
+    xests = np.zeros((r.shape[0], X.shape[1]))
+    np.put_along_axis(xests, sets.T, solutions, -1)
+    return xests
 
 
 if __name__ == "__main__":
