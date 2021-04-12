@@ -1,0 +1,116 @@
+Number of Samples: 5000
+Number of Components: 2048
+Number of Features: 400
+Number of Nonzero Coefficients: 17
+
+
+Single core. New implementation of algorithm v0.
+Samples per second: 505.5775722229696
+
+
+Single core. Implementation of algorithm v0.
+Samples per second: 409.0881585308904
+
+
+8.881784197001252e-16
+Single core. Naive Implementation, based on our Homework.
+Samples per second: 133.1333524819922
+
+
+Wrote profile results to test_omp.py.lprof
+Timer unit: 1e-07 s
+
+Total time: 10.2627 s
+File: test_omp.py
+Function: omp_v0 at line 63
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    63                                           @profile
+    64                                           def omp_v0(y, X, XTX, XTy, n_nonzero_coefs=None):
+    65         1         48.0     48.0      0.0      if n_nonzero_coefs is None:
+    66                                                   n_nonzero_coefs = X.shape[1]
+    67
+    68         1         44.0     44.0      0.0      N = y.shape[1]
+    69         1         28.0     28.0      0.0      innerp = lambda x: np.einsum('ij,ij->i', x, x)
+    70         1      26273.0  26273.0      0.0      normr2 = innerp(y.T)  # Norm squared of residual.
+    71         1         24.0     24.0      0.0      projections = XTy
+    72
+    73         1        641.0    641.0      0.0      gamma = np.zeros(shape=(n_nonzero_coefs, N), dtype=np.int64)
+    74         1      30308.0  30308.0      0.0      F = np.repeat(np.identity(n_nonzero_coefs, dtype=X.dtype)[np.newaxis], N, 0)
+    75         1        793.0    793.0      0.0      a_F = np.zeros_like(X, shape=(n_nonzero_coefs, N, 1))
+    76         1    3340502.0 3340502.0      3.3      D_mybest = np.zeros_like(X, shape=(N, XTX.shape[0], n_nonzero_coefs))
+    77         1         20.0     20.0      0.0      temp_F_k_k = 1
+    78         1        521.0    521.0      0.0      xests = np.zeros((N, X.shape[1]))
+    79        18        353.0     19.6      0.0      for k in range(n_nonzero_coefs):
+    80        17    8345562.0 490915.4      8.1          maxindices = np.argmax(projections * projections, 1)  # Maybe replace square with abs?
+    81        17       3351.0    197.1      0.0          gamma[k] = maxindices
+    82        17        259.0     15.2      0.0          if k == 0:
+    83         1     248251.0 248251.0      0.2              new_D_mybest = XTX[maxindices, :]
+    84                                                   else:
+    85        16     243566.0  15222.9      0.2              D_mybest_maxindices = np.take_along_axis(D_mybest[:, :, :k], maxindices[:, None, None], 1).squeeze(1)
+    86        16      23237.0   1452.3      0.0              temp_F_k_k = np.sqrt(1/(1-innerp(D_mybest_maxindices)))[:, None]
+    87        16     505059.0  31566.2      0.5              F[:, :, k] = -temp_F_k_k * (F[:, :, :k] @ D_mybest_maxindices[:, :, None]).squeeze(-1)
+    88        16      11952.0    747.0      0.0              F[:, k, k] = temp_F_k_k[..., 0]
+    89        16   42432658.0 2652041.1     41.3              new_D_mybest = temp_F_k_k * (XTX[maxindices, :] - (D_mybest[:, :, :k] @ D_mybest_maxindices[:, :, None]).squee
+ze(-1))
+    90        17   19934704.0 1172629.6     19.4          D_mybest[:, :, k] = new_D_mybest
+    91        17      57720.0   3395.3      0.1          a_F[k] = temp_F_k_k * np.take_along_axis(projections, maxindices[:, None], 1)  # TODO: Figure out if we should use
+XTy.T or XTy, which is faster?
+    92        17   26873390.0 1580787.6     26.2          projections = projections - D_mybest[:, :, k] * a_F[k]
+    93        17       8661.0    509.5      0.0          normr2 = normr2 - (a_F[k] * a_F[k]).squeeze(-1)
+    94                                               else:
+    95         1     538817.0 538817.0      0.5          np.put_along_axis(xests, gamma.T, (F @ a_F.squeeze(-1).T[:, :, None]).squeeze(-1), -1)
+    96                                                   # Instead of putting a stopping criteria, we could return the order in which the coeffs were added. (i.e. just retu
+rn gamma and amplitudes)
+    97                                               # F[:, :k, :k] @ a_F.T[:k, :, None]
+    98         1         18.0     18.0      0.0      return xests
+
+Total time: 7.3563 s
+File: test_omp.py
+Function: omp_v0_new at line 129
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   129                                           @profile
+   130                                           def omp_v0_new(y, X, XTX, XTy, n_nonzero_coefs=None):
+   131         1         47.0     47.0      0.0      if n_nonzero_coefs is None:
+   132                                                   n_nonzero_coefs = X.shape[1]
+   133
+   134         1         55.0     55.0      0.0      N = y.shape[1]
+   135         1         35.0     35.0      0.0      innerp = lambda x: np.einsum('ij,ij->i', x, x)
+   136         1      23496.0  23496.0      0.0      normr2 = innerp(y.T)  # Norm squared of residual.
+   137         1         19.0     19.0      0.0      projections = XTy
+   138
+   139         1       4252.0   4252.0      0.0      gamma = np.zeros(shape=(n_nonzero_coefs, N), dtype=np.int64)
+   140         1      38353.0  38353.0      0.1      F = np.repeat(np.identity(n_nonzero_coefs, dtype=X.dtype)[np.newaxis], N, 0)
+   141         1       7551.0   7551.0      0.0      a_F = np.zeros_like(X, shape=(n_nonzero_coefs, N, 1))
+   142         1    4898438.0 4898438.0      6.7      D_mybest = np.zeros_like(X, shape=(n_nonzero_coefs, N, XTX.shape[0]))
+   143         1         58.0     58.0      0.0      temp_F_k_k = 1
+   144         1        457.0    457.0      0.0      xests = np.zeros((N, X.shape[1]))
+   145        18       2423.0    134.6      0.0      for k in range(n_nonzero_coefs):
+   146        17    3774183.0 222010.8      5.1          maxindices = get_max_projections_blas(projections)  # Numba version is about twice as fast as: np.argmax(projection
+s * projections, 1)  # Maybe replace square with abs?
+   147                                                   # maxindices2 = np.argmax(projections * projections, 1)
+   148        17       2741.0    161.2      0.0          gamma[k] = maxindices
+   149        17        448.0     26.4      0.0          if k == 0:
+   150         1     631365.0 631365.0      0.9              D_mybest[k] = XTX[None, maxindices, :]
+   151                                                   else:
+   152                                                       # Do something about this:
+   153        16     394095.0  24630.9      0.5              D_mybest_maxindices = np.take_along_axis(D_mybest[:k, :, :], maxindices[None, :, None], 2).squeeze(2)
+   154        16      27093.0   1693.3      0.0              temp_F_k_k = np.sqrt(1/(1-innerp(D_mybest_maxindices.T)))[:, None]
+   155        16     671169.0  41948.1      0.9              F[:, :, k] = -temp_F_k_k * (F[:, :, :k] @ D_mybest_maxindices.T[:, :, None]).squeeze(-1)
+   156        16      14373.0    898.3      0.0              F[:, k, k] = temp_F_k_k[..., 0]
+   157                                                       # Could maybe be done with homogeneous coordinates, and einsum, but not sure if faster.
+   158                                                       # testC = temp_F_k_k * XTX[None, maxindices, :] - np.einsum('ibj,ib,b->bj', D_mybest[:k], D_mybest_maxindices,
+temp_F_k_k[..., 0], optimize='optimal')
+   159        16   51863983.0 3241498.9     70.5              D_mybest[k] = temp_F_k_k * (XTX[None, maxindices, :] - np.einsum('ibj,ib->bj', D_mybest[:k], D_mybest_maxindices))
+   160        17      92895.0   5464.4      0.1          a_F[k] = temp_F_k_k * np.take_along_axis(projections, maxindices[:, None], 1)
+   161        17   10545013.0 620294.9     14.3          update_projections_blas(projections, D_mybest[k], -a_F[k, :, 0])  # Relativeely slow as all the subsets are different...
+   162                                                   # projections2 = projections + (-a_F[k]) * D_mybest[k]  # Relativeely slow as all the subsets are different...
+   163        17      10197.0    599.8      0.0          normr2 = normr2 - (a_F[k] * a_F[k]).squeeze(-1)
+   164                                               else:
+   165         1     560192.0 560192.0      0.8          np.put_along_axis(xests, gamma.T, (F @ a_F.squeeze(-1).T[:, :, None]).squeeze(-1), -1)
+   166                                                   # Instead of putting a stopping criteria, we could return the order in which th   166                                                   # Instead of putting a stopping criteria, we could return the order in which the coeffs were added. (i.e. just return gamma and amplitudes)
+   167                                               # F[:, :k, :k] @ a_F.T[:k, :, None]
+   168         1         50.0     50.0      0.0      return xests
