@@ -19,6 +19,16 @@ from line_profiler import line_profiler
 from contextlib import contextmanager
 from timeit import default_timer
 
+# cholesky decomposition has a complexity of O(n^3) - the same as simply solving an equation.
+#  then solving an equation using a cholesky (or LU, or another triangular form), has complexity O(n^2)
+#  so I think there is only really a benefit if we have many LHS's.
+# one can use memoization - e.g. for N=64 columns there will be about 1/64 probability of a hit on the first few iters
+#  (k is low, << 64). -- We can conclude that in general it probably wont be worth the effort (though in cases of
+#   non-random sensing matrices and non-random data, it may be worth, as many may take the same path.)
+#  on iteration 2, the probability of a hit becomes 1/64^2..., one can then e.g. use matrix-inverse-updates, so they
+#  don't have to match perfectly (bringing the probability back to ~1/64) - but still for any significant N, this is
+#   just not going to give any significant speedups.
+
 @contextmanager
 def elapsed_timer():
     # https://stackoverflow.com/questions/7370801/how-to-measure-elapsed-time-in-python
@@ -45,9 +55,11 @@ if False:
 # We can take a single solver, and multiple problems, and spread it out on processing units.
 # ^ This can be done simply with the multiprocessing Python module.
 
-n_components, n_features = 512*4, 100*4
-n_nonzero_coefs = 17
-n_samples = 2000
+n_components, n_features = 2048, 400
+n_nonzero_coefs = 128
+n_samples = 50
+# For a setting like the one at https://sparse-plex.readthedocs.io/en/latest/book/pursuit/omp/fast_omp.html
+#  it seems the naive algorithm is way fast when n_nonzero_coefs is small.
 
 def solveomp(y):
     solveomp.omp.fit(solveomp.X, y)
@@ -56,6 +68,9 @@ def solveomp(y):
 def init_threads(func, X, omp_args):
     func.omp = OrthogonalMatchingPursuit(**omp_args)
     func.X = X
+
+# TODO: Compare different matrix solving algorithms for small vs large matrices.
+#       If it is large posv should always be faster. But if it is small, maybe gesv is better? (Or maybe posv already takes this into account?!)
 
 # kernprof -l -v test_omp.py and @profile
 # Based on https://github.com/zhuhufei/OMP/blob/master/codeAug2020.m
@@ -68,6 +83,7 @@ def omp_v0(y, X, XTX, XTy, n_nonzero_coefs=None):
     innerp = lambda x: np.einsum('ij,ij->i', x, x)
     normr2 = innerp(y.T)  # Norm squared of residual.
     projections = XTy
+    # Maybe do asfortranarray on XTX?
 
     gamma = np.zeros(shape=(n_nonzero_coefs, N), dtype=np.int64)
     F = np.repeat(np.identity(n_nonzero_coefs, dtype=X.dtype)[np.newaxis], N, 0)
@@ -96,7 +112,7 @@ def omp_v0(y, X, XTX, XTy, n_nonzero_coefs=None):
     # F[:, :k, :k] @ a_F.T[:k, :, None]
     return xests
 
-from numba import jit
+from numba import jit, njit
 @jit(nopython=True)
 def get_max_projections(projections):
     # It seems BLAS ISAMAX/IDMAX should cover this? (Good for CUDA especially)
@@ -106,43 +122,46 @@ def get_max_projections(projections):
         result[i] = np.argmax(np.abs(projections[i]))
     return result
 
+from test import *
 import scipy
+
 def get_max_projections_blas(projections):
     #  BLAS is even faster! :O
-    func = 'i' + scipy.linalg.blas.find_best_blas_type(dtype=projections.dtype)[0] + 'amax'
-    func = getattr(scipy.linalg.blas, func)
-    B = projections.shape[0]
-    result = np.zeros((B,), dtype=np.int64)
-    for i in range(B):  # This has around a 20% Python overhead.
-        result[i] = func(projections[i])  # np.argmax(np.abs(projections[i]))
-    return result
+    # Maybe remove overhead with Cython? https://stackoverflow.com/questions/44710838/calling-blas-lapack-directly-using-the-scipy-interface-and-cython, https://yiyibooks.cn/sorakunnn/scipy-1.0.0/scipy-1.0.0/linalg.cython_blas.html
+    if False:
+        func = 'i' + scipy.linalg.blas.find_best_blas_type(dtype=projections.dtype)[0] + 'amax'
+        func = getattr(scipy.linalg.blas, func)
+        B = projections.shape[0]
+        result = np.zeros((B,), dtype=np.int64)
+        for i in range(B):  # This has around a 20% Python overhead.
+            result[i] = func(projections[i])  # np.argmax(np.abs(projections[i]))
+        return result
+    else:
+        # print(projections.strides)
+        # result2 = np.empty((projections.shape[0],), dtype=np.int64)
+        result3 = np.empty((projections.shape[0],), dtype=np.int64)
+        # print(projections.shape, result2.shape)
+        # argmax_blas(projections, result2)  # seems to be about 10 times faster than the above
+        argmax_blast(projections, result3)
+        return result3
+
 
 def update_projections_blas(projections, D_mybest, coefs):
     func = scipy.linalg.blas.find_best_blas_type(dtype=projections.dtype)[0] + 'axpy'
     func = getattr(scipy.linalg.blas, func)
-    result = np.zeros_like(projections)
     for i in range(projections.shape[0]):
         func(D_mybest[i], projections[i], a=coefs[i])  # np.argmax(np.abs(projections[i]))
-    return result
 
-@jit(nopython=True)
+@njit
 def update_D_mybest(temp_F_k_k, XTX, maxindices, einssum):
+    # We can possibly do this with BLAS (We will need BLAS to do gemv with alpha=-temp_F_k_k as the einsum,
+    #  then followed by this here saxpy, with alpha=temp_F_k_k.)
     for i in range(temp_F_k_k.shape[0]):
-         einssum[i] = XTX[maxindices[i]] - einssum[i]
-    einssum *= temp_F_k_k
+         einssum[i] = temp_F_k_k[i] * (XTX[maxindices[i]] - einssum[i])
 
-def update_D_mybest_new(temp_F_k_k, XTX, maxindices, D_mybest, D_mybest_maxindices):
-    # temp_F_k_k * (XTX[maxindices, :] - (D_mybest @ D_mybest_maxindices[:, :, None]).squeeze(-1))
-    func = scipy.linalg.blas.find_best_blas_type(dtype=temp_F_k_k.dtype)[0] + 'gemv'
-    func = getattr(scipy.linalg.blas, func)
-
-    result = np.zeros_like(temp_F_k_k, shape=(temp_F_k_k.shape[0], XTX.shape[0]))  # Uses around 8% of time.
-    for i in range(temp_F_k_k.shape[0]):  # 2% Python overhead it seems.
-         result[i] = func(alpha=-temp_F_k_k[i], beta=temp_F_k_k[i], a=D_mybest[i], x=D_mybest_maxindices[i], y=XTX[maxindices[i]])
-    return result
-
-@profile
+import time
 def omp_v0_new(y, X, XTX, XTy, n_nonzero_coefs=None):
+    # TODO: Seems to be as fast as we are going to get, without custom kernels. We just need single-block memory alloc. (and send out-argument with pre-allocated mem to functions)
     if n_nonzero_coefs is None:
         n_nonzero_coefs = X.shape[1]
 
@@ -154,88 +173,107 @@ def omp_v0_new(y, X, XTX, XTy, n_nonzero_coefs=None):
     gamma = np.zeros(shape=(n_nonzero_coefs, N), dtype=np.int64)
     F = np.repeat(np.identity(n_nonzero_coefs, dtype=X.dtype)[np.newaxis], N, 0)
     a_F = np.zeros_like(X, shape=(n_nonzero_coefs, N, 1))
-    D_mybest = np.zeros_like(X, shape=(n_nonzero_coefs, N, XTX.shape[0]))
+    D_mybest = np.empty_like(X, shape=(n_nonzero_coefs, N, XTX.shape[0]))  # empty_like is faster to init
     temp_F_k_k = 1
     xests = np.zeros((N, X.shape[1]))
     for k in range(n_nonzero_coefs):
         maxindices = get_max_projections_blas(projections)  # Numba version is about twice as fast as: np.argmax(projections * projections, 1)  # Maybe replace square with abs?
-        # maxindices2 = np.argmax(projections * projections, 1)
         gamma[k] = maxindices
         if k == 0:
             D_mybest[k] = XTX[None, maxindices, :]
         else:
             # Do something about this:
-            D_mybest_maxindices = np.take_along_axis(D_mybest[:k, :, :], maxindices[None, :, None], 2).squeeze(2)
-            temp_F_k_k = np.sqrt(1/(1-innerp(D_mybest_maxindices.T)))[:, None]
-            F[:, :, k] = -temp_F_k_k * (F[:, :, :k] @ D_mybest_maxindices.T[:, :, None]).squeeze(-1)
+            D_mybest_maxindices = np.take_along_axis(D_mybest[:k, :, :].transpose([2, 1, 0]), maxindices[None, :, None], 0).squeeze(0)
+            temp_F_k_k = np.sqrt(1/(1-innerp(D_mybest_maxindices)))[:, None]
+            F[:, :, k] = -temp_F_k_k * (F[:, :, :k] @ D_mybest_maxindices[:, :, None]).squeeze(-1)
             F[:, k, k] = temp_F_k_k[..., 0]
-            D_mybest[k] = np.einsum('ibj,ib->bj', D_mybest[:k], D_mybest_maxindices)
+            # Number of flops below: (2*k - 1) * D_mybest.shape[1] * D_mybest.shape[2]
+            # t1 = time.time()
+            D_mybest[k] = (D_mybest[:k].transpose([1, 2, 0]) @ D_mybest_maxindices[:, :, None]).squeeze(-1)  # <- faster than np.einsum('ibj,ib->bj', D_mybest[:k], D_mybest_maxindices)
+            # t2 = time.time()
+            # print(((2*k - 1) * D_mybest.shape[1] * D_mybest.shape[2] * 1e-9)/(t2-t1), 'GFLOPS')
             update_D_mybest(temp_F_k_k, XTX, maxindices, D_mybest[k])
         a_F[k] = temp_F_k_k * np.take_along_axis(projections, maxindices[:, None], 1)
-        update_projections_blas(projections, D_mybest[k], -a_F[k, :, 0])  # Relativeely slow as all the subsets are different...
+        update_projections_blast(projections, D_mybest[k], -a_F[k, :, 0])  # Around a 3x speedup :D
         # projections2 = projections + (-a_F[k]) * D_mybest[k]  # Relativeely slow as all the subsets are different...
         normr2 = normr2 - (a_F[k] * a_F[k]).squeeze(-1)
     else:
         np.put_along_axis(xests, gamma.T, (F @ a_F.squeeze(-1).T[:, :, None]).squeeze(-1), -1)
         # Instead of putting a stopping criteria, we could return the order in which the coeffs were added. (i.e. just return gamma and amplitudes)
-    # F[:, :k, :k] @ a_F.T[:k, :, None]
     return xests
 
-@profile
-def omp_v0_newer(y, X, XTX, XTy, n_nonzero_coefs=None):
-    if n_nonzero_coefs is None:
-        n_nonzero_coefs = X.shape[1]
+def batch_mm(matrix, matrix_batch):
+    """
+    :param matrix: Sparse or dense matrix, size (m, n).
+    :param matrix_batch: Batched dense matrices, size (b, n, k).
+    :return: The batched matrix-matrix product, size (m, n) x (b, n, k) = (b, m, k).
+    """
+    # From https://github.com/pytorch/pytorch/issues/14489#issuecomment-607730242
+    batch_size = matrix_batch.shape[0]
+    # Stack the vector batch into columns. (b, n, k) -> (n, b, k) -> (n, b*k)
+    vectors = matrix_batch.transpose([1, 0, 2]).reshape(matrix.shape[1], -1)
 
-    N = y.shape[1]
-    innerp = lambda x: np.einsum('ij,ij->i', x, x)
-    normr2 = innerp(y.T)  # Norm squared of residual.
-    projections = XTy
+    # A matrix-matrix product is a batched matrix-vector product of the columns.
+    # And then reverse the reshaping. (m, n) x (n, b*k) = (m, b*k) -> (m, b, k) -> (b, m, k)
+    return (matrix @ vectors).reshape(matrix.shape[0], batch_size, -1).transpose([1, 0, 2])
 
-    gamma = np.zeros(shape=(n_nonzero_coefs, N), dtype=np.int64)
-    F = np.repeat(np.identity(n_nonzero_coefs, dtype=X.dtype)[np.newaxis], N, 0)
-    a_F = np.zeros_like(X, shape=(n_nonzero_coefs, N, 1))
-    D_mybest = np.zeros_like(X, shape=(N, XTX.shape[0], n_nonzero_coefs))
-    temp_F_k_k = 1
-    xests = np.zeros((N, X.shape[1]))
-    for k in range(n_nonzero_coefs):
-        maxindices = get_max_projections_blas(projections)  # Maybe replace square with abs?
-        gamma[k] = maxindices
-        if k == 0:
-            new_D_mybest = XTX[maxindices, :]
-        else:
-            D_mybest_maxindices = np.take_along_axis(D_mybest[:, :, :k], maxindices[:, None, None], 1).squeeze(1)
-            temp_F_k_k = np.sqrt(1/(1-innerp(D_mybest_maxindices)))[:, None]
-            F[:, :, k] = -temp_F_k_k * (F[:, :, :k] @ D_mybest_maxindices[:, :, None]).squeeze(-1)
-            F[:, k, k] = temp_F_k_k[..., 0]
-            new_D_mybest = update_D_mybest_new(temp_F_k_k, XTX, maxindices, D_mybest[:, :, :k], D_mybest_maxindices)
-        D_mybest[:, :, k] = new_D_mybest
-        a_F[k] = temp_F_k_k * np.take_along_axis(projections, maxindices[:, None], 1)  # TODO: Figure out if we should use XTy.T or XTy, which is faster?
-        update_projections_blas(projections, new_D_mybest, -a_F[k, :, 0])
-        normr2 = normr2 - (a_F[k] * a_F[k]).squeeze(-1)
-    else:
-        np.put_along_axis(xests, gamma.T, (F @ a_F.squeeze(-1).T[:, :, None]).squeeze(-1), -1)
-        # Instead of putting a stopping criteria, we could return the order in which the coeffs were added. (i.e. just return gamma and amplitudes)
-    # F[:, :k, :k] @ a_F.T[:k, :, None]
-    return xests
+def faster_projections(Xt, r):
+    # testB = Xt @ r[:, :, None]  Takes three times as long as the below function.
+    return batch_mm(Xt, r[:, :, None])  # TODO: Try and compare with einsum speed
+
+
+def solve_lstsq(current_problems, A, y):
+    # dgels (QR/LQ), dgelsy (QR) or dgelsd (SVD)
+    solutions = np.empty_like(y, shape=[y.shape[0], current_problems.shape[-1]])
+    # Cholesky:
+    # TODO: Use dsyrk to calculate matrix times own transpose. Then solve with posv/gelsy.
+    current_problemst = current_problems.transpose([0, 2, 1])
+    b = (current_problemst @ y[:, :, None]).squeeze(-1)
+    # We may want to use posv, which applies cholesky factorization.
+    func = scipy.linalg.blas.find_best_blas_type(dtype=y.dtype)[0] + 'posv'  # Same naming convention as BLAS
+    func = getattr(scipy.linalg.lapack, func)
+    for i in range(y.shape[0]):
+        solutions[i] = func(A[i], b[i], lower=True)[1]  # scipy.linalg.solve(A[i], b[i], sym_pos=True, assume_a="pos", overwrite_a=True, overwrite_b=True)
+    return solutions
 
 def omp_naive(X, y, n_nonzero_coefs):
     Xt = np.ascontiguousarray(X.T)
     y = np.ascontiguousarray(y.T)
     r = y.copy()  # Maybe no transpose? Remove this line?
     sets = np.zeros((n_nonzero_coefs, r.shape[0]), dtype=np.int32)
-    problems = np.zeros((r.shape[0], X.shape[0], n_nonzero_coefs))
-    solutions = np.zeros((r.shape[0], n_nonzero_coefs))
-    xests = np.zeros((r.shape[0], X.shape[1]))
+    problems = np.zeros((r.shape[0], n_nonzero_coefs, X.shape[0]))
+    As = np.repeat(np.identity(n_nonzero_coefs, dtype=X.dtype)[np.newaxis], r.shape[0], 0)
+    # solutions = np.zeros((r.shape[0], n_nonzero_coefs))
+    xests = np.zeros_like(y, shape=(r.shape[0], X.shape[1]))
     for k in range(n_nonzero_coefs):
-        projections = Xt @ r[:, :, None]  # O(bNM), where X is an MxN matrix, N>M.
-        best_idxs = np.abs(projections).squeeze(-1).argmax(1)  # O(bN), https://scikit-cuda.readthedocs.io/en/latest/generated/skcuda.misc.maxabs.html
+        #t1 = time.time()
+        projections = faster_projections(Xt, r).squeeze(-1)  # X.shape[0] * (2*X.shape[1]-1) * r.shape[0] = O(bNM), where X is an MxN matrix, N>M.
+        #t2 = time.time()
+        #print((X.shape[0] * (2*X.shape[1]-1) * r.shape[0] * 1e-9)/(t2-t1), 'GFLOPS')
+        best_idxs = get_max_projections_blas(projections)  # best_idxs = np.abs(projections).squeeze(-1).argmax(1)  # O(bN), https://scikit-cuda.readthedocs.io/en/latest/generated/skcuda.misc.maxabs.html
         sets[k, :] = best_idxs
-        problems[:, :, k] = Xt[best_idxs, :]
-        current_problems = problems[:, :, :k+1]
-        current_problemst = current_problems.transpose([0, 2, 1])
-        solutions = np.linalg.solve(current_problemst @ current_problems,  # O(bk^2) memory.
-                                    current_problemst @ y[:, :, None]).squeeze(-1)
+        best = Xt[best_idxs, :]  # A mess...
+        problems[:, k, :] = best
+        current_problemst = problems[:, :k+1, :]
+        current_problems = current_problemst.transpose([0, 2, 1])
+        # TODO: We have already computed the result of current_problemst @ y[:, :, None]. (It is in projections I believe)
+        #       And similarly for the hermitian - it can be constructed from XTX.
+        # LAPACK has dgesvx/dgelsy (seems gelsy is newer/better) - gesv is for solving, these other ones work for least squares!
+        #  I think linalg.solve calls gesv, which uses LU factorization. https://stackoverflow.com/questions/55367024/fastest-way-of-solving-linear-least-squares
+        update = (current_problemst[:, :k, :] @ best[..., None]).squeeze(-1)
+        # Our algorithm could be so much faster if the lhs were not (likely) all different.
+        #  like in batch_mm, we could then treat the rhs as a single matrix.
+        As[:, k, :k] = update  # We only have to update the lower triangle for sposv to work!
+        if True:
+            As[:, :k, k] = update
+            solutions = np.linalg.solve(
+                 As[:, :k+1, :k+1],  # As[:, :k+1, :k+1],
+                 current_problemst @ y[:, :, None]).squeeze(-1)  # O(bk^2) memory.
+        else:
+            # ^ This is faster for small matrices (Python overhead most likely, but may also just be complexity)
+            solutions = solve_lstsq(current_problems, As[:, :k+1, :k+1], y)
         r = y - (current_problems @ solutions[:, :, None]).squeeze(-1)
+
         # maybe memoize in case y is large, such that probability of repeats is significant.
         # If we can move all the batched stuff to RHS (using dense representations) it may be faster.
         # maybe memoize in case y is large, such that probability of repeats is significant. <- In case sparsity is low (e.g. < 32), this may be the fastest method, only limited by memory. (binomial(n, n*0.2))   else:
@@ -243,7 +281,9 @@ def omp_naive(X, y, n_nonzero_coefs):
         # https://en.wikipedia.org/wiki/Woodbury_matrix_identity
         # Test if _^2 is faster than abs(_)
     else:
-        np.put_along_axis(xests, sets.T, solutions, -1)
+        # np.put_along_axis(xests.T, sets.T, solutions, 1)
+        np.put_along_axis(xests, sets.T, solutions, 1)
+
     return xests
 
 
@@ -268,25 +308,27 @@ if __name__ == "__main__":
     print("\n")
     get_max_projections((X.T @ y.T[:, :, None]).squeeze(-1))
     # TODO: Warm up update_D_mybest(...) as well, for profiling
-    print('Single core. New implementation of algorithm v0.')
+
+    print('Single core. Naive implementation.')
     with elapsed_timer() as elapsed:
-        xests_v0_new = omp_v0_newer(y, X, X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
+        xests_naive = omp_naive(X.copy(), y.copy(), n_nonzero_coefs)
     print('Samples per second:', n_samples/elapsed())
     print("\n")
+
 
     print('Single core. Implementation of algorithm v0.')
     with elapsed_timer() as elapsed:
-        xests_v0 = omp_v0_new(y, X, X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
+        xests_v0 = omp_v0(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
     print('Samples per second:', n_samples/elapsed())
     print("\n")
 
-    print(np.max(np.abs(xests_v0_new - xests_v0)))
-    exit(0)
-    print('Single core. Naive Implementation, based on our Homework.')
+    print('Single core. New implementation of algorithm v0.')
     with elapsed_timer() as elapsed:
-        xests_naive = omp_naive(X, y, n_nonzero_coefs)
+        xests_v0_new = omp_v0_new(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
     print('Samples per second:', n_samples/elapsed())
     print("\n")
+
+    # print(np.max(np.abs(xests_v0_new - xests_v0)))
 
     # precompute=True seems slower for single core. Dunno why.
     omp_args = dict(n_nonzero_coefs=n_nonzero_coefs, precompute=False, fit_intercept=False)
@@ -298,6 +340,7 @@ if __name__ == "__main__":
         omp.fit(X, y)
     print('Samples per second:', n_samples/elapsed())
     print("\n")
+    print(np.max(np.abs(xests_v0_new - omp.coef_)))
 
     err_naive = np.linalg.norm(y.T - (X @ xests_naive[:, :, None]).squeeze(-1), 2, 1)
     err_v0 = np.linalg.norm(y.T - (X @ xests_v0[:, :, None]).squeeze(-1), 2, 1)
