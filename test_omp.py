@@ -29,6 +29,22 @@ from timeit import default_timer
 #  don't have to match perfectly (bringing the probability back to ~1/64) - but still for any significant N, this is
 #   just not going to give any significant speedups.
 
+
+# We have MP, where we just use projection and select best result: https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.64.5790&rep=rep1&type=pdf
+# In OMP we do the same, but then pseudoinverse/least squares to get our representation.
+# After we are done: Simultaneous orthogonal matching pursuit. [ https://arxiv.org/pdf/1506.05324.pdf ] We can actually implement this already now, all the times we insert [..., None] should just be replaced by the input already having a singleton dimension - then e.g. after projection we do a sum of absolutes of these values [*asum] before doing idamax! Everything else will work as-is in this case :D, oh, except the projections, where in this case we must do the matmul trick on every simultaneussy subset.
+
+# FIXME: In case the dictonary is orthonormal, (O)MP is a kind of greedy PCA - but usually we have a very redundant dictonary, so the columns are not orthonormal (the rows are!) - our algorithms use that the columns are normalized, so rows are not necessarily orthonormal anymore?? (This seems like an issue! but maybe it is not since this normalization may cancel in pinv??? No...)
+#        It seems since we normalize columns, we should have to take this into account somewhere? Why do we normalize columns again?...
+#        Looking at the efficient implementation paper it seems this must be done - but this is exactly what column normalization does - but then we dont also want column normalization at the pseudo-inverse!?
+# That the naive algorithm uses O(MN) memory seems to be an error - it seems this way because MATLAB hides the fact that to do pseudoinverse you need k^2 memory! (Of course peers reviewers missed this as well, and the mistake persists, even caries over to subsequent papers, now when they can cite a source...) even some programming wierdness such as maxmag/alpha non-use and index(1) persists to v0. So odd.
+# From slides: OMP is better for a decaying signal - which is often the case for natural signals/(academia?) - and binary sparse signals something something industry?
+
+# TODO: Use get_lapack_funcs to select appropriate and fastest functionsn (and possibly take into account work-memory) https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.lapack.get_lapack_funcs.html#scipy.linalg.lapack.get_lapack_funcs
+
+# cublas cython: https://github.com/cupy/cupy/blob/4469fae998df33c72ff40ef954cb08b8f0004b18/cupy_backends/cuda/libs/cublas.pyx
+# or cupy (custom kernels) + pytorch: https://tim37021.medium.com/pycuda-cupy-pytorch-interlop-56a9875e2aa7
+
 @contextmanager
 def elapsed_timer():
     # https://stackoverflow.com/questions/7370801/how-to-measure-elapsed-time-in-python
@@ -57,7 +73,7 @@ if False:
 
 n_components, n_features = 2048, 400
 n_nonzero_coefs = 128
-n_samples = 50
+n_samples = 500
 # For a setting like the one at https://sparse-plex.readthedocs.io/en/latest/book/pursuit/omp/fast_omp.html
 #  it seems the naive algorithm is way fast when n_nonzero_coefs is small.
 
@@ -100,6 +116,8 @@ def omp_v0(y, X, XTX, XTy, n_nonzero_coefs=None):
             D_mybest_maxindices = np.take_along_axis(D_mybest[:, :, :k], maxindices[:, None, None], 1).squeeze(1)
             temp_F_k_k = np.sqrt(1/(1-innerp(D_mybest_maxindices)))[:, None]
             F[:, :, k] = -temp_F_k_k * (F[:, :, :k] @ D_mybest_maxindices[:, :, None]).squeeze(-1)
+            # ^ Seems this is the inverse Cholesky factor, triangular, as the Cholesky decomp is.
+            # ^ In BLAS this can then be calculated with *symv I believe (With a large speedup for SOMP using *trmm)
             F[:, k, k] = temp_F_k_k[..., 0]
             new_D_mybest = temp_F_k_k * (XTX[maxindices, :] - (D_mybest[:, :, :k] @ D_mybest_maxindices[:, :, None]).squeeze(-1))
         D_mybest[:, :, k] = new_D_mybest
@@ -160,22 +178,24 @@ def update_D_mybest(temp_F_k_k, XTX, maxindices, einssum):
          einssum[i] = temp_F_k_k[i] * (XTX[maxindices[i]] - einssum[i])
 
 import time
+
+@profile
 def omp_v0_new(y, X, XTX, XTy, n_nonzero_coefs=None):
     # TODO: Seems to be as fast as we are going to get, without custom kernels. We just need single-block memory alloc. (and send out-argument with pre-allocated mem to functions)
     if n_nonzero_coefs is None:
         n_nonzero_coefs = X.shape[1]
 
-    N = y.shape[1]
+    B = y.shape[1]
     innerp = lambda x: np.einsum('ij,ij->i', x, x)
     normr2 = innerp(y.T)  # Norm squared of residual.
     projections = XTy
 
-    gamma = np.zeros(shape=(n_nonzero_coefs, N), dtype=np.int64)
-    F = np.repeat(np.identity(n_nonzero_coefs, dtype=X.dtype)[np.newaxis], N, 0)
-    a_F = np.zeros_like(X, shape=(n_nonzero_coefs, N, 1))
-    D_mybest = np.empty_like(X, shape=(n_nonzero_coefs, N, XTX.shape[0]))  # empty_like is faster to init
+    gamma = np.zeros(shape=(n_nonzero_coefs, B), dtype=np.int64)
+    F = np.repeat(np.identity(n_nonzero_coefs, dtype=X.dtype)[np.newaxis], B, 0)
+    a_F = np.zeros_like(X, shape=(n_nonzero_coefs, B, 1))
+    D_mybest = np.empty_like(X, shape=(n_nonzero_coefs, B, XTX.shape[0]))  # empty_like is faster to init
     temp_F_k_k = 1
-    xests = np.zeros((N, X.shape[1]))
+    xests = np.zeros((B, X.shape[1]))
     for k in range(n_nonzero_coefs):
         maxindices = get_max_projections_blas(projections)  # Numba version is about twice as fast as: np.argmax(projections * projections, 1)  # Maybe replace square with abs?
         gamma[k] = maxindices
@@ -219,7 +239,7 @@ def batch_mm(matrix, matrix_batch):
 
 def faster_projections(Xt, r):
     # testB = Xt @ r[:, :, None]  Takes three times as long as the below function.
-    return batch_mm(Xt, r[:, :, None])  # TODO: Try and compare with einsum speed
+    return batch_mm(Xt, r[:, :, None])
 
 
 def solve_lstsq(current_problems, A, y):
@@ -236,6 +256,7 @@ def solve_lstsq(current_problems, A, y):
         solutions[i] = func(A[i], b[i], lower=True)[1]  # scipy.linalg.solve(A[i], b[i], sym_pos=True, assume_a="pos", overwrite_a=True, overwrite_b=True)
     return solutions
 
+@profile
 def omp_naive(X, y, n_nonzero_coefs):
     Xt = np.ascontiguousarray(X.T)
     y = np.ascontiguousarray(y.T)

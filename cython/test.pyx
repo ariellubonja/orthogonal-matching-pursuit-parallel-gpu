@@ -31,9 +31,6 @@ ctypedef fused proj_t:
     float
 
 
-
-
-
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cpdef void argmax_blast(proj_t[:, :] projections,
