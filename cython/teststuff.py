@@ -1,9 +1,9 @@
 import numpy as np
-from test import argmax_blast
+from test_stuff import argmax_blast
 
-output = np.zeros((20000,), dtype=np.int64)
-output2 = np.zeros((20000,), dtype=np.int64)
-proj = np.random.randn(20000, 5).astype(np.float32)
+output = np.zeros((9000000,), dtype=np.int64)
+output2 = np.zeros((9000000,), dtype=np.int64)
+proj = np.random.randn(9000000, 20).astype(np.float32)
 
 # argmax_blas(np.ascontiguousarray(proj.T).T, output)
 argmax_blast(proj, output)
