@@ -19,6 +19,8 @@ from line_profiler import line_profiler
 from contextlib import contextmanager
 from timeit import default_timer
 
+from test_stuff import *
+
 # cholesky decomposition has a complexity of O(n^3) - the same as simply solving an equation.
 #  then solving an equation using a cholesky (or LU, or another triangular form), has complexity O(n^2)
 #  so I think there is only really a benefit if we have many LHS's.
@@ -179,7 +181,7 @@ def update_D_mybest(temp_F_k_k, XTX, maxindices, einssum):
 
 import time
 
-@profile
+# @profile
 def omp_v0_new(y, X, XTX, XTy, n_nonzero_coefs=None):
     # TODO: Seems to be as fast as we are going to get, without custom kernels. We just need single-block memory alloc. (and send out-argument with pre-allocated mem to functions)
     if n_nonzero_coefs is None:
@@ -191,13 +193,16 @@ def omp_v0_new(y, X, XTX, XTy, n_nonzero_coefs=None):
     projections = XTy
 
     gamma = np.zeros(shape=(n_nonzero_coefs, B), dtype=np.int64)
-    F = np.repeat(np.identity(n_nonzero_coefs, dtype=X.dtype)[np.newaxis], B, 0)
+    # Cannot read torch.float64 as valid type. For quick fix, commented out and manually replaced with np.float64
+    # F = np.repeat(np.identity(n_nonzero_coefs, dtype=X.dtype)[np.newaxis], B, 0)
+    F = np.repeat(np.identity(n_nonzero_coefs, dtype=np.float64)[np.newaxis], B, 0)
     a_F = np.zeros_like(X, shape=(n_nonzero_coefs, B, 1))
     D_mybest = np.empty_like(X, shape=(n_nonzero_coefs, B, XTX.shape[0]))  # empty_like is faster to init
     temp_F_k_k = 1
     xests = np.zeros((B, X.shape[1]))
     for k in range(n_nonzero_coefs):
-        maxindices = get_max_projections_blas(projections)  # Numba version is about twice as fast as: np.argmax(projections * projections, 1)  # Maybe replace square with abs?
+        # Not using Tensors here
+        maxindices = get_max_projections_blas(projections.numpy())  # Numba version is about twice as fast as: np.argmax(projections * projections, 1)  # Maybe replace square with abs?
         gamma[k] = maxindices
         if k == 0:
             D_mybest[k] = XTX[None, maxindices, :]
@@ -212,9 +217,9 @@ def omp_v0_new(y, X, XTX, XTy, n_nonzero_coefs=None):
             D_mybest[k] = (D_mybest[:k].transpose([1, 2, 0]) @ D_mybest_maxindices[:, :, None]).squeeze(-1)  # <- faster than np.einsum('ibj,ib->bj', D_mybest[:k], D_mybest_maxindices)
             # t2 = time.time()
             # print(((2*k - 1) * D_mybest.shape[1] * D_mybest.shape[2] * 1e-9)/(t2-t1), 'GFLOPS')
-            update_D_mybest(temp_F_k_k, XTX, maxindices, D_mybest[k])
-        a_F[k] = temp_F_k_k * np.take_along_axis(projections, maxindices[:, None], 1)
-        update_projections_blast(projections, D_mybest[k], -a_F[k, :, 0])  # Around a 3x speedup :D
+            update_D_mybest(temp_F_k_k, XTX.numpy(), maxindices, D_mybest[k])
+        a_F[k] = temp_F_k_k * np.take_along_axis(projections.numpy(), maxindices[:, None], 1)
+        update_projections_blast(projections.numpy(), D_mybest[k], -a_F[k, :, 0])  # Around a 3x speedup :D
         # projections2 = projections + (-a_F[k]) * D_mybest[k]  # Relativeely slow as all the subsets are different...
         normr2 = normr2 - (a_F[k] * a_F[k]).squeeze(-1)
     else:
@@ -256,7 +261,7 @@ def solve_lstsq(current_problems, A, y):
         solutions[i] = func(A[i], b[i], lower=True)[1]  # scipy.linalg.solve(A[i], b[i], sym_pos=True, assume_a="pos", overwrite_a=True, overwrite_b=True)
     return solutions
 
-@profile
+# @profile
 def omp_naive(X, y, n_nonzero_coefs):
     Xt = np.ascontiguousarray(X.T)
     y = np.ascontiguousarray(y.T)
@@ -330,22 +335,24 @@ if __name__ == "__main__":
     get_max_projections((X.T @ y.T[:, :, None]).squeeze(-1))
     # TODO: Warm up update_D_mybest(...) as well, for profiling
 
-    print('Single core. Naive implementation.')
-    with elapsed_timer() as elapsed:
-        xests_naive = omp_naive(X.copy(), y.copy(), n_nonzero_coefs)
-    print('Samples per second:', n_samples/elapsed())
-    print("\n")
-
-
-    print('Single core. Implementation of algorithm v0.')
-    with elapsed_timer() as elapsed:
-        xests_v0 = omp_v0(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
-    print('Samples per second:', n_samples/elapsed())
-    print("\n")
+    # print('Single core. Naive implementation.')
+    # with elapsed_timer() as elapsed:
+    #     xests_naive = omp_naive(X.copy(), y.copy(), n_nonzero_coefs)
+    # print('Samples per second:', n_samples/elapsed())
+    # print("\n")
+    #
+    #
+    # print('Single core. Implementation of algorithm v0.')
+    # with elapsed_timer() as elapsed:
+    #     xests_v0 = omp_v0(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
+    # print('Samples per second:', n_samples/elapsed())
+    # print("\n")
 
     print('Single core. New implementation of algorithm v0.')
     with elapsed_timer() as elapsed:
-        xests_v0_new = omp_v0_new(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
+        tens_y = torch.tensor(y.copy())
+        tens_X = torch.tensor(X.copy())
+        xests_v0_new = omp_v0_new(tens_y, tens_X, tens_X.T @ tens_X, (tens_X.T @ tens_y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
     print('Samples per second:', n_samples/elapsed())
     print("\n")
 
@@ -363,14 +370,14 @@ if __name__ == "__main__":
     print("\n")
     print(np.max(np.abs(xests_v0_new - omp.coef_)))
 
-    err_naive = np.linalg.norm(y.T - (X @ xests_naive[:, :, None]).squeeze(-1), 2, 1)
-    err_v0 = np.linalg.norm(y.T - (X @ xests_v0[:, :, None]).squeeze(-1), 2, 1)
+    # err_naive = np.linalg.norm(y.T - (X @ xests_naive[:, :, None]).squeeze(-1), 2, 1)
+    # err_v0 = np.linalg.norm(y.T - (X @ xests_v0[:, :, None]).squeeze(-1), 2, 1)
     err_v0_new = np.linalg.norm(y.T - (X @ xests_v0_new[:, :, None]).squeeze(-1), 2, 1)
     err_sklearn = np.linalg.norm(y.T - (X @ omp.coef_[:, :, None]).squeeze(-1), 2, 1)
     avg_ylen = np.linalg.norm(y, 2, 0)
     # print(np.median(naive_err) / avg_ylen, np.median(scipy_err) / avg_ylen)
-    plt.plot(np.sort(err_naive / avg_ylen), label='Naive')
-    plt.plot(np.sort(err_v0 / avg_ylen), '.', label='v0')
+    # plt.plot(np.sort(err_naive / avg_ylen), label='Naive')
+    # plt.plot(np.sort(err_v0 / avg_ylen), '.', label='v0')
     plt.plot(np.sort(err_v0_new / avg_ylen), '.', label='v0_new')
     plt.plot(np.sort(err_sklearn / avg_ylen), '--', label='SKLearn')
     plt.legend()
