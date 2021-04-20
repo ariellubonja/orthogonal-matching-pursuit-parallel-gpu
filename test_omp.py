@@ -1,25 +1,18 @@
-import matplotlib.pyplot as plt
-import numpy as np
-from sklearn.linear_model import OrthogonalMatchingPursuit
-from sklearn.linear_model import OrthogonalMatchingPursuitCV
-from sklearn.datasets import make_sparse_coded_signal
-from scipy.io import loadmat
-import random
-from multiprocessing.dummy import Pool as ThreadPool
 import multiprocessing
-from tqdm import tqdm
 import os
-import torch
-import torch.utils
-import torch.utils.data
-from torch.utils.data import *
-from torch.utils.data.sampler import *
-from line_profiler import line_profiler
-
 from contextlib import contextmanager
 from timeit import default_timer
 
+import matplotlib.pyplot as plt
+import numpy as np
+import torch.utils
+import torch.utils.data
+from sklearn.datasets import make_sparse_coded_signal
+from sklearn.linear_model import OrthogonalMatchingPursuit
+from torch.utils.data.sampler import *
+
 from test_stuff import *
+
 
 # cholesky decomposition has a complexity of O(n^3) - the same as simply solving an equation.
 #  then solving an equation using a cholesky (or LU, or another triangular form), has complexity O(n^2)
@@ -142,7 +135,7 @@ def get_max_projections(projections):
         result[i] = np.argmax(np.abs(projections[i]))
     return result
 
-from test import *
+
 import scipy
 
 def get_max_projections_blas(projections):
@@ -179,7 +172,6 @@ def update_D_mybest(temp_F_k_k, XTX, maxindices, einssum):
     for i in range(temp_F_k_k.shape[0]):
          einssum[i] = temp_F_k_k[i] * (XTX[maxindices[i]] - einssum[i])
 
-import time
 
 # @profile
 def omp_v0_new(y, X, XTX, XTy, n_nonzero_coefs=None):
@@ -243,8 +235,9 @@ def batch_mm(matrix, matrix_batch):
     return (matrix @ vectors).reshape(matrix.shape[0], batch_size, -1).transpose([1, 0, 2])
 
 def faster_projections(Xt, r):
-    # testB = Xt @ r[:, :, None]  Takes three times as long as the below function.
-    return batch_mm(Xt, r[:, :, None])
+    # TODO Takes three times as long as the below function.
+    return Xt @ r[:, :, None]
+    # return batch_mm(Xt, r[:, :, None])
 
 
 def solve_lstsq(current_problems, A, y):
@@ -290,14 +283,15 @@ def omp_naive(X, y, n_nonzero_coefs):
         # Our algorithm could be so much faster if the lhs were not (likely) all different.
         #  like in batch_mm, we could then treat the rhs as a single matrix.
         As[:, k, :k] = update  # We only have to update the lower triangle for sposv to work!
-        if True:
-            As[:, :k, k] = update
-            solutions = np.linalg.solve(
-                 As[:, :k+1, :k+1],  # As[:, :k+1, :k+1],
-                 current_problemst @ y[:, :, None]).squeeze(-1)  # O(bk^2) memory.
-        else:
-            # ^ This is faster for small matrices (Python overhead most likely, but may also just be complexity)
-            solutions = solve_lstsq(current_problems, As[:, :k+1, :k+1], y)
+        # if True:
+        As[:, :k, k] = update
+        solutions = np.linalg.solve(
+             As[:, :k+1, :k+1],  # As[:, :k+1, :k+1],
+             current_problemst @ y[:, :, None])
+        solutions = solutions.squeeze(-1)  # O(bk^2) memory.
+        # else:
+        #     # ^ This is faster for small matrices (Python overhead most likely, but may also just be complexity)
+        #     solutions = solve_lstsq(current_problems, As[:, :k+1, :k+1], y)
         r = y - (current_problems @ solutions[:, :, None]).squeeze(-1)
 
         # maybe memoize in case y is large, such that probability of repeats is significant.
@@ -311,6 +305,95 @@ def omp_naive(X, y, n_nonzero_coefs):
         np.put_along_axis(xests, sets.T, solutions, 1)
 
     return xests
+
+
+def omp_naive_gpu(X, y, n_nonzero_coefs):
+    print("omp_naive running on ", X.device)
+    Xt = torch.tensor(X.T)
+    y = torch.tensor(y.T)
+    r = torch.clone(y)  # Maybe no transpose? Remove this line?
+    sets = torch.zeros((n_nonzero_coefs, r.shape[0]), dtype=torch.int32).to(gpu)
+    problems = torch.zeros((r.shape[0], n_nonzero_coefs, X.shape[0]), dtype=torch.float64).to(gpu)
+    As = torch.tensor(np.repeat(np.identity(n_nonzero_coefs, dtype=np.float64)[np.newaxis], r.shape[0], 0)).to(gpu)
+    # solutions = np.zeros((r.shape[0], n_nonzero_coefs))
+    xests = torch.zeros((r.shape[0], X.shape[1])).to(gpu)
+    for k in range(n_nonzero_coefs):
+        #t1 = time.time()
+        projections = faster_projections(Xt, r).squeeze(-1)  # X.shape[0] * (2*X.shape[1]-1) * r.shape[0] = O(bNM), where X is an MxN matrix, N>M.
+        #t2 = time.time()
+        #print((X.shape[0] * (2*X.shape[1]-1) * r.shape[0] * 1e-9)/(t2-t1), 'GFLOPS')
+        # TODO switching between devices. fix this horrible thing
+        best_idxs = torch.tensor(get_max_projections_blas(torch.clone(projections).to("cpu").numpy()))  # best_idxs = np.abs(projections).squeeze(-1).argmax(1)  # O(bN), https://scikit-cuda.readthedocs.io/en/latest/generated/skcuda.misc.maxabs.html
+        sets[k, :] = best_idxs
+        best = Xt[best_idxs, :]  # A mess...
+        problems[:, k, :] = best
+        current_problemst = problems[:, :k+1, :]
+        # current_problemst.transpose(2,1) I think this is the equivalent Pytorch
+        # current_problems = current_problemst.transpose([0, 2, 1])
+        current_problems = current_problemst.transpose(2,1)
+        # TODO: We have already computed the result of current_problemst @ y[:, :, None]. (It is in projections I believe)
+        #       And similarly for the hermitian - it can be constructed from XTX.
+        # LAPACK has dgesvx/dgelsy (seems gelsy is newer/better) - gesv is for solving, these other ones work for least squares!
+        #  I think linalg.solve calls gesv, which uses LU factorization. https://stackoverflow.com/questions/55367024/fastest-way-of-solving-linear-least-squares
+        update = (current_problemst[:, :k, :] @ best[..., None]).squeeze(-1)
+        # Our algorithm could be so much faster if the lhs were not (likely) all different.
+        #  like in batch_mm, we could then treat the rhs as a single matrix.
+        As[:, k, :k] = update  # We only have to update the lower triangle for sposv to work!
+        # if True:
+        As[:, :k, k] = update
+        solutions = torch.solve(
+            As[:, :k+1, :k+1],  # As[:, :k+1, :k+1],
+            # current_problemst is in float32. Doesn't like that
+            # TODO There is an error here when k=1
+            current_problemst @ y[:, :, None])
+        solutions = torch.squeeze(solutions.solution,2)  # O(bk^2) memory.
+        # else:
+        #     # ^ This is faster for small matrices (Python overhead most likely, but may also just be complexity)
+        #     solutions = solve_lstsq(current_problems, As[:, :k+1, :k+1], y)
+        r = y - torch.squeeze(current_problems @ solutions[:, :, None])
+
+        # maybe memoize in case y is large, such that probability of repeats is significant.
+        # If we can move all the batched stuff to RHS (using dense representations) it may be faster.
+        # maybe memoize in case y is large, such that probability of repeats is significant. <- In case sparsity is low (e.g. < 32), this may be the fastest method, only limited by memory. (binomial(n, n*0.2))   else:
+        # https://en.wikipedia.org/wiki/Singular_value_decomposition#Relation_to_eigenvalue_decomposition
+        # https://en.wikipedia.org/wiki/Woodbury_matrix_identity
+        # Test if _^2 is faster than abs(_)
+    else:
+        # np.put_along_axis(xests.T, sets.T, solutions, 1)
+        np.put_along_axis(xests, sets.T, solutions, 1)
+
+    return xests
+
+
+# % Original Naive OMP - most basic
+def OMP_most_basic(y, Phi, K):
+    # % Othogonal matching pursuit of Tropp et Gilbert
+    # % y : data
+    # % Phi : sensing matrix
+    # % K : sparsity
+    # % SYM March 13 2013
+    N = Phi.shape[1];
+    x = torch.zeros(N);
+    S = []; #% positions indexes of components of s
+    res = y; #% first residual
+    PhiS = torch.tensor([]); #% Matrix of the columns used to represent y
+    for t in range(K):
+        j=torch.argmax(abs(Phi.T @ res));
+        S.append(j)
+        if PhiS.shape[0] == 0:
+            PhiS = torch.unsqueeze(Phi[:,j],1)
+        else:
+            # torch.cat((torch.unsqueeze(PhiS, 0), torch.unsqueeze(Phi[:,j],-1) ))
+            PhiS = torch.cat((PhiS, torch.unsqueeze(Phi[:,j],1)),1)
+        if t > 0:
+            x_est = torch.pinverse(PhiS)@y;
+        else:
+            x_est = PhiS.T @ y
+        res = y- torch.squeeze(PhiS@x_est);
+        # This is somehow done in matlab.. how ??
+        x[S] = x_est;
+
+    return x.T;
 
 
 if __name__ == "__main__":
@@ -332,14 +415,24 @@ if __name__ == "__main__":
     print("Number of Features: " + str(n_features))
     print("Number of Nonzero Coefficients: " + str(n_nonzero_coefs))
     print("\n")
-    get_max_projections((X.T @ y.T[:, :, None]).squeeze(-1))
+    # get_max_projections((X.T @ y.T[:, :, None]).squeeze(-1))
     # TODO: Warm up update_D_mybest(...) as well, for profiling
 
-    # print('Single core. Naive implementation.')
-    # with elapsed_timer() as elapsed:
-    #     xests_naive = omp_naive(X.copy(), y.copy(), n_nonzero_coefs)
-    # print('Samples per second:', n_samples/elapsed())
-    # print("\n")
+    # Test most basic OMP alg
+    answer_basic = OMP_most_basic(torch.tensor(y[:,0]), torch.tensor(X), 30)
+
+    print('Single core. Naive implementation.')
+    with elapsed_timer() as elapsed:
+        xests_naive = omp_naive(X.copy(), y.copy(), n_nonzero_coefs)
+    print('Samples per second:', n_samples/elapsed())
+    print("\n")
+    gpu = "cuda:0"
+    print('GPU. Naive implementation.')
+    with elapsed_timer() as elapsed:
+        xests_naive = omp_naive_gpu(torch.tensor(X.copy()).to(gpu), torch.tensor(y.copy()).to(gpu), n_nonzero_coefs)
+    print('Samples per second:', n_samples/elapsed())
+    print("\n")
+
     #
     #
     # print('Single core. Implementation of algorithm v0.')
