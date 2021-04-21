@@ -312,11 +312,11 @@ def omp_naive_gpu(X, y, n_nonzero_coefs):
     Xt = torch.tensor(X.T)
     y = torch.tensor(y.T)
     r = torch.clone(y)  # Maybe no transpose? Remove this line?
-    sets = torch.zeros((n_nonzero_coefs, r.shape[0]), dtype=torch.int32).to(gpu)
+    sets = torch.zeros((n_nonzero_coefs, r.shape[0]), dtype=torch.int64).to(gpu)
     problems = torch.zeros((r.shape[0], n_nonzero_coefs, X.shape[0]), dtype=torch.float64).to(gpu)
     As = torch.tensor(np.repeat(np.identity(n_nonzero_coefs, dtype=np.float64)[np.newaxis], r.shape[0], 0)).to(gpu)
     # solutions = np.zeros((r.shape[0], n_nonzero_coefs))
-    xests = torch.zeros((r.shape[0], X.shape[1])).to(gpu)
+    xests = torch.zeros((r.shape[0], X.shape[1]), dtype=torch.float64).to(gpu)
     for k in range(n_nonzero_coefs):
         #t1 = time.time()
         projections = faster_projections(Xt, r).squeeze(-1)  # X.shape[0] * (2*X.shape[1]-1) * r.shape[0] = O(bNM), where X is an MxN matrix, N>M.
@@ -342,10 +342,11 @@ def omp_naive_gpu(X, y, n_nonzero_coefs):
         # if True:
         As[:, :k, k] = update
         solutions = torch.solve(
-            As[:, :k+1, :k+1],  # As[:, :k+1, :k+1],
+              # As[:, :k+1, :k+1],
             # current_problemst is in float32. Doesn't like that
             # TODO There is an error here when k=1
-            current_problemst @ y[:, :, None])
+            current_problemst @ y[:, :, None],
+            As[:, :k+1, :k+1])
         solutions = torch.squeeze(solutions.solution,2)  # O(bk^2) memory.
         # else:
         #     # ^ This is faster for small matrices (Python overhead most likely, but may also just be complexity)
@@ -360,7 +361,8 @@ def omp_naive_gpu(X, y, n_nonzero_coefs):
         # Test if _^2 is faster than abs(_)
     else:
         # np.put_along_axis(xests.T, sets.T, solutions, 1)
-        np.put_along_axis(xests, sets.T, solutions, 1)
+        # np.put_along_axis(xests, sets.T, solutions, 1)
+        xests.scatter_(1, sets.T, solutions)
 
     return xests
 
@@ -419,19 +421,21 @@ if __name__ == "__main__":
     # TODO: Warm up update_D_mybest(...) as well, for profiling
 
     # Test most basic OMP alg
-    answer_basic = OMP_most_basic(torch.tensor(y[:,0]), torch.tensor(X), 30)
+    # answer_basic = OMP_most_basic(torch.tensor(y[:,0]), torch.tensor(X), 30)
 
-    print('Single core. Naive implementation.')
-    with elapsed_timer() as elapsed:
-        xests_naive = omp_naive(X.copy(), y.copy(), n_nonzero_coefs)
-    print('Samples per second:', n_samples/elapsed())
-    print("\n")
+    # print('Single core. Naive implementation.')
+    # with elapsed_timer() as elapsed:
+    #     xests_naive = omp_naive(X.copy(), y.copy(), n_nonzero_coefs)
+    # print('Samples per second:', n_samples/elapsed())
+    # print("\n")
     gpu = "cuda:0"
     print('GPU. Naive implementation.')
     with elapsed_timer() as elapsed:
-        xests_naive = omp_naive_gpu(torch.tensor(X.copy()).to(gpu), torch.tensor(y.copy()).to(gpu), n_nonzero_coefs)
+        xests_naive_gpu = omp_naive_gpu(torch.tensor(X.copy()).to(gpu), torch.tensor(y.copy()).to(gpu), n_nonzero_coefs)
     print('Samples per second:', n_samples/elapsed())
     print("\n")
+
+    xests_naive_gpu = xests_naive_gpu.cpu()
 
     #
     #
@@ -455,24 +459,26 @@ if __name__ == "__main__":
     omp_args = dict(n_nonzero_coefs=n_nonzero_coefs, precompute=False, fit_intercept=False)
 
     # Single core
-    print('Single core. Sklearn')
-    omp = OrthogonalMatchingPursuit(**omp_args)
-    with elapsed_timer() as elapsed:
-        omp.fit(X, y)
-    print('Samples per second:', n_samples/elapsed())
-    print("\n")
-    print(np.max(np.abs(xests_v0_new - omp.coef_)))
+    # print('Single core. Sklearn')
+    # omp = OrthogonalMatchingPursuit(**omp_args)
+    # with elapsed_timer() as elapsed:
+    #     omp.fit(X, y)
+    # print('Samples per second:', n_samples/elapsed())
+    # print("\n")
+    # print(np.max(np.abs(xests_v0_new - omp.coef_)))
 
     # err_naive = np.linalg.norm(y.T - (X @ xests_naive[:, :, None]).squeeze(-1), 2, 1)
     # err_v0 = np.linalg.norm(y.T - (X @ xests_v0[:, :, None]).squeeze(-1), 2, 1)
     err_v0_new = np.linalg.norm(y.T - (X @ xests_v0_new[:, :, None]).squeeze(-1), 2, 1)
-    err_sklearn = np.linalg.norm(y.T - (X @ omp.coef_[:, :, None]).squeeze(-1), 2, 1)
+    # err_sklearn = np.linalg.norm(y.T - (X @ omp.coef_[:, :, None]).squeeze(-1), 2, 1)
+    err_naive_gpu = np.linalg.norm(y.T - (X @ xests_naive_gpu.numpy()[:, :, None]).squeeze(-1), 2, 1)
     avg_ylen = np.linalg.norm(y, 2, 0)
     # print(np.median(naive_err) / avg_ylen, np.median(scipy_err) / avg_ylen)
     # plt.plot(np.sort(err_naive / avg_ylen), label='Naive')
     # plt.plot(np.sort(err_v0 / avg_ylen), '.', label='v0')
     plt.plot(np.sort(err_v0_new / avg_ylen), '.', label='v0_new')
-    plt.plot(np.sort(err_sklearn / avg_ylen), '--', label='SKLearn')
+    plt.plot(np.sort(err_naive_gpu / avg_ylen), '--', label='gpu')
+    # plt.plot(np.sort(err_sklearn / avg_ylen), '--', label='SKLearn')
     plt.legend()
     plt.title("Distribution of relative errors.")
     plt.show()
