@@ -66,9 +66,9 @@ if False:
 # We can take a single solver, and multiple problems, and spread it out on processing units.
 # ^ This can be done simply with the multiprocessing Python module.
 
-n_components, n_features = 2048, 400
-n_nonzero_coefs = 128
-n_samples = 500
+n_components, n_features = 512, 128
+n_nonzero_coefs = 32
+n_samples = 5120
 # For a setting like the one at https://sparse-plex.readthedocs.io/en/latest/book/pursuit/omp/fast_omp.html
 #  it seems the naive algorithm is way fast when n_nonzero_coefs is small.
 
@@ -309,8 +309,8 @@ def omp_naive(X, y, n_nonzero_coefs):
 
 def omp_naive_gpu(X, y, n_nonzero_coefs):
     print("omp_naive running on ", X.device)
-    Xt = torch.tensor(X.T)
-    y = torch.tensor(y.T)
+    Xt = X.T.contiguous()
+    y = y.T.contiguous()
     r = torch.clone(y)  # Maybe no transpose? Remove this line?
     sets = torch.zeros((n_nonzero_coefs, r.shape[0]), dtype=torch.int64).to(gpu)
     problems = torch.zeros((r.shape[0], n_nonzero_coefs, X.shape[0]), dtype=torch.float64).to(gpu)
@@ -323,7 +323,8 @@ def omp_naive_gpu(X, y, n_nonzero_coefs):
         #t2 = time.time()
         #print((X.shape[0] * (2*X.shape[1]-1) * r.shape[0] * 1e-9)/(t2-t1), 'GFLOPS')
         # TODO switching between devices. fix this horrible thing
-        best_idxs = torch.tensor(get_max_projections_blas(torch.clone(projections).to("cpu").numpy()))  # best_idxs = np.abs(projections).squeeze(-1).argmax(1)  # O(bN), https://scikit-cuda.readthedocs.io/en/latest/generated/skcuda.misc.maxabs.html
+        # best_idxs = torch.tensor(get_max_projections_blas(torch.clone(projections).to("cpu").numpy()))  # best_idxs = np.abs(projections).squeeze(-1).argmax(1)  # O(bN), https://scikit-cuda.readthedocs.io/en/latest/generated/skcuda.misc.maxabs.html
+        best_idxs = torch.abs(projections).squeeze(-1).argmax(1)
         sets[k, :] = best_idxs
         best = Xt[best_idxs, :]  # A mess...
         problems[:, k, :] = best
@@ -423,11 +424,11 @@ if __name__ == "__main__":
     # Test most basic OMP alg
     # answer_basic = OMP_most_basic(torch.tensor(y[:,0]), torch.tensor(X), 30)
 
-    # print('Single core. Naive implementation.')
-    # with elapsed_timer() as elapsed:
-    #     xests_naive = omp_naive(X.copy(), y.copy(), n_nonzero_coefs)
-    # print('Samples per second:', n_samples/elapsed())
-    # print("\n")
+    print('Single core. Naive implementation with Cython, BLAS')
+    with elapsed_timer() as elapsed:
+        xests_naive = omp_naive(X.copy(), y.copy(), n_nonzero_coefs)
+    print('Samples per second:', n_samples/elapsed())
+    print("\n")
     gpu = "cuda:0"
     print('GPU. Naive implementation.')
     with elapsed_timer() as elapsed:
@@ -445,7 +446,7 @@ if __name__ == "__main__":
     # print('Samples per second:', n_samples/elapsed())
     # print("\n")
 
-    print('Single core. New implementation of algorithm v0.')
+    print('Single core. New implementation of algorithm v0. Cython, BLAS, maximum optimization')
     with elapsed_timer() as elapsed:
         tens_y = torch.tensor(y.copy())
         tens_X = torch.tensor(X.copy())
