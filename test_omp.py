@@ -371,12 +371,12 @@ if __name__ == "__main__":
     gpu = "cuda:0"
     print('GPU. Naive implementation.')
     with elapsed_timer() as elapsed:
-        xests_naive_gpu_error = omp_naive_gpu(torch.tensor(X.copy()).to(gpu), torch.tensor(y.copy()).to(gpu), n_nonzero_coefs)
+        # Put on same device as the rest
+        xests_naive_gpu_error = omp_naive_gpu(torch.tensor(X.copy(), dtype=torch.float32, device=gpu), torch.tensor(y.copy(), dtype=torch.float32, device=gpu), n_nonzero_coefs).cpu()
     print('Samples per second:', n_samples/elapsed())
     print("\n")
 
-    # Put on same device as the rest
-    xests_naive_gpu_error = xests_naive_gpu_error.cpu()
+
 
     #
     #

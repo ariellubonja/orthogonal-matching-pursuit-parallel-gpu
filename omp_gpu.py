@@ -12,11 +12,11 @@ def omp_naive_gpu(X, y, n_nonzero_coefs):
     y = y.T.contiguous()
     r = torch.clone(y)  # Maybe no transpose? Remove this line?
     # Int64 is needed here
-    sets = torch.zeros((n_nonzero_coefs, r.shape[0]), dtype=torch.int64).to(gpu)
-    problems = torch.zeros((r.shape[0], n_nonzero_coefs, X.shape[0]), dtype=torch.float64).to(gpu)
-    As = torch.tensor(np.repeat(np.identity(n_nonzero_coefs, dtype=np.float64)[np.newaxis], r.shape[0], 0)).to(gpu)
+    sets = X.new_zeros((n_nonzero_coefs, r.shape[0]), dtype=torch.int64)
+    problems = X.new_zeros((r.shape[0], n_nonzero_coefs, X.shape[0]))
+    As = torch.eye(n_nonzero_coefs, dtype=X.dtype, device=X.device).repeat(r.shape[0],1,1)
     # solutions = np.zeros((r.shape[0], n_nonzero_coefs))
-    xests = torch.zeros((r.shape[0], X.shape[1]), dtype=torch.float64).to(gpu)
+    xests = X.new_zeros((r.shape[0], X.shape[1]))
     for k in range(n_nonzero_coefs):
         #t1 = time.time()
         projections = (Xt @ r[:, :, None]).squeeze(-1)  # X.shape[0] * (2*X.shape[1]-1) * r.shape[0] = O(bNM), where X is an MxN matrix, N>M.
