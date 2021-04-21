@@ -186,16 +186,13 @@ def omp_v0_new(y, X, XTX, XTy, n_nonzero_coefs=None):
     projections = XTy
 
     gamma = np.zeros(shape=(n_nonzero_coefs, B), dtype=np.int64)
-    # Cannot read torch.float64 as valid type. For quick fix, commented out and manually replaced with np.float64
-    # F = np.repeat(np.identity(n_nonzero_coefs, dtype=X.dtype)[np.newaxis], B, 0)
-    F = np.repeat(np.identity(n_nonzero_coefs, dtype=np.float64)[np.newaxis], B, 0)
+    F = np.repeat(np.identity(n_nonzero_coefs, dtype=X.dtype)[np.newaxis], B, 0)
     a_F = np.zeros_like(X, shape=(n_nonzero_coefs, B, 1))
     D_mybest = np.empty_like(X, shape=(n_nonzero_coefs, B, XTX.shape[0]))  # empty_like is faster to init
     temp_F_k_k = 1
     xests = np.zeros((B, X.shape[1]))
     for k in range(n_nonzero_coefs):
-        # Not using Tensors here
-        maxindices = get_max_projections_blas(projections.numpy())  # Numba version is about twice as fast as: np.argmax(projections * projections, 1)  # Maybe replace square with abs?
+        maxindices = get_max_projections_blas(projections)  # Numba version is about twice as fast as: np.argmax(projections * projections, 1)  # Maybe replace square with abs?
         gamma[k] = maxindices
         if k == 0:
             D_mybest[k] = XTX[None, maxindices, :]
@@ -210,9 +207,9 @@ def omp_v0_new(y, X, XTX, XTy, n_nonzero_coefs=None):
             D_mybest[k] = (D_mybest[:k].transpose([1, 2, 0]) @ D_mybest_maxindices[:, :, None]).squeeze(-1)  # <- faster than np.einsum('ibj,ib->bj', D_mybest[:k], D_mybest_maxindices)
             # t2 = time.time()
             # print(((2*k - 1) * D_mybest.shape[1] * D_mybest.shape[2] * 1e-9)/(t2-t1), 'GFLOPS')
-            update_D_mybest(temp_F_k_k, XTX.numpy(), maxindices, D_mybest[k])
-        a_F[k] = temp_F_k_k * np.take_along_axis(projections.numpy(), maxindices[:, None], 1)
-        update_projections_blast(projections.numpy(), D_mybest[k], -a_F[k, :, 0])  # Around a 3x speedup :D
+            update_D_mybest(temp_F_k_k, XTX, maxindices, D_mybest[k])
+        a_F[k] = temp_F_k_k * np.take_along_axis(projections, maxindices[:, None], 1)
+        update_projections_blast(projections, D_mybest[k], -a_F[k, :, 0])  # Around a 3x speedup :D
         # projections2 = projections + (-a_F[k]) * D_mybest[k]  # Relativeely slow as all the subsets are different...
         normr2 = normr2 - (a_F[k] * a_F[k]).squeeze(-1)
     else:
@@ -377,7 +374,11 @@ if __name__ == "__main__":
     print("\n")
 
 
-
+    print('Single core. New implementation of algorithm v0. Cython, BLAS, maximum optimization')
+    with elapsed_timer() as elapsed:
+        xests_v0_new = omp_v0_new(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
+    print('Samples per second:', n_samples/elapsed())
+    print("\n")
     #
     #
     # print('Single core. Implementation of algorithm v0.')
@@ -385,14 +386,6 @@ if __name__ == "__main__":
     #     xests_v0 = omp_v0(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
     # print('Samples per second:', n_samples/elapsed())
     # print("\n")
-
-    print('Single core. New implementation of algorithm v0. Cython, BLAS, maximum optimization')
-    with elapsed_timer() as elapsed:
-        tens_y = torch.tensor(y.copy())
-        tens_X = torch.tensor(X.copy())
-        xests_v0_new = omp_v0_new(tens_y, tens_X, tens_X.T @ tens_X, (tens_X.T @ tens_y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
-    print('Samples per second:', n_samples/elapsed())
-    print("\n")
 
     # print(np.max(np.abs(xests_v0_new - xests_v0)))
 
