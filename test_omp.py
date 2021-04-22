@@ -71,9 +71,9 @@ if False:
 # We can take a single solver, and multiple problems, and spread it out on processing units.
 # ^ This can be done simply with the multiprocessing Python module.
 
-n_components, n_features = 2048*4, 1024
-n_nonzero_coefs = 512
-n_samples = 100
+n_components, n_features = 1024, 100
+n_nonzero_coefs = 17
+n_samples = 800
 # For a setting like the one at https://sparse-plex.readthedocs.io/en/latest/book/pursuit/omp/fast_omp.html
 #  it seems the naive algorithm is way fast when n_nonzero_coefs is small.
 
@@ -115,9 +115,8 @@ def omp_v0(y, X, XTX, XTy, n_nonzero_coefs=None):
         else:
             D_mybest_maxindices = np.take_along_axis(D_mybest[:, :, :k], maxindices[:, None, None], 1).squeeze(1)
             temp_F_k_k = np.sqrt(1/(1-innerp(D_mybest_maxindices)))[:, None]
+            # VVV In BLAS this can be calculated with *trmv  VVV
             F[:, :, k] = -temp_F_k_k * (F[:, :, :k] @ D_mybest_maxindices[:, :, None]).squeeze(-1)
-            # ^ Seems this is the inverse Cholesky factor, triangular, as the Cholesky decomp is.
-            # ^ In BLAS this can then be calculated with *symv I believe (With a large speedup for SOMP using *trmm)
             F[:, k, k] = temp_F_k_k[..., 0]
             new_D_mybest = temp_F_k_k * (XTX[maxindices, :] - (D_mybest[:, :, :k] @ D_mybest_maxindices[:, :, None]).squeeze(-1))
         D_mybest[:, :, k] = new_D_mybest
@@ -190,7 +189,7 @@ def omp_v0_new(y, X, XTX, XTy, n_nonzero_coefs=None):
     gamma = np.zeros(shape=(n_nonzero_coefs, B), dtype=np.int64)
     F = np.repeat(np.identity(n_nonzero_coefs, dtype=X.dtype)[np.newaxis], B, 0)
     a_F = np.zeros_like(X, shape=(n_nonzero_coefs, B, 1))
-    D_mybest = np.empty_like(X, shape=(n_nonzero_coefs, B, XTX.shape[0]))  # empty_like is faster to init
+    D_mybest = np.empty_like(X, shape=(n_nonzero_coefs, B, XTX.shape[1]))  # empty_like is faster to init
     temp_F_k_k = 1
     xests = np.zeros((B, X.shape[1]))
     for k in range(n_nonzero_coefs):
@@ -231,32 +230,75 @@ def omp_v0_new_blas(y, X, XTX, XTy, n_nonzero_coefs=None):
     gamma = np.zeros(shape=(n_nonzero_coefs, B), dtype=np.int64)
     F = np.repeat(np.identity(n_nonzero_coefs, dtype=X.dtype)[np.newaxis], B, 0)
     a_F = np.zeros_like(X, shape=(n_nonzero_coefs, B, 1))
-    D_mybest = np.empty_like(X, shape=(n_nonzero_coefs, B, XTX.shape[0]))  # FIXME: Use empty_like! #empty_like is faster to init
+    D_mybest = np.empty_like(X, shape=(n_nonzero_coefs, B, XTX.shape[1]))
     temp_F_k_k = 1
     xests = np.zeros((B, X.shape[1]))
     for k in range(n_nonzero_coefs):
         maxindices = get_max_projections_blas(projections)  # Numba version is about twice as fast as: np.argmax(projections * projections, 1)  # Maybe replace square with abs?
         gamma[k] = maxindices
         if k == 0:
-            D_mybest[k] = XTX[None, maxindices, :]
+            D_mybest[k] = XTX[maxindices]
         else:
-            # Do something about this:
             D_mybest_maxindices = np.take_along_axis(D_mybest[:k, :, :].transpose([2, 1, 0]), maxindices[None, :, None], 0).squeeze(0)
             temp_F_k_k = np.sqrt(1/(1-innerp(D_mybest_maxindices)))[:, None]
-            F[:, :, k] = -temp_F_k_k * (F[:, :, :k] @ D_mybest_maxindices[:, :, None]).squeeze(-1)
+            update_D_mybest_blast(temp_F_k_k[:, 0], XTX, maxindices, D_mybest[:k].transpose([1, 2, 0]), D_mybest_maxindices, D_mybest[k])
+            F[:, :, k] = -temp_F_k_k * (F[:, :, :k] @ D_mybest_maxindices[:, :, None]).squeeze(-1)  #
             F[:, k, k] = temp_F_k_k[..., 0]
             # t1 = time.time()
-            update_D_mybest_blast(temp_F_k_k[:, 0], XTX, maxindices, D_mybest[:k].transpose([1, 2, 0]), D_mybest_maxindices, D_mybest[k])
             # t2 = time.time()
             # print(D_mybest.shape[1] * ((2*k - 1) * D_mybest.shape[2] + 2 * D_mybest.shape[2])/(t2-t1) * 1e-9, 'GFLOPS')
 
         a_F[k] = temp_F_k_k * np.take_along_axis(projections, maxindices[:, None], 1)
+
         update_projections_blast(projections, D_mybest[k], -a_F[k, :, 0])  # Around a 3x speedup :D
         # projections2 = projections + (-a_F[k]) * D_mybest[k]  # Relativeely slow as all the subsets are different...
         normr2 = normr2 - (a_F[k] * a_F[k]).squeeze(-1)
     else:
         np.put_along_axis(xests, gamma.T, (F @ a_F.squeeze(-1).T[:, :, None]).squeeze(-1), -1)
         # Instead of putting a stopping criteria, we could return the order in which the coeffs were added. (i.e. just return gamma and amplitudes)
+    return xests
+
+
+def omp_v0_torch(y, X, n_nonzero_coefs=None):
+    # FIXME: If it is cpu tensor, just call numpy version? (Keep two separate versions?)
+    if n_nonzero_coefs is None:
+        n_nonzero_coefs = X.shape[1]
+    B = y.shape[1]
+    innerp = lambda x: (x[:, None, :] @ x[:, :, None])[:, 0, 0]  # torch.einsum('ij,ij->i', x, x)
+    normr2 = innerp(y.transpose(0, 1))  # Norm squared of residual.
+    projections = (X.transpose(1, 0) @ y.transpose(1, 0)[:, :, None]).squeeze(-1)
+    XTX = X.transpose(1, 0) @ X
+
+    gamma = y.new_zeros(n_nonzero_coefs, B, dtype=torch.int64)
+    F = torch.eye(n_nonzero_coefs, dtype=y.dtype, device=y.device).repeat(B, 1, 1)
+    a_F = y.new_zeros(n_nonzero_coefs, B, 1)
+    D_mybest = y.new_empty(B, XTX.shape[0], n_nonzero_coefs)
+    xests = y.new_zeros(B, X.shape[1])
+    temp_F_k_k = 1
+    for k in range(n_nonzero_coefs):
+        maxindices = projections.abs().argmax(1)
+        gamma[k] = maxindices
+        if k == 0:
+            new_D_mybest = XTX[maxindices]
+        else:
+            grabdices = XTX.gather(0, maxindices[:, None].expand(-1, XTX.shape[1]))
+            indices = maxindices + D_mybest.shape[1] * torch.arange(B, dtype=maxindices.dtype, device=maxindices.device)
+            D_mybest_maxindices = D_mybest[:, :, :k].view(-1, k).gather(0, indices[:, None].expand(-1, k))
+            # ^ LINEAR INDEXING!
+            temp_F_k_k = torch.rsqrt(1 - innerp(D_mybest_maxindices))[:, None]  # Takes about 8% of time
+            D_mybest_maxindices = -temp_F_k_k * D_mybest_maxindices  # minimal operations, exploit linearity
+            new_D_mybest = temp_F_k_k * grabdices + (D_mybest[:, :, :k] @ D_mybest_maxindices[:, :, None]).squeeze(-1)
+            F[:, :, k] = (F[:, :, :k] @ D_mybest_maxindices[:, :, None]).squeeze(-1)
+            F[:, k, k] = temp_F_k_k[..., 0]
+
+        a_F[k] = temp_F_k_k * torch.gather(projections, 1, maxindices[:, None])
+        projections = projections - a_F[k] * new_D_mybest
+        D_mybest[:, :, k] = new_D_mybest
+        normr2 = normr2 - (a_F[k] * a_F[k]).squeeze(-1)
+    else:
+        values = (F @ a_F.squeeze(-1).transpose(1, 0)[:, :, None]).squeeze(-1)
+        for i in range(B):
+            xests[i].index_copy_(0, gamma[:, i], values[i])
     return xests
 
 def update_D_mybest_fast(temp_F_k_k, XTX, maxindices, A, x, D_mybest):
@@ -371,13 +413,20 @@ if __name__ == "__main__":
     print("Number of Nonzero Coefficients: " + str(n_nonzero_coefs))
     print("\n")
     get_max_projections((X.T @ y.T[:, :, None]).squeeze(-1))
-    # TODO: Warm up update_D_mybest(...) as well, for profiling
 
-    print('Single core. New implementation of algorithm v0 (blas)')
+    print('Single core. New implementation of algorithm v0 (pytorch)')
     with elapsed_timer() as elapsed:
-        xests_v0_new_blas = omp_v0_new_blas(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
+        xests_v0_new_torch = omp_v0_torch(torch.as_tensor(y.copy()), torch.as_tensor(X.copy()), n_nonzero_coefs)
     print('Samples per second:', n_samples/elapsed())
     print("\n")
+
+    print('Single core. New implementation of algorithm v0. (blas)')
+    with elapsed_timer() as elapsed:
+        xests_v0_blas = omp_v0_new_blas(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
+    print('Samples per second:', n_samples/elapsed())
+    print("\n")
+
+    print('error in new code (blas)', np.max(np.abs(xests_v0_blas - xests_v0_new_torch.numpy())))
 
     exit()
 
@@ -394,14 +443,7 @@ if __name__ == "__main__":
     print('Samples per second:', n_samples/elapsed())
     print("\n")
 
-    print('Single core. New implementation of algorithm v0.')
-    with elapsed_timer() as elapsed:
-        xests_v0_new = omp_v0_new(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
-    print('Samples per second:', n_samples/elapsed())
-    print("\n")
 
-    print('error in new code', np.max(np.abs(xests_v0_new - xests_v0)))
-    print('error in new code (blas)', np.max(np.abs(xests_v0_new_blas - xests_v0)))
 
     exit()
 

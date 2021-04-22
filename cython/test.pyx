@@ -1,9 +1,11 @@
 import cython
+from cython cimport view
 # import numpy as np
 cimport numpy as np
 
 from cpython cimport PyCapsule_GetPointer
-from scipy.linalg.cython_blas cimport idamax, isamax, daxpy, dgemv, dtrmv
+from scipy.linalg.cython_blas cimport idamax, isamax, daxpy, dgemv, dtrmv, dcopy
+from libc.string cimport memcpy
 cimport scipy.linalg.cython_lapack as lapack
 ctypedef np.float64_t REAL_t
 ctypedef np.int64_t  INT_t
@@ -24,70 +26,55 @@ cpdef void update_projections_blast(double[:, :] projections,
     cdef Py_ssize_t i
     # TODO: Loop unrolling?
     for i from 0 <= i < B:
-        daxpy(&N, &coefs[i], &D_mybest[i, 0], &incx, &projections[i, 0], &incy)  # np.argmax(np.abs(projections[i]))
+        daxpy(&N, &coefs[i], &D_mybest[i, 0], &incx, &projections[i, 0], &incy)
 
 ctypedef fused proj_t:
     double
     float
 
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cpdef void trmv(double[:, :, :] F, double[:, :] D_mybest_maxindices) nogil:
-    cdef Py_ssize_t B = F.shape[0]  # Batch size
-    cdef char uplo = 'U'
-    cdef char trans = 'N'
-    pass # TODO
-
-
-
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
+@cython.nonecheck(False)
 cpdef void update_D_mybest_blast(double[:] temp_F_k_k, double[:, :] XTX,
                           long long[:] maxindices, double[:, :, :] A,
                           double[:, :] x, double[:, :] D_mybest) nogil:
-
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cpdef void update_D_mybest_blast(double[:] temp_F_k_k, double[:, :] XTX,
-                          long long[:] maxindices, double[:, :, :] A,
-                          double[:, :] x, double[:, :] D_mybest) nogil:
-
     cdef Py_ssize_t B = A.shape[0]  # Batch size
     cdef int N = D_mybest.shape[1]  # m
     cdef int k = A.shape[2]  # n
-    cdef int m = N
-    cdef int n = k
     cdef int ldaA = (A.strides[0] * B) // sizeof(double)  # Stride in A.
     cdef int incx = x.strides[1] // sizeof(double)  # Stride between elements.
     cdef int incy = D_mybest.strides[1] // sizeof(double)  # Stride between elements.
-    cdef int incX = XTX.strides[1] // sizeof(double)  # Stride between elements.
+    cdef int incXTX = XTX.strides[1] // sizeof(double)  # Stride between elements.
     cdef char trans = 'N'
-    cdef double zero = 0.0
     cdef double minus_temp_F_k_k
-    # python setup.py build_ext --inplace ; cp test.cp37-win_amd64.pyd .. ; python ../test_omp.py
-    # print('calling blas')
-    # print(A.shape[0], A.shape[1], A.shape[2])
-    # print(m, n, ldaA)
-    # print('Match x?:', x.shape[1], ( 1 + ( n - 1 )*abs( incx ) ) if trans=='N' else ( 1 + ( m - 1 )*abs( incx ) ))
-    # print('Match y?:', D_mybest.shape[1], ( 1 + ( m - 1 )*abs( incx ) ) if trans=='N' else ( 1 + ( n - 1 )*abs( incx ) ))
-    # print(A.strides[0] // sizeof(double))
-    # print(A.strides[1] // sizeof(double))
-    # print(A.strides[2] // sizeof(double))
-    # print(163840//8)
-    # if A.strides[2] // sizeof(double) != 163840//8:
-    #     print('WHAT')
-    # 1024000
-    # Require D_mybest contiguous?
+    # Can we use omp parallel for here?
     for i from 0 <= i < B:
+        dcopy(&N, &XTX[maxindices[i], 0], &incXTX, &D_mybest[i, 0], &incy)
+        # ^ D_mybest[i] = XTX[maxindices[i]]
+
         minus_temp_F_k_k = -temp_F_k_k[i]
-        dgemv(alpha=&minus_temp_F_k_k, beta=&zero,
-              a=&A[i, 0, 0], n=&n, m=&m, lda=&ldaA,
+        dgemv(alpha=&minus_temp_F_k_k, beta=&temp_F_k_k[i],
+              a=&A[i, 0, 0], n=&k, m=&N, lda=&ldaA,
               x=&x[i, 0], incx=&incx,
               y=&D_mybest[i, 0], incy=&incy,
               trans=&trans)
-        daxpy(&N, &temp_F_k_k[i], &XTX[maxindices[i], 0], &incX, &D_mybest[i, 0], &incy)
+        # ^ D_mybest[i] = temp_F_k_k[i] * D_mybest[i] - temp_F_k_k[i] * (A[i] @ x[i, :, None]).squeeze(-1)
+
+
+#@cython.boundscheck(False)
+#@cython.wraparound(False)
+#cpdef void trmv(double[:] minus_temp_F_k_k, double[:, :, :] F, double[:, :] D_mybest_maxindices) nogil:
+#    cdef Py_ssize_t B = F.shape[0]  # Batch size
+#    cdef char uplo = 'U'
+#    cdef char trans = 'N'
+
+#    cdef Py_ssize_t B = F.shape[0]  # Batch size
+#    cdef int k = F.shape[2]  # n
+#    cdef int ldaA = (F.strides[0] * B) // sizeof(double)  # Stride in A.
+#    cdef int incx = x.strides[1] // sizeof(double)  # Stride between elements.
+#    cdef int incy = D_mybest.strides[1] // sizeof(double)  # Stride between elements.
+#    cdef int incX = XTX.strides[1] // sizeof(double)  # Stride between elements.
 
 
 @cython.boundscheck(False)

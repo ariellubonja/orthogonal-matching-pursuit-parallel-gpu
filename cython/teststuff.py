@@ -1,7 +1,8 @@
 import numpy as np
 from test import argmax_blast, update_D_mybest_blast
 
-# python setup.py build_ext --inplace
+# python setup.py build_ext --inplace ; cp test.cp37-win_amd64.pyd .. ; python ../test_omp.py
+# kernprof -l -v ../test_omp.py
 
 # Test argmax
 output = np.zeros((200,), dtype=np.int64)

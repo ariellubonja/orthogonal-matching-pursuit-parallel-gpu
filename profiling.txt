@@ -386,3 +386,70 @@ Line #      Hits         Time  Per Hit   % Time  Line Contents
    306         1      18229.0  18229.0      0.0          np.put_along_axis(xests, sets.T, solutions, 1)
    307
    308         1         42.0     42.0      0.0      return xests
+
+
+
+LATER
+Settings used for the test:
+Number of Samples: 100
+Number of Components: 8192
+Number of Features: 1024
+Number of Nonzero Coefficients: 512
+
+
+Single core. New implementation of algorithm v0 (blas)
+Samples per second: 1.567001694710766
+
+
+Wrote profile results to test_omp.py.lprof
+Timer unit: 1e-07 s
+
+Total time: 60.5411 s
+File: ../test_omp.py
+Function: omp_v0_new_blas at line 223
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   223                                           @profile
+   224                                           def omp_v0_new_blas(y, X, XTX, XTy, n_nonzero_coefs=None):
+   225                                               # TODO: Seems to be as fast as we are going to get, without custom kernels. We just need single-block memory alloc. (and send out-argument with pre-allocated me
+m to functions)
+   226         1         54.0     54.0      0.0      if n_nonzero_coefs is None:
+   227                                                   n_nonzero_coefs = X.shape[1]
+   228
+   229         1         53.0     53.0      0.0      B = y.shape[1]
+   230         1         30.0     30.0      0.0      innerp = lambda x: np.einsum('ij,ij->i', x, x)
+   231         1       2594.0   2594.0      0.0      normr2 = innerp(y.T)  # Norm squared of residual.
+   232         1         32.0     32.0      0.0      projections = XTy
+   233
+   234         1       4333.0   4333.0      0.0      gamma = np.zeros(shape=(n_nonzero_coefs, B), dtype=np.int64)
+   235         1     819768.0 819768.0      0.1      F = np.repeat(np.identity(n_nonzero_coefs, dtype=X.dtype)[np.newaxis], B, 0)
+   236         1       4497.0   4497.0      0.0      a_F = np.zeros_like(X, shape=(n_nonzero_coefs, B, 1))
+   237         1        850.0    850.0      0.0      D_mybest = np.empty_like(X, shape=(n_nonzero_coefs, B, XTX.shape[0]))  # FIXME: Use empty_like! #empty_like is faster to init
+   238         1         44.0     44.0      0.0      temp_F_k_k = 1
+   239         1        273.0    273.0      0.0      xests = np.zeros((B, X.shape[1]))
+   240       513      16144.0     31.5      0.0      for k in range(n_nonzero_coefs):
+   241       512    3838318.0   7496.7      0.6          maxindices = get_max_projections_blas(projections)  # Numba version is about twice as fast as: np.argmax(projections * projections, 1)  # Maybe replace squa
+re with abs?
+   242       512      75087.0    146.7      0.0          gamma[k] = maxindices
+   243       512      12160.0     23.8      0.0          if k == 0:
+   244         1      50653.0  50653.0      0.0              D_mybest[k] = XTX[None, maxindices, :]
+   245                                                   else:
+   246                                                       # Do something about this:
+   247       511   12300945.0  24072.3      2.0              D_mybest_maxindices = np.take_along_axis(D_mybest[:k, :, :].transpose([2, 1, 0]), maxindices[None, :, None], 0).squeeze(0)
+   248       511     598748.0   1171.7      0.1              temp_F_k_k = np.sqrt(1/(1-innerp(D_mybest_maxindices)))[:, None]
+   249       511   52441717.0 102625.7      8.7              F[:, :, k] = -temp_F_k_k * (F[:, :, :k] @ D_mybest_maxindices[:, :, None]).squeeze(-1)
+   250       511      86022.0    168.3      0.0              F[:, k, k] = temp_F_k_k[..., 0]
+   251                                                       # t1 = time.time()
+   252       511  526841684.0 1031001.3     87.0              update_D_mybest_blast(temp_F_k_k[:, 0], XTX, maxindices, D_mybest[:k].transpose([1, 2, 0]), D_mybest_maxindices, D_mybest[k])
+   253                                                       # t2 = time.time()
+   254                                                       # print(D_mybest.shape[1] * ((2*k - 1) * D_mybest.shape[2] + 2 * D_mybest.shape[2])/(t2-t1) * 1e-9, 'GFLOPS')
+   255
+   256       512     827202.0   1615.6      0.1          a_F[k] = temp_F_k_k * np.take_along_axis(projections, maxindices[:, None], 1)
+   257       512    7013571.0  13698.4      1.2          update_projections_blast(projections, D_mybest[k], -a_F[k, :, 0])  # Around a 3x speedup :D
+   258                                                   # projections2 = projections + (-a_F[k]) * D_mybest[k]  # Relativeely slow as all the subsets are different...
+   259       512     147182.0    287.5      0.0          normr2 = normr2 - (a_F[k] * a_F[k]).squeeze(-1)
+   260                                               else:
+   261         1     329341.0 329341.0      0.1          np.put_along_axis(xests, gamma.T, (F @ a_F.squeeze(-1).T[:, :, None]).squeeze(-1), -1)
+   262                                                   # Instead of putting a stopping criteria, we could return the order in which the coeffs were added. (i.e. just return gamma and amplitudes)
+   263         1         73.0     73.0      0.0      return xests
