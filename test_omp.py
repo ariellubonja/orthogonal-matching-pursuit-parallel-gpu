@@ -67,9 +67,9 @@ if False:
 # We can take a single solver, and multiple problems, and spread it out on processing units.
 # ^ This can be done simply with the multiprocessing Python module.
 
-n_components, n_features = 512, 128
-n_nonzero_coefs = 32
-n_samples = 5120
+n_components, n_features = 1024*4, 768
+n_nonzero_coefs = 512
+n_samples = 20
 # For a setting like the one at https://sparse-plex.readthedocs.io/en/latest/book/pursuit/omp/fast_omp.html
 #  it seems the naive algorithm is way fast when n_nonzero_coefs is small.
 
@@ -305,36 +305,6 @@ def omp_naive(X, y, n_nonzero_coefs):
     return xests
 
 
-def OMP_most_basic(y, Phi, K):
-    # % Othogonal matching pursuit of Tropp et Gilbert
-    # % y : data
-    # % Phi : sensing matrix
-    # % K : sparsity
-    # % SYM March 13 2013
-    N = Phi.shape[1];
-    x = torch.zeros(N);
-    S = []; #% positions indexes of components of s
-    res = y; #% first residual
-    PhiS = torch.tensor([]); #% Matrix of the columns used to represent y
-    for t in range(K):
-        j=torch.argmax(abs(Phi.T @ res));
-        S.append(j)
-        if PhiS.shape[0] == 0:
-            PhiS = torch.unsqueeze(Phi[:,j],1)
-        else:
-            # torch.cat((torch.unsqueeze(PhiS, 0), torch.unsqueeze(Phi[:,j],-1) ))
-            PhiS = torch.cat((PhiS, torch.unsqueeze(Phi[:,j],1)),1)
-        if t > 0:
-            x_est = torch.pinverse(PhiS)@y;
-        else:
-            x_est = PhiS.T @ y
-        res = y- torch.squeeze(PhiS@x_est);
-        # This is somehow done in matlab.. how ??
-        x[S] = x_est;
-
-    return x.T;
-
-
 if __name__ == "__main__":
     # The naive algorithm has a memory complexity of kNM = O(N^2M), while the v0 has k(N^2+N(M+k)) = O(N^3+N^2M).
     # If k is modest
@@ -356,9 +326,6 @@ if __name__ == "__main__":
     print("\n")
     # get_max_projections((X.T @ y.T[:, :, None]).squeeze(-1))
     # TODO: Warm up update_D_mybest(...) as well, for profiling
-
-    # Test most basic OMP alg
-    # answer_basic = OMP_most_basic(torch.tensor(y[:,0]), torch.tensor(X), 30)
 
     # print('Single core. Naive implementation with Cython, BLAS')
     # with elapsed_timer() as elapsed:
