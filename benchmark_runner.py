@@ -11,17 +11,20 @@ from test_omp import *
 # import pandas as pd
 
 # Repeat test a few times to get rid of random variation in system load
-times_to_repeat_tests = 1
+# I've optimized them based on alg. speed, but here you can override that
+#   E.g. Sklearn is much slower than Cholesky, so you'd want a lower repeat count there
+# Change to integer if you want to override. Leave to "default" otherwise
+times_to_repeat_tests_override = "default"
 
 # Choose: "SMALL", "MEDIUM", "LARGE", "HUGE"
 # Reduce times_to_repeat_tests appropriately
-PROBLEM_SIZE = "MEDIUM"
+PROBLEM_SIZE = "HUGE"
 
 # Comment these out depending on what you want to run!
 ALGORITHMS_TO_RUN = [
     # "sklearn",
-    # "v0_original",
-    # "v0_new",
+    "v0_original",
+    "v0_new",
     # "v0_blas",
     # "v0_new_torch",
     "naive_omp"
@@ -33,19 +36,26 @@ if __name__ == "__main__":
     if PROBLEM_SIZE == "SMALL":
         n_components, n_features = 1024, 100
         n_nonzero_coefs = 17
-        n_samples = 3000
+        n_samples = 1000
+        times_to_repeat_tests = 10
     elif PROBLEM_SIZE == "MEDIUM":
         n_components, n_features = 3072, 300
-        n_nonzero_coefs = 49
-        n_samples = 1000
+        n_nonzero_coefs = 51
+        n_samples = 100
+        times_to_repeat_tests = 5
     elif PROBLEM_SIZE == "LARGE":
-        n_components, n_features = 9216, 900
-        n_nonzero_coefs = 153
-        n_samples = 3000
+        n_components, n_features = 6144, 600
+        n_nonzero_coefs = 102
+        n_samples = 40
+        times_to_repeat_tests = 3
     elif PROBLEM_SIZE == "HUGE":
-        n_components, n_features = 1024, 100
-        n_nonzero_coefs = 17
-        n_samples = 3000
+        n_components, n_features = 12288, 1200
+        n_nonzero_coefs = 204
+        n_samples = 10
+        times_to_repeat_tests = 2
+
+    if times_to_repeat_tests_override != "default":
+        times_to_repeat_tests = times_to_repeat_tests_override
 
     y, X, w = make_sparse_coded_signal(
         n_samples=n_samples,
@@ -74,7 +84,7 @@ if __name__ == "__main__":
                 xests_v0_new_torch = omp_v0_torch(torch.as_tensor(y.copy()), torch.as_tensor(X.copy()), n_nonzero_coefs)
             # print('Samples per second:', n_samples/elapsed())
             results.append(n_samples/elapsed())
-            err_torch = np.linalg.norm(y.T - (X @ xests_v0_new_torch[:, :, None].numpy()).squeeze(-1), 2, 1)
+            err_torch = np.linalg.norm(y.T - (X @ xests_v0_new_torch[:, :, None].numpy()).squeeze(-1), 2, 1) / n_samples
             errors.append(err_torch)
         print("---Results for (", times_to_repeat_tests, " repeats)---")
         print("Mean: ", np.mean(results))
@@ -91,7 +101,7 @@ if __name__ == "__main__":
                 xests_naive = omp_naive(X.copy(), y.copy(), n_nonzero_coefs)
             # print('Samples per second:', n_samples/elapsed())
             results.append(n_samples/elapsed())
-            err_naive = np.linalg.norm(y.T - (X @ xests_naive[:, :, None]).squeeze(-1), 2, 1)
+            err_naive = np.linalg.norm(y.T - (X @ xests_naive[:, :, None]).squeeze(-1), 2, 1) / n_samples
             errors.append(err_naive)
         print("---Results for (", times_to_repeat_tests, " repeats)---")
         print("Mean: ", np.mean(results))
@@ -110,17 +120,12 @@ if __name__ == "__main__":
                 xests_v0 = omp_v0_original(y.copy(), X.copy(), XTX, XTy, n_nonzero_coefs)
             # print('Samples per second:', n_samples/elapsed())
             results.append(n_samples/elapsed())
-            err_v0 = np.linalg.norm(y.T - (X @ xests_v0[:, :, None]).squeeze(-1), 2, 1)
+            err_v0 = np.linalg.norm(y.T - (X @ xests_v0[:, :, None]).squeeze(-1), 2, 1)/ n_samples
             errors.append(err_v0)
         print("---Results for (", times_to_repeat_tests, " repeats)---")
         print("Mean: ", np.mean(results))
         print("Std: ", np.std(results))
         print("Average error: ", np.mean(errors))
-
-        # print('Single core. Improved V0 algorithm - Cholesky + BLAS')
-        # with elapsed_timer() as elapsed:
-        #     xests_v0_blas = omp_v0_new_blas(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
-        # print('Samples per second:', n_samples/elapsed())
 
 
     if "v0_new" in ALGORITHMS_TO_RUN:
@@ -158,17 +163,12 @@ if __name__ == "__main__":
                 xests_v0_blas = omp_v0_new_blas(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
             # print('Samples per second:', n_samples/elapsed())
             results.append(n_samples/elapsed())
-            err_v0_blas = np.linalg.norm(y.T - (X @ xests_v0_blas[:, :, None]).squeeze(-1), 2, 1)
+            err_v0_blas = np.linalg.norm(y.T - (X @ xests_v0_blas[:, :, None]).squeeze(-1), 2, 1)/ n_samples
             errors.append(err_v0_blas)
         print("---Results for (", times_to_repeat_tests, " repeats)---")
         print("Mean: ", np.mean(results))
         print("Std: ", np.std(results))
         print("Average error: ", np.mean(errors))
-
-        # print('Single core. Improved V0 algorithm - Cholesky + BLAS')
-        # with elapsed_timer() as elapsed:
-        #     xests_v0_blas = omp_v0_new_blas(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
-        # print('Samples per second:', n_samples/elapsed())
 
 
     # precompute=True seems slower for single core. Dunno why.
@@ -182,7 +182,7 @@ if __name__ == "__main__":
                 omp.fit(X, y)
             # print('Samples per second:', n_samples/elapsed())
             results_sklearn.append(n_samples/elapsed())
-            err_sklearn = np.linalg.norm(y.T - (X @ omp.coef_[:, :, None]).squeeze(-1), 2, 1)
+            err_sklearn = np.linalg.norm(y.T - (X @ omp.coef_[:, :, None]).squeeze(-1), 2, 1)/ n_samples
             error_sklearn.append(err_sklearn)
             # print("Avg. Error: ", np.average(err_sklearn / avg_ylen))
         print("---Results: Sklearn (", times_to_repeat_tests, " repeats)---")
