@@ -15,6 +15,9 @@ import torch.utils.data
 from torch.utils.data import *
 from torch.utils.data.sampler import *
 from line_profiler import line_profiler
+import torch.cuda.profiler as profiler
+import pyprof
+pyprof.init()
 
 from contextlib import contextmanager
 from timeit import default_timer
@@ -91,7 +94,7 @@ def init_threads(func, X, omp_args):
 # kernprof -l -v test_omp.py and @profile
 # Based on https://github.com/zhuhufei/OMP/blob/master/codeAug2020.m
 # From "Efficient Implementations for Orthogonal Matching Pursuit" (2020)
-def omp_v0(y, X, XTX, XTy, n_nonzero_coefs=None):
+def omp_v0_original(y, X, XTX, XTy, n_nonzero_coefs=None):
     if n_nonzero_coefs is None:
         n_nonzero_coefs = X.shape[1]
 
@@ -399,6 +402,12 @@ if __name__ == "__main__":
     # And all the other proposed algs will also
 
     # TODO: https://roman-kh.github.io/numpy-multicore/
+
+    # Small problem
+    n_components, n_features = 1024, 100
+    n_nonzero_coefs = 17
+    n_samples = 3000
+
     y, X, w = make_sparse_coded_signal(
         n_samples=n_samples,
         n_components=n_components,
@@ -406,46 +415,53 @@ if __name__ == "__main__":
         n_nonzero_coefs=n_nonzero_coefs,
         random_state=0)
 
+    avg_ylen = np.linalg.norm(y, 2, 0)
+
     print("Settings used for the test: ")
     print("Number of Samples: " + str(n_samples))
     print("Number of Components: " + str(n_components))
     print("Number of Features: " + str(n_features))
     print("Number of Nonzero Coefficients: " + str(n_nonzero_coefs))
     print("\n")
-    get_max_projections((X.T @ y.T[:, :, None]).squeeze(-1))
+    # get_max_projections((X.T @ y.T[:, :, None]).squeeze(-1))
 
-    print('Single core. New implementation of algorithm v0 (pytorch)')
-    with elapsed_timer() as elapsed:
-        xests_v0_new_torch = omp_v0_torch(torch.as_tensor(y.copy()), torch.as_tensor(X.copy()), n_nonzero_coefs)
-    print('Samples per second:', n_samples/elapsed())
-    print("\n")
+    # print('Single core. New implementation of algorithm v0 (pytorch)')
+    # with torch.autograd.profiler.emit_nvtx():
+    #     with elapsed_timer() as elapsed:
+    #         xests_v0_new_torch = omp_v0_torch(torch.as_tensor(y.copy()), torch.as_tensor(X.copy()), n_nonzero_coefs)
+    #     print('Samples per second:', n_samples/elapsed())
+    #     print("\n")
+    #
+    # print('error in new code (blas)', np.max(np.abs(xests_v0_blas - xests_v0_new_torch.numpy())))
 
-    print('Single core. New implementation of algorithm v0. (blas)')
-    with elapsed_timer() as elapsed:
-        xests_v0_blas = omp_v0_new_blas(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
-    print('Samples per second:', n_samples/elapsed())
-    print("\n")
+    # exit()
 
-    print('error in new code (blas)', np.max(np.abs(xests_v0_blas - xests_v0_new_torch.numpy())))
+    # Optimized Naive implementation (not really Naive though?)
+    # print('Single core. Optimized Naive implementation without Gramian/factorization tricks')
+    # with elapsed_timer() as elapsed:
+    #     xests_naive = omp_naive(X.copy(), y.copy(), n_nonzero_coefs)
+    # print('Samples per second:', n_samples/elapsed())
+    # print("\n")
+    #
+    # err_naive = np.linalg.norm(y.T - (X @ xests_naive[:, :, None]).squeeze(-1), 2, 1)
+    # print("Error: ", err_naive, '\n')
+    #
+    #
+    # print('Single core. Original V0 algorithm - Cholesky')
+    # with elapsed_timer() as elapsed:
+    #     xests_v0 = omp_v0_original(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
+    # print('Samples per second:', n_samples/elapsed())
+    # print("\n")
+    # err_v0 = np.linalg.norm(y.T - (X @ xests_v0[:, :, None]).squeeze(-1), 2, 1)
+    # print("Error: ", err_v0, '\n')
+    #
+    # print('Single core. Improved V0 algorithm - Cholesky + BLAS')
+    # with elapsed_timer() as elapsed:
+    #     xests_v0_blas = omp_v0_new_blas(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
+    # print('Samples per second:', n_samples/elapsed())
+    # print("\n")
 
-    exit()
-
-    print('Single core. Naive implementation.')
-    with elapsed_timer() as elapsed:
-        xests_naive = omp_naive(X.copy(), y.copy(), n_nonzero_coefs)
-    print('Samples per second:', n_samples/elapsed())
-    print("\n")
-
-
-    print('Single core. Implementation of algorithm v0.')
-    with elapsed_timer() as elapsed:
-        xests_v0 = omp_v0(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
-    print('Samples per second:', n_samples/elapsed())
-    print("\n")
-
-
-
-    exit()
+    # exit()
 
     # precompute=True seems slower for single core. Dunno why.
     omp_args = dict(n_nonzero_coefs=n_nonzero_coefs, precompute=False, fit_intercept=False)
@@ -457,21 +473,30 @@ if __name__ == "__main__":
         omp.fit(X, y)
     print('Samples per second:', n_samples/elapsed())
     print("\n")
-    print(np.max(np.abs(xests_v0_new - omp.coef_)))
 
-    err_naive = np.linalg.norm(y.T - (X @ xests_naive[:, :, None]).squeeze(-1), 2, 1)
-    err_v0 = np.linalg.norm(y.T - (X @ xests_v0[:, :, None]).squeeze(-1), 2, 1)
-    err_v0_new = np.linalg.norm(y.T - (X @ xests_v0_new[:, :, None]).squeeze(-1), 2, 1)
     err_sklearn = np.linalg.norm(y.T - (X @ omp.coef_[:, :, None]).squeeze(-1), 2, 1)
+    print("Avg. Error: ", np.average(err_sklearn / avg_ylen), '\n')
+    # print(np.max(np.abs(xests_v0_new - omp.coef_)))
+
+    # err_naive = np.linalg.norm(y.T - (X @ xests_naive[:, :, None]).squeeze(-1), 2, 1)
+    # err_v0 = np.linalg.norm(y.T - (X @ xests_v0[:, :, None]).squeeze(-1), 2, 1)
+    # err_v0_new = np.linalg.norm(y.T - (X @ xests_v0_new[:, :, None]).squeeze(-1), 2, 1)
+    # err_sklearn = np.linalg.norm(y.T - (X @ omp.coef_[:, :, None]).squeeze(-1), 2, 1)
     avg_ylen = np.linalg.norm(y, 2, 0)
     # print(np.median(naive_err) / avg_ylen, np.median(scipy_err) / avg_ylen)
-    plt.plot(np.sort(err_naive / avg_ylen), label='Naive')
-    plt.plot(np.sort(err_v0 / avg_ylen), '.', label='v0')
-    plt.plot(np.sort(err_v0_new / avg_ylen), '.', label='v0_new')
-    plt.plot(np.sort(err_sklearn / avg_ylen), '--', label='SKLearn')
-    plt.legend()
-    plt.title("Distribution of relative errors.")
-    plt.show()
+
+
+    # ----PLOTTING FUNCTIONS------
+
+    # plt.plot(np.sort(err_naive / avg_ylen), label='Naive')
+    # plt.plot(np.sort(err_v0 / avg_ylen), '.', label='v0')
+    # plt.plot(np.sort(err_v0_new / avg_ylen), '.', label='v0_new')
+    # plt.plot(np.sort(err_sklearn / avg_ylen), '--', label='SKLearn')
+    # plt.legend()
+    # plt.title("Distribution of relative errors.")
+    # plt.show()
+
+
     exit(0)
     # Multi core
     no_workers = 2 # os.cpu_count()
