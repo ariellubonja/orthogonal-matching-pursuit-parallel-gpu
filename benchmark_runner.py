@@ -1,27 +1,35 @@
 from test_omp import *
+# import pandas as pd
 
 if __name__ == "__main__":
-    PROBLEM_SIZES = ["SMALL", "MEDIUM", "LARGE", "HUGE"]
+    # Repeat test a few times to get rid of random variation in system load
+    times_to_repeat_tests = 10
+    print("---Running each test ", times_to_repeat_tests, " times!---")
 
-    for problem_size in PROBLEM_SIZES:
-        print("-----Problem size: ", problem_size, " -----")
+    results_sklearn = []
+    error_sklearn = []
+    # PROBLEM_SIZES = ["SMALL", "MEDIUM", "LARGE", "HUGE"]
+    # for problem_size in PROBLEM_SIZES:
+    #     print("-----Problem size: ", problem_size, " -----")
+        #
+        # if problem_size == "SMALL":
+        #     n_components, n_features = 1024, 100
+        #     n_nonzero_coefs = 17
+        #     n_samples = 3000
+        # elif problem_size == "MEDIUM":
+        #     n_components, n_features = 1024, 100
+        #     n_nonzero_coefs = 17
+        #     n_samples = 3000
+        # elif problem_size == "LARGE":
+        #     n_components, n_features = 1024, 100
+        #     n_nonzero_coefs = 17
+        #     n_samples = 3000
+        # elif problem_size == "HUGE":
+        #     n_components, n_features = 1024, 100
+        #     n_nonzero_coefs = 17
+        #     n_samples = 3000
 
-        if problem_size == "SMALL":
-            n_components, n_features = 1024, 100
-            n_nonzero_coefs = 17
-            n_samples = 3000
-        elif problem_size == "MEDIUM":
-            n_components, n_features = 1024, 100
-            n_nonzero_coefs = 17
-            n_samples = 3000
-        elif problem_size == "LARGE":
-            n_components, n_features = 1024, 100
-            n_nonzero_coefs = 17
-            n_samples = 3000
-        elif problem_size == "HUGE":
-            n_components, n_features = 1024, 100
-            n_nonzero_coefs = 17
-            n_samples = 3000
+    for i in range(times_to_repeat_tests):
 
         y, X, w = make_sparse_coded_signal(
             n_samples=n_samples,
@@ -89,7 +97,9 @@ if __name__ == "__main__":
         print('Samples per second:', n_samples/elapsed())
         print("\n")
 
+        results_sklearn.append(n_samples/elapsed())
         err_sklearn = np.linalg.norm(y.T - (X @ omp.coef_[:, :, None]).squeeze(-1), 2, 1)
+        error_sklearn.append(err_sklearn)
         print("Avg. Error: ", np.average(err_sklearn / avg_ylen), '\n')
         # print(np.max(np.abs(xests_v0_new - omp.coef_)))
 
@@ -112,16 +122,16 @@ if __name__ == "__main__":
         # plt.show()
 
 
-        exit(0)
-        # Multi core
-        no_workers = 2 # os.cpu_count()
-        # TODO: Gramian can be calculated once locally, and sent to each thread.
-        print('Multi core. With', no_workers, "workers on", os.cpu_count(), "(logical) cores.")
-        inputs = np.array_split(y, no_workers, axis=-1)
-        with multiprocessing.Pool(no_workers, initializer=init_threads, initargs=(solveomp, X, omp_args)) as p:  # num_workers=0
-            with elapsed_timer() as elapsed:
-                result = p.map(solveomp, inputs)
-        print('Samples per second:', n_samples / elapsed())
+        # exit(0)
+        # # ---------MULTI CORE---------
+        # no_workers = 2 # os.cpu_count()
+        # # TODO: Gramian can be calculated once locally, and sent to each thread.
+        # print('Multi core. With', no_workers, "workers on", os.cpu_count(), "(logical) cores.")
+        # inputs = np.array_split(y, no_workers, axis=-1)
+        # with multiprocessing.Pool(no_workers, initializer=init_threads, initargs=(solveomp, X, omp_args)) as p:  # num_workers=0
+        #     with elapsed_timer() as elapsed:
+        #         result = p.map(solveomp, inputs)
+        # print('Samples per second:', n_samples / elapsed())
 
         # dataset = RandomSparseDataset(n_samples, n_components, n_features, n_nonzero_coefs)
         # sampler = torch.utils.data.sampler.BatchSampler(SequentialSampler(dataset), batch_size=2, drop_last=False)
@@ -132,3 +142,7 @@ if __name__ == "__main__":
         # plt.hist(residuals)
         # plt.show()
 
+    print("\n\n\nResults: Sklearn: \n\n", times_to_repeat_tests, " repeats")
+    print("Mean: ", np.mean(results_sklearn))
+    print("Std: ", np.std(results_sklearn))
+    print("Average error: ", np.mean(error_sklearn))
