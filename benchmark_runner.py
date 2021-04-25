@@ -1,16 +1,29 @@
+"""
+Use this script because it lets you:
+
+    -Choose which algorithms to run, without editing. Just comment out/in the relevant ones in ALGORITHMS_TO_RUN defn.
+    -Choose how many times to run each test (times_to_repeat_tests). Returns Mean,std, mean_err
+    -
+"""
+
+
 from test_omp import *
 # import pandas as pd
 
-if __name__ == "__main__":
-    # Repeat test a few times to get rid of random variation in system load
-    times_to_repeat_tests = 10
+# Repeat test a few times to get rid of random variation in system load
+times_to_repeat_tests = 25
 
-    # Comment these out depending on what you want to run!
-    ALGORITHMS_TO_RUN = [
-        "sklearn",
-        # "v0_original",
-        "naive_omp"
-    ]
+# Comment these out depending on what you want to run!
+ALGORITHMS_TO_RUN = [
+    # "sklearn",
+    # "v0_original",
+    # "v0_new",
+    # "v0_blas",
+    "v0_new_torch",
+    # "naive_omp"
+]
+
+if __name__ == "__main__":
 
      # = []
     # PROBLEM_SIZES = ["SMALL", "MEDIUM", "LARGE", "HUGE"]
@@ -49,23 +62,29 @@ if __name__ == "__main__":
     print("Number of Nonzero Coefficients: " + str(n_nonzero_coefs))
     print("Number of Samples: " + str(n_samples))
     print("\n")
-    print("---Running each test ", times_to_repeat_tests, " times!---\n")
+    print("---Running each test ", times_to_repeat_tests, " times!---")
 
 
-    # print('Single core. New implementation of algorithm v0 (pytorch)')
-    # with torch.autograd.profiler.emit_nvtx():
-    #     with elapsed_timer() as elapsed:
-    #         xests_v0_new_torch = omp_v0_torch(torch.as_tensor(y.copy()), torch.as_tensor(X.copy()), n_nonzero_coefs)
-    #     print('Samples per second:', n_samples/elapsed())
-    #     print("\n")
-    #
-    # print('error in new code (blas)', np.max(np.abs(xests_v0_blas - xests_v0_new_torch.numpy())))
+    if "v0_new_torch" in ALGORITHMS_TO_RUN:
+        print('\n\nSingle core. New implementation of algorithm v0 (pytorch)')
+        # with torch.autograd.profiler.emit_nvtx():
+        results, errors = [], []
+        for i in range(times_to_repeat_tests):
+            with elapsed_timer() as elapsed:
+                xests_v0_new_torch = omp_v0_torch(torch.as_tensor(y.copy()), torch.as_tensor(X.copy()), n_nonzero_coefs)
+            # print('Samples per second:', n_samples/elapsed())
+            results.append(n_samples/elapsed())
+            err_torch = np.linalg.norm(y.T - (X @ xests_v0_new_torch[:, :, None].numpy()).squeeze(-1), 2, 1)
+            errors.append(err_torch)
+        print("---Results for (", times_to_repeat_tests, " repeats)---")
+        print("Mean: ", np.mean(results))
+        print("Std: ", np.std(results))
+        print("Average error: ", np.mean(errors))
 
-    # exit()
 
     # Optimized Naive implementation (not really Naive though?)
     if "naive_omp" in ALGORITHMS_TO_RUN:
-        print('Single core. Optimized Naive implementation without Gramian/factorization tricks')
+        print('\n\nSingle core. Optimized Naive implementation without Gramian/factorization tricks')
         results, errors = [], []
         for i in range(times_to_repeat_tests):
             with elapsed_timer() as elapsed:
@@ -74,36 +93,88 @@ if __name__ == "__main__":
             results.append(n_samples/elapsed())
             err_naive = np.linalg.norm(y.T - (X @ xests_naive[:, :, None]).squeeze(-1), 2, 1)
             errors.append(err_naive)
-        print("\n\n\n---Results for (", times_to_repeat_tests, " repeats)---")
+        print("---Results for (", times_to_repeat_tests, " repeats)---")
         print("Mean: ", np.mean(results))
         print("Std: ", np.std(results))
         print("Average error: ", np.mean(errors))
 
 
+    if "v0_original" in ALGORITHMS_TO_RUN:
+        print('\n\nSingle core. v0_original algorithm - Cholesky')
+        results, errors = [], []
+        for i in range(times_to_repeat_tests):
+            # Precompute these
+            XTX = X.T @ X
+            XTy = (X.T @ y.T[:, :, None]).squeeze(-1)
+            with elapsed_timer() as elapsed:
+                xests_v0 = omp_v0_original(y.copy(), X.copy(), XTX, XTy, n_nonzero_coefs)
+            # print('Samples per second:', n_samples/elapsed())
+            results.append(n_samples/elapsed())
+            err_v0 = np.linalg.norm(y.T - (X @ xests_v0[:, :, None]).squeeze(-1), 2, 1)
+            errors.append(err_v0)
+        print("---Results for (", times_to_repeat_tests, " repeats)---")
+        print("Mean: ", np.mean(results))
+        print("Std: ", np.std(results))
+        print("Average error: ", np.mean(errors))
+
+        # print('Single core. Improved V0 algorithm - Cholesky + BLAS')
+        # with elapsed_timer() as elapsed:
+        #     xests_v0_blas = omp_v0_new_blas(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
+        # print('Samples per second:', n_samples/elapsed())
 
 
-    # print('Single core. Original V0 algorithm - Cholesky')
-    # with elapsed_timer() as elapsed:
-    #     xests_v0 = omp_v0_original(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
-    # print('Samples per second:', n_samples/elapsed())
-    # print("\n")
-    # err_v0 = np.linalg.norm(y.T - (X @ xests_v0[:, :, None]).squeeze(-1), 2, 1)
-    # print("Error: ", err_v0, '\n')
-    #
-    # print('Single core. Improved V0 algorithm - Cholesky + BLAS')
-    # with elapsed_timer() as elapsed:
-    #     xests_v0_blas = omp_v0_new_blas(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
-    # print('Samples per second:', n_samples/elapsed())
-    # print("\n")
+    if "v0_new" in ALGORITHMS_TO_RUN:
+        print('\n\nSingle core. v0 Cholesky algorithm but much improved with smart updating, memory optimizations')
+        results, errors = [], []
+        for i in range(times_to_repeat_tests):
+            # Precompute these
+            XTX = X.T @ X
+            XTy = (X.T @ y.T[:, :, None]).squeeze(-1)
+            with elapsed_timer() as elapsed:
+                xests_v0_new = omp_v0_new(y.copy(), X.copy(), XTX, XTy, n_nonzero_coefs)
+            # print('Samples per second:', n_samples/elapsed())
+            results.append(n_samples/elapsed())
+            err_v0_new = np.linalg.norm(y.T - (X @ xests_v0_new[:, :, None]).squeeze(-1), 2, 1)
+            errors.append(err_v0_new)
+        print("---Results for (", times_to_repeat_tests, " repeats)---")
+        print("Mean: ", np.mean(results))
+        print("Std: ", np.std(results))
+        print("Average error: ", np.mean(errors))
 
-    # exit()
+
+        # with elapsed_timer() as elapsed:
+        #
+        # print('Samples per second:', n_samples/elapsed())
+
+
+    if "v0_blas" in ALGORITHMS_TO_RUN:
+        print('\n\nSingle core. Improved V0 algorithm - Cholesky + BLAS')
+        results, errors = [], []
+        for i in range(times_to_repeat_tests):
+            # Precompute these
+            XTX = X.T @ X
+            XTy = (X.T @ y.T[:, :, None]).squeeze(-1)
+            with elapsed_timer() as elapsed:
+                xests_v0_blas = omp_v0_new_blas(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
+            # print('Samples per second:', n_samples/elapsed())
+            results.append(n_samples/elapsed())
+            err_v0_blas = np.linalg.norm(y.T - (X @ xests_v0_blas[:, :, None]).squeeze(-1), 2, 1)
+            errors.append(err_v0_blas)
+        print("---Results for (", times_to_repeat_tests, " repeats)---")
+        print("Mean: ", np.mean(results))
+        print("Std: ", np.std(results))
+        print("Average error: ", np.mean(errors))
+
+        # print('Single core. Improved V0 algorithm - Cholesky + BLAS')
+        # with elapsed_timer() as elapsed:
+        #     xests_v0_blas = omp_v0_new_blas(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
+        # print('Samples per second:', n_samples/elapsed())
+
 
     # precompute=True seems slower for single core. Dunno why.
-
-
-    if "sklean" in ALGORITHMS_TO_RUN:
+    if "sklearn" in ALGORITHMS_TO_RUN:
         omp_args = dict(n_nonzero_coefs=n_nonzero_coefs, precompute=False, fit_intercept=False)
-        print('Single core. Sklearn')
+        print('\n\nSingle core. Sklearn')
         omp = OrthogonalMatchingPursuit(**omp_args)
         results_sklearn, error_sklearn = [], []
         for i in range(times_to_repeat_tests):
