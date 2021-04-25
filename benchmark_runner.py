@@ -3,7 +3,7 @@ Use this script because it lets you:
 
     -Choose which algorithms to run, without editing. Just comment out/in the relevant ones in ALGORITHMS_TO_RUN defn.
     -Choose how many times to run each test (times_to_repeat_tests). Returns Mean,std, mean_err
-    -
+    -Choose problem (matrix) sizes!
 """
 
 
@@ -11,7 +11,11 @@ from test_omp import *
 # import pandas as pd
 
 # Repeat test a few times to get rid of random variation in system load
-times_to_repeat_tests = 25
+times_to_repeat_tests = 1
+
+# Choose: "SMALL", "MEDIUM", "LARGE", "HUGE"
+# Reduce times_to_repeat_tests appropriately
+PROBLEM_SIZE = "MEDIUM"
 
 # Comment these out depending on what you want to run!
 ALGORITHMS_TO_RUN = [
@@ -19,33 +23,29 @@ ALGORITHMS_TO_RUN = [
     # "v0_original",
     # "v0_new",
     # "v0_blas",
-    "v0_new_torch",
-    # "naive_omp"
+    # "v0_new_torch",
+    "naive_omp"
 ]
 
 if __name__ == "__main__":
+    print("\n\n-----Problem size: ", PROBLEM_SIZE, " -----\n")
 
-     # = []
-    # PROBLEM_SIZES = ["SMALL", "MEDIUM", "LARGE", "HUGE"]
-    # for problem_size in PROBLEM_SIZES:
-    #     print("-----Problem size: ", problem_size, " -----")
-        #
-        # if problem_size == "SMALL":
-        #     n_components, n_features = 1024, 100
-        #     n_nonzero_coefs = 17
-        #     n_samples = 3000
-        # elif problem_size == "MEDIUM":
-        #     n_components, n_features = 1024, 100
-        #     n_nonzero_coefs = 17
-        #     n_samples = 3000
-        # elif problem_size == "LARGE":
-        #     n_components, n_features = 1024, 100
-        #     n_nonzero_coefs = 17
-        #     n_samples = 3000
-        # elif problem_size == "HUGE":
-        #     n_components, n_features = 1024, 100
-        #     n_nonzero_coefs = 17
-        #     n_samples = 3000
+    if PROBLEM_SIZE == "SMALL":
+        n_components, n_features = 1024, 100
+        n_nonzero_coefs = 17
+        n_samples = 3000
+    elif PROBLEM_SIZE == "MEDIUM":
+        n_components, n_features = 3072, 300
+        n_nonzero_coefs = 49
+        n_samples = 1000
+    elif PROBLEM_SIZE == "LARGE":
+        n_components, n_features = 9216, 900
+        n_nonzero_coefs = 153
+        n_samples = 3000
+    elif PROBLEM_SIZE == "HUGE":
+        n_components, n_features = 1024, 100
+        n_nonzero_coefs = 17
+        n_samples = 3000
 
     y, X, w = make_sparse_coded_signal(
         n_samples=n_samples,
@@ -190,11 +190,6 @@ if __name__ == "__main__":
         print("Std: ", np.std(results_sklearn))
         print("Average error: ", np.mean(error_sklearn))
 
-
-    # err_naive = np.linalg.norm(y.T - (X @ xests_naive[:, :, None]).squeeze(-1), 2, 1)
-    # err_v0 = np.linalg.norm(y.T - (X @ xests_v0[:, :, None]).squeeze(-1), 2, 1)
-    # err_v0_new = np.linalg.norm(y.T - (X @ xests_v0_new[:, :, None]).squeeze(-1), 2, 1)
-    # err_sklearn = np.linalg.norm(y.T - (X @ omp.coef_[:, :, None]).squeeze(-1), 2, 1)
     avg_ylen = np.linalg.norm(y, 2, 0)
     # print(np.median(naive_err) / avg_ylen, np.median(scipy_err) / avg_ylen)
 
@@ -229,5 +224,4 @@ if __name__ == "__main__":
 
     # plt.hist(residuals)
     # plt.show()
-
 

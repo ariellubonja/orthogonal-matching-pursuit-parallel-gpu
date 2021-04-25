@@ -1,19 +1,26 @@
-import multiprocessing
-import os
-from contextlib import contextmanager
-from timeit import default_timer
-
+import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.linear_model import OrthogonalMatchingPursuit
+from sklearn.linear_model import OrthogonalMatchingPursuitCV
+from sklearn.datasets import make_sparse_coded_signal
+from scipy.io import loadmat
+import random
+from multiprocessing.dummy import Pool as ThreadPool
+import multiprocessing
+from tqdm import tqdm
+import os
+import torch
 import torch.utils
 import torch.utils.data
-from sklearn.datasets import make_sparse_coded_signal
-from sklearn.linear_model import OrthogonalMatchingPursuit
+from torch.utils.data import *
 from torch.utils.data.sampler import *
-
-
+from line_profiler import line_profiler
 # import torch.cuda.profiler as profiler
 # import pyprof
 # pyprof.init()
+
+from contextlib import contextmanager
+from timeit import default_timer
 
 # cholesky decomposition has a complexity of O(n^3) - the same as simply solving an equation.
 #  then solving an equation using a cholesky (or LU, or another triangular form), has complexity O(n^2)
@@ -135,7 +142,7 @@ def get_max_projections(projections):
         result[i] = np.argmax(np.abs(projections[i]))
     return result
 
-
+from test import *
 import scipy
 
 def get_max_projections_blas(projections):
@@ -172,7 +179,7 @@ def update_D_mybest(temp_F_k_k, XTX, maxindices, einssum):
     for i in range(temp_F_k_k.shape[0]):
          einssum[i] = temp_F_k_k[i] * (XTX[maxindices[i]] - einssum[i])
 
-
+import time
 def omp_v0_new(y, X, XTX, XTy, n_nonzero_coefs=None):
     if n_nonzero_coefs is None:
         n_nonzero_coefs = X.shape[1]
