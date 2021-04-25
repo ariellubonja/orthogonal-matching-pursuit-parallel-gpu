@@ -22,11 +22,11 @@ PROBLEM_SIZE = "HUGE"
 
 # Comment these out depending on what you want to run!
 ALGORITHMS_TO_RUN = [
-    # "sklearn",
+    "sklearn",
     "v0_original",
     "v0_new",
-    # "v0_blas",
-    # "v0_new_torch",
+    "v0_blas",
+    "v0_new_torch",
     "naive_omp"
 ]
 
@@ -42,7 +42,7 @@ if __name__ == "__main__":
         n_components, n_features = 3072, 300
         n_nonzero_coefs = 51
         n_samples = 100
-        times_to_repeat_tests = 5
+        times_to_repeat_tests = 10
     elif PROBLEM_SIZE == "LARGE":
         n_components, n_features = 6144, 600
         n_nonzero_coefs = 102
@@ -139,7 +139,7 @@ if __name__ == "__main__":
                 xests_v0_new = omp_v0_new(y.copy(), X.copy(), XTX, XTy, n_nonzero_coefs)
             # print('Samples per second:', n_samples/elapsed())
             results.append(n_samples/elapsed())
-            err_v0_new = np.linalg.norm(y.T - (X @ xests_v0_new[:, :, None]).squeeze(-1), 2, 1)
+            err_v0_new = np.linalg.norm(y.T - (X @ xests_v0_new[:, :, None]).squeeze(-1), 2, 1) / n_samples
             errors.append(err_v0_new)
         print("---Results for (", times_to_repeat_tests, " repeats)---")
         print("Mean: ", np.mean(results))
