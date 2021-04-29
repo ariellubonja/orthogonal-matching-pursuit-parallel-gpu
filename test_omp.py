@@ -267,7 +267,7 @@ def omp_v0_torch(y, X, n_nonzero_coefs=None):
     if n_nonzero_coefs is None:
         n_nonzero_coefs = X.shape[1]
     B = y.shape[1]
-    innerp = lambda x: (x[:, None, :] @ x[:, :, None])[:, 0, 0]  # torch.einsum('ij,ij->i', x, x)
+    innerp = lambda x: (x[..., None, :] @ x[..., :, None])[:, 0, 0]  # torch.einsum('ij,ij->i', x, x)
     normr2 = innerp(y.transpose(0, 1))  # Norm squared of residual.
     projections = (X.transpose(1, 0) @ y.transpose(1, 0)[:, :, None]).squeeze(-1)
     XTX = X.transpose(1, 0) @ X
@@ -275,33 +275,31 @@ def omp_v0_torch(y, X, n_nonzero_coefs=None):
     gamma = y.new_zeros(n_nonzero_coefs, B, dtype=torch.int64)
     F = torch.eye(n_nonzero_coefs, dtype=y.dtype, device=y.device).repeat(B, 1, 1)
     a_F = y.new_zeros(n_nonzero_coefs, B, 1)
-    D_mybest = y.new_empty(B, XTX.shape[0], n_nonzero_coefs)
+    D_mybest = y.new_empty(B, n_nonzero_coefs, XTX.shape[0])
     xests = y.new_zeros(B, X.shape[1])
-    temp_F_k_k = 1
+    b_indices = torch.arange(B, dtype=gamma.dtype, device=gamma.device)
+    temp_F_k_k = y.new_ones((B, 1))
     for k in range(n_nonzero_coefs):
-        maxindices = projections.abs().argmax(1)
-        gamma[k] = maxindices
-        if k == 0:
-            new_D_mybest = XTX[maxindices]
-        else:
-            grabdices = XTX.gather(0, maxindices[:, None].expand(-1, XTX.shape[1]))
-            indices = maxindices + D_mybest.shape[1] * torch.arange(B, dtype=maxindices.dtype, device=maxindices.device)
-            D_mybest_maxindices = D_mybest[:, :, :k].view(-1, k).gather(0, indices[:, None].expand(-1, k))
-            # ^ LINEAR INDEXING!
-            temp_F_k_k = torch.rsqrt(1 - innerp(D_mybest_maxindices))[:, None]  # Takes about 8% of time
-            D_mybest_maxindices = -temp_F_k_k * D_mybest_maxindices  # minimal operations, exploit linearity
-            new_D_mybest = temp_F_k_k * grabdices + (D_mybest[:, :, :k] @ D_mybest_maxindices[:, :, None]).squeeze(-1)
-            F[:, :, k] = (F[:, :, :k] @ D_mybest_maxindices[:, :, None]).squeeze(-1)
+        gamma[k] = projections.abs().argmax(1)
+        torch.gather(XTX, 0, gamma[k, :, None].expand(-1, XTX.shape[1]), out=D_mybest[:, k, :])
+        if k:
+            D_mybest_maxindices = D_mybest.permute(0, 2, 1)[b_indices, gamma[k], :k]
+            torch.rsqrt(1 - innerp(D_mybest_maxindices), out=temp_F_k_k[:, 0])
+            # print(torch.any(torch.isnan(temp_F_k_k)))
+            # It may be faster to also save or use 1/* and not just 1/sqrt(*) - since many places this is multiplied twice!
+            D_mybest_maxindices *= -temp_F_k_k  # minimal operations, exploit linearity
+            D_mybest[:, k, :] *= temp_F_k_k
+
+            D_mybest[:, k, :, None].baddbmm_(D_mybest[:, :k, :].permute(0, 2, 1), D_mybest_maxindices[:, :, None])
+            torch.bmm(F[:, :, :k], D_mybest_maxindices[:, :, None], out=F[:, :, k, None])
             F[:, k, k] = temp_F_k_k[..., 0]
 
-        a_F[k] = temp_F_k_k * torch.gather(projections, 1, maxindices[:, None])
-        projections = projections - a_F[k] * new_D_mybest
-        D_mybest[:, :, k] = new_D_mybest
-        normr2 = normr2 - (a_F[k] * a_F[k]).squeeze(-1)
+        a_F[k] = temp_F_k_k * torch.gather(projections, 1, gamma[k, :, None])
+        normr2 -= (a_F[k] * a_F[k]).squeeze(-1)
+        projections -= a_F[k] * D_mybest[:, k, :]
     else:
         values = (F @ a_F.squeeze(-1).transpose(1, 0)[:, :, None]).squeeze(-1)
-        for i in range(B):
-            xests[i].index_copy_(0, gamma[:, i], values[i])
+        xests[b_indices[:, None], gamma.permute(1, 0)] = values
     return xests
 
 def update_D_mybest_fast(temp_F_k_k, XTX, maxindices, A, x, D_mybest):

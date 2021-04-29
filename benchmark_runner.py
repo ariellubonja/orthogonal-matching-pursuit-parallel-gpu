@@ -18,16 +18,17 @@ times_to_repeat_tests_override = "default"
 
 # Choose: "SMALL", "MEDIUM", "LARGE", "HUGE"
 # Reduce times_to_repeat_tests appropriately
-PROBLEM_SIZE = "HUGE"
+PROBLEM_SIZE = "SMALL"
 
 # Comment these out depending on what you want to run!
 ALGORITHMS_TO_RUN = [
-    "sklearn",
-    "v0_original",
-    "v0_new",
-    "v0_blas",
+    # "sklearn",
+    # "v0_original",
+    # "v0_new",
+    # "v0_blas",
     "v0_new_torch",
-    "naive_omp"
+    "v0_new_torch_gpu",
+    # "naive_omp"
 ]
 
 if __name__ == "__main__":
@@ -81,7 +82,24 @@ if __name__ == "__main__":
         results, errors = [], []
         for i in range(times_to_repeat_tests):
             with elapsed_timer() as elapsed:
-                xests_v0_new_torch = omp_v0_torch(torch.as_tensor(y.copy()), torch.as_tensor(X.copy()), n_nonzero_coefs)
+                xests_v0_new_torch = omp_v0_torch(torch.as_tensor(y.copy(), dtype=torch.float32), torch.as_tensor(X.copy(), dtype=torch.float32), n_nonzero_coefs)
+            # print('Samples per second:', n_samples/elapsed())
+            results.append(n_samples/elapsed())
+            err_torch = np.linalg.norm(y.T - (X @ xests_v0_new_torch[:, :, None].numpy()).squeeze(-1), 2, 1) / n_samples
+            errors.append(err_torch)
+        print("---Results for (", times_to_repeat_tests, " repeats)---")
+        print("Mean: ", np.mean(results))
+        print("Std: ", np.std(results))
+        print("Average error: ", np.mean(errors))
+
+
+    if "v0_new_torch_gpu" in ALGORITHMS_TO_RUN:
+        print('\n\nGPU - Pytorch')
+        # with torch.autograd.profiler.emit_nvtx():
+        results, errors = [], []
+        for i in range(times_to_repeat_tests):
+            with elapsed_timer() as elapsed:
+                xests_v0_new_torch = omp_v0_torch(torch.as_tensor(y.copy(), dtype=torch.float32, device="cuda:0"), torch.as_tensor(X.copy(), dtype=torch.float32, device="cuda:0"), n_nonzero_coefs).cpu()
             # print('Samples per second:', n_samples/elapsed())
             results.append(n_samples/elapsed())
             err_torch = np.linalg.norm(y.T - (X @ xests_v0_new_torch[:, :, None].numpy()).squeeze(-1), 2, 1) / n_samples
