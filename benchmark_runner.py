@@ -18,15 +18,16 @@ times_to_repeat_tests_override = "default"
 
 # Choose: "SMALL", "MEDIUM", "LARGE", "HUGE"
 # Reduce times_to_repeat_tests appropriately
-PROBLEM_SIZE = "SMALL"
+PROBLEM_SIZE = "LARGE"
 
 # Comment these out depending on what you want to run!
 ALGORITHMS_TO_RUN = [
     # "sklearn",
     # "v0_original",
     # "v0_new",
+
     # "v0_blas",
-    "v0_new_torch",
+    # "v0_new_torch",
     "v0_new_torch_gpu",
     # "naive_omp"
 ]
@@ -47,12 +48,12 @@ if __name__ == "__main__":
     elif PROBLEM_SIZE == "LARGE":
         n_components, n_features = 6144, 600
         n_nonzero_coefs = 102
-        n_samples = 40
+        n_samples = 400
         times_to_repeat_tests = 3
     elif PROBLEM_SIZE == "HUGE":
         n_components, n_features = 12288, 1200
         n_nonzero_coefs = 204
-        n_samples = 10
+        n_samples = 50
         times_to_repeat_tests = 2
 
     if times_to_repeat_tests_override != "default":
@@ -90,7 +91,7 @@ if __name__ == "__main__":
         print("---Results for (", times_to_repeat_tests, " repeats)---")
         print("Mean: ", np.mean(results))
         print("Std: ", np.std(results))
-        print("Average error: ", np.mean(errors))
+        print("Median error (bcs float precision): ", np.median(errors))
 
 
     if "v0_new_torch_gpu" in ALGORITHMS_TO_RUN:
@@ -102,12 +103,12 @@ if __name__ == "__main__":
                 xests_v0_new_torch = omp_v0_torch(torch.as_tensor(y.copy(), dtype=torch.float32, device="cuda:0"), torch.as_tensor(X.copy(), dtype=torch.float32, device="cuda:0"), n_nonzero_coefs).cpu()
             # print('Samples per second:', n_samples/elapsed())
             results.append(n_samples/elapsed())
-            err_torch = np.linalg.norm(y.T - (X @ xests_v0_new_torch[:, :, None].numpy()).squeeze(-1), 2, 1) / n_samples
+            err_torch = np.linalg.norm(y.T - (X @ xests_v0_new_torch[:, :, None].numpy()).squeeze(-1), 2, 1)# / n_samples
             errors.append(err_torch)
         print("---Results for (", times_to_repeat_tests, " repeats)---")
         print("Mean: ", np.mean(results))
         print("Std: ", np.std(results))
-        print("Average error: ", np.mean(errors))
+        print("Median error (bcs float precision): ", np.median(errors))
 
 
     # Optimized Naive implementation (not really Naive though?)
@@ -119,12 +120,12 @@ if __name__ == "__main__":
                 xests_naive = omp_naive(X.copy(), y.copy(), n_nonzero_coefs)
             # print('Samples per second:', n_samples/elapsed())
             results.append(n_samples/elapsed())
-            err_naive = np.linalg.norm(y.T - (X @ xests_naive[:, :, None]).squeeze(-1), 2, 1) / n_samples
+            err_naive = np.linalg.norm(y.T - (X @ xests_naive[:, :, None]).squeeze(-1), 2, 1)# / n_samples
             errors.append(err_naive)
         print("---Results for (", times_to_repeat_tests, " repeats)---")
         print("Mean: ", np.mean(results))
         print("Std: ", np.std(results))
-        print("Average error: ", np.mean(errors))
+        print("Median error (bcs float precision): ", np.median(errors))
 
 
     if "v0_original" in ALGORITHMS_TO_RUN:
@@ -138,12 +139,12 @@ if __name__ == "__main__":
                 xests_v0 = omp_v0_original(y.copy(), X.copy(), XTX, XTy, n_nonzero_coefs)
             # print('Samples per second:', n_samples/elapsed())
             results.append(n_samples/elapsed())
-            err_v0 = np.linalg.norm(y.T - (X @ xests_v0[:, :, None]).squeeze(-1), 2, 1)/ n_samples
+            err_v0 = np.linalg.norm(y.T - (X @ xests_v0[:, :, None]).squeeze(-1), 2, 1)#/ n_samples
             errors.append(err_v0)
         print("---Results for (", times_to_repeat_tests, " repeats)---")
         print("Mean: ", np.mean(results))
         print("Std: ", np.std(results))
-        print("Average error: ", np.mean(errors))
+        print("Median error (bcs float precision): ", np.median(errors))
 
 
     if "v0_new" in ALGORITHMS_TO_RUN:
@@ -157,12 +158,12 @@ if __name__ == "__main__":
                 xests_v0_new = omp_v0_new(y.copy(), X.copy(), XTX, XTy, n_nonzero_coefs)
             # print('Samples per second:', n_samples/elapsed())
             results.append(n_samples/elapsed())
-            err_v0_new = np.linalg.norm(y.T - (X @ xests_v0_new[:, :, None]).squeeze(-1), 2, 1) / n_samples
+            err_v0_new = np.linalg.norm(y.T - (X @ xests_v0_new[:, :, None]).squeeze(-1), 2, 1)# / n_samples
             errors.append(err_v0_new)
         print("---Results for (", times_to_repeat_tests, " repeats)---")
         print("Mean: ", np.mean(results))
         print("Std: ", np.std(results))
-        print("Average error: ", np.mean(errors))
+        print("Median error (bcs float precision): ", np.median(errors))
 
 
         # with elapsed_timer() as elapsed:
@@ -181,12 +182,12 @@ if __name__ == "__main__":
                 xests_v0_blas = omp_v0_new_blas(y.copy(), X.copy(), X.T @ X, (X.T @ y.T[:, :, None]).squeeze(-1), n_nonzero_coefs)
             # print('Samples per second:', n_samples/elapsed())
             results.append(n_samples/elapsed())
-            err_v0_blas = np.linalg.norm(y.T - (X @ xests_v0_blas[:, :, None]).squeeze(-1), 2, 1)/ n_samples
+            err_v0_blas = np.linalg.norm(y.T - (X @ xests_v0_blas[:, :, None]).squeeze(-1), 2, 1)#/ n_samples
             errors.append(err_v0_blas)
         print("---Results for (", times_to_repeat_tests, " repeats)---")
         print("Mean: ", np.mean(results))
         print("Std: ", np.std(results))
-        print("Average error: ", np.mean(errors))
+        print("Median error (bcs float precision): ", np.median(errors))
 
 
     # precompute=True seems slower for single core. Dunno why.
@@ -200,13 +201,13 @@ if __name__ == "__main__":
                 omp.fit(X, y)
             # print('Samples per second:', n_samples/elapsed())
             results_sklearn.append(n_samples/elapsed())
-            err_sklearn = np.linalg.norm(y.T - (X @ omp.coef_[:, :, None]).squeeze(-1), 2, 1)/ n_samples
+            err_sklearn = np.linalg.norm(y.T - (X @ omp.coef_[:, :, None]).squeeze(-1), 2, 1)#/ n_samples
             error_sklearn.append(err_sklearn)
             # print("Avg. Error: ", np.average(err_sklearn / avg_ylen))
         print("---Results: Sklearn (", times_to_repeat_tests, " repeats)---")
         print("Mean: ", np.mean(results_sklearn))
         print("Std: ", np.std(results_sklearn))
-        print("Average error: ", np.mean(error_sklearn))
+        print("Median error (bcs float precision): ", np.median(error_sklearn))
 
     avg_ylen = np.linalg.norm(y, 2, 0)
     # print(np.median(naive_err) / avg_ylen, np.median(scipy_err) / avg_ylen)
