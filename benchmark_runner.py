@@ -18,7 +18,7 @@ times_to_repeat_tests_override = "default"
 
 # Choose: "SMALL", "MEDIUM", "LARGE", "HUGE"
 # Reduce times_to_repeat_tests appropriately
-PROBLEM_SIZE = "LARGE"
+PROBLEM_SIZE = "SMALL"
 
 # Comment these out depending on what you want to run!
 ALGORITHMS_TO_RUN = [
@@ -38,13 +38,13 @@ if __name__ == "__main__":
     if PROBLEM_SIZE == "SMALL":
         n_components, n_features = 1024, 100
         n_nonzero_coefs = 17
-        n_samples = 1000
+        n_samples = 12000
         times_to_repeat_tests = 10
     elif PROBLEM_SIZE == "MEDIUM":
         n_components, n_features = 3072, 300
         n_nonzero_coefs = 51
-        n_samples = 100
-        times_to_repeat_tests = 10
+        n_samples = 1000
+        times_to_repeat_tests = 5
     elif PROBLEM_SIZE == "LARGE":
         n_components, n_features = 6144, 600
         n_nonzero_coefs = 102
@@ -198,7 +198,7 @@ if __name__ == "__main__":
         results_sklearn, error_sklearn = [], []
         for i in range(times_to_repeat_tests):
             with elapsed_timer() as elapsed:
-                omp.fit(X, y)
+                omp.fit(X.astype(np.float32), y.astype(np.float32))
             # print('Samples per second:', n_samples/elapsed())
             results_sklearn.append(n_samples/elapsed())
             err_sklearn = np.linalg.norm(y.T - (X @ omp.coef_[:, :, None]).squeeze(-1), 2, 1)#/ n_samples
