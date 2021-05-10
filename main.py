@@ -213,7 +213,6 @@ def omp_naive(X, y, n_nonzero_coefs, tol=None, XTX=None):
 
     return sets, solutions, None
 
-@profile
 def omp_v0(X, y, XTX, n_nonzero_coefs=None, tol=None, inverse_cholesky=True):
     B = y.shape[0]
     normr2 = innerp(y)  # Norm squared of residual.
@@ -313,7 +312,7 @@ if __name__ == "__main__":
     print("\n")
 
     with elapsed_timer() as elapsed:
-        xests_naive_fast = run_omp(X.copy(), y.copy(), n_nonzero_coefs-k, tol=tol, normalize=True, fit_intercept=True, alg='naive')
+        xests_naive_fast = run_omp(X.copy().astype(np.float), y.copy().astype(np.float), n_nonzero_coefs-k, tol=tol, normalize=True, fit_intercept=True, alg='naive')
     print('Samples per second:', n_samples / elapsed())
     print("\n")
     print(xests_v0.numpy().nonzero(), xests_v0.shape)

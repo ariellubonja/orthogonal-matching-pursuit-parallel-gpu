@@ -652,7 +652,6 @@ def omp_naive_final(X, y, n_nonzero_coefs):
         else:
             # Update ATAs
             torch.bmm(AT[:, :k + 1, :], updateA[:, :, None], out=ATA[:, k, :k + 1, None])  # We could use the following to dynamically select order: ATA[:, k, :k].strides[-1], ATA[:, :k, k].strides[-1]
-
             if True:
                 # Use cholesky decomposition to solve.
                 factors = torch.cholesky(ATA)  # or torch.linalg.cholesky!

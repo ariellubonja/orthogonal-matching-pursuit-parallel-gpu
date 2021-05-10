@@ -5,7 +5,7 @@ cimport numpy as np
 
 from cpython cimport PyCapsule_GetPointer
 from scipy.linalg.cython_blas cimport idamax, isamax, daxpy, dgemv, dtrmv, dcopy
-from scipy.linalg.cython_lapack cimport dposv, dppsv
+from scipy.linalg.cython_lapack cimport dposv, dppsv, sppsv
 from libc.string cimport memcpy
 cimport scipy.linalg.cython_lapack as lapack
 ctypedef np.float64_t REAL_t
