@@ -85,36 +85,22 @@ cpdef void update_D_mybest_blast(double[:] temp_F_k_k, double[:, :] XTX,
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cpdef void ppsv(double[:, :] As,
-           double[:, :, :] ys, char uplo = 'U') nogil:
+cpdef void ppsv(proj_t[:, :] As,
+           proj_t[:, :, :] ys) nogil:
     # Works not for strided array I think. And please do not give a negative-stride
     cdef Py_ssize_t B = ys.shape[0]  # Batch size
     cdef int N = ys.shape[1]
     cdef int nrhs = ys.shape[2]
     cdef int info = 0  # Just discard any error signals ;)
-    # cdef int ldb = ys[0].strides[0] // sizeof(double)
-
-    for i from 0 <= i < B:
-        dppsv(&uplo, &N, &nrhs, &As[i, 0], &ys[i, 0, 0], &N, &info)
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cpdef void posv(proj_t[:, :, :] As,
-           proj_t[:, :, :] ys, char uplo = 'U') nogil:
-    # Works not for strided array I think. And please do not give a negative-stride
-    cdef Py_ssize_t B = ys.shape[0]  # Batch size
-    cdef int N = ys.shape[1]
-    cdef int nrhs = ys.shape[2]
-    # cdef char uplo = 'U'
-    cdef int info = 0  # Just discard any error signals ;)
-    cdef int lda = As[0].strides[0] // sizeof(proj_t)
+    cdef char uplo = 'U'
     # cdef int ldb = ys[0].strides[0] // sizeof(double)
 
     for i from 0 <= i < B:
         if proj_t is double:  # One C-function is created for each of these specializations :) (see argmax_blast.__signatures__)
-            dposv(&uplo, &N, &nrhs, &As[i, 0, 0], &lda, &ys[i, 0, 0], &N, &info)
+            dppsv(&uplo, &N, &nrhs, &As[i, 0], &ys[i, 0, 0], &N, &info)
         elif proj_t is float:
-            sposv(&uplo, &N, &nrhs, &As[i, 0, 0], &lda, &ys[i, 0, 0], &N, &info)
+            sppsv(&uplo, &N, &nrhs, &As[i, 0], &ys[i, 0, 0], &N, &info)
+
 
 
 @cython.boundscheck(False)
