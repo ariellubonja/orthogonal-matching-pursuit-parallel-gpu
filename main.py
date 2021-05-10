@@ -11,9 +11,9 @@ from timeit import default_timer
 from test_omp import omp_naive
 from test import *  # FIXME: better name
 
-n_components, n_features = 1024*4, 100
+n_components, n_features = 100, 100
 n_nonzero_coefs = 17
-n_samples = 500
+n_samples = 50
 
 @contextmanager
 def elapsed_timer():
@@ -25,7 +25,7 @@ def elapsed_timer():
     elapser = lambda: end-start
 
 
-def run_omp(X, y, n_nonzero_coefs, XTX=None, tol=None, normalize=False, fit_intercept=False, alg='naive'):
+def run_omp(X, y, n_nonzero_coefs, precompute=True, tol=0.0, normalize=False, fit_intercept=False, alg='naive'):
     if not isinstance(X, torch.Tensor):
         X = torch.as_tensor(X)
         y = torch.as_tensor(y)
@@ -36,14 +36,14 @@ def run_omp(X, y, n_nonzero_coefs, XTX=None, tol=None, normalize=False, fit_inte
     # Given sets and X and y one can (re-)construct xests. The second is just a sparse vector repr.
 
     # https://github.com/scikit-learn/scikit-learn/blob/15a949460dbf19e5e196b8ef48f9712b72a3b3c3/sklearn/linear_model/_omp.py#L690
-
     if fit_intercept or normalize:
         X = X.clone()
-        assert XTX is None or XTX is True  # in case user precomputes XTX they can also precompute this as well.
+        assert not isinstance(precompute, torch.Tensor), "If user pre-computes XTX they can also pre-normalize X" \
+                                                         " as well, so normalize and fit_intercept must be set false."
 
     if fit_intercept:
         X = X - X.mean(0)
-        y = y - y.mean(0)
+        y = y - y.mean(1)[:, None]
 
     # To keep a good condition number on X, especially with Cholesky compared to LU factorization,
     # we should probably always normalize it (OMP is invariant anyways)
@@ -51,26 +51,27 @@ def run_omp(X, y, n_nonzero_coefs, XTX=None, tol=None, normalize=False, fit_inte
         normalize = (X * X).sum(0).sqrt()  # User can also just optionally supply pre-computed norms.
         X /= normalize[None, :]  # Save compute if already normalized!
 
-    if XTX is True or alg == 'v0':
-        XTX = X.T @ X
+    if precompute is True or alg == 'v0':
+        precompute = X.T @ X
 
     # If n_nonzero_coefs is equal to M, one should just return lstsq
     if alg == 'naive':
-        sets, solutions, lengths = omp_naive_final(X, y, n_nonzero_coefs=n_nonzero_coefs, XTX=XTX, tol=tol)
+        sets, solutions, lengths = omp_naive(X, y, n_nonzero_coefs=n_nonzero_coefs, XTX=precompute, tol=tol)
     elif alg == 'v0':
-        sets, solutions, lengths = omp_v0_torch_cuda8(X, y, n_nonzero_coefs=n_nonzero_coefs, XTX=XTX, tol=tol)
+        sets, solutions, lengths = omp_v0(X, y, n_nonzero_coefs=n_nonzero_coefs, XTX=precompute, tol=tol)
 
     solutions = solutions.squeeze(-1)
     if normalize is not False:
-        solutions /= normalize[sets, None]
+        solutions /= normalize[sets]
 
     xests = y.new_zeros(y.shape[0], X.shape[1])
-    if tol:
-        for i in range(y.shape[0]):
-            # xests[i].scatter_(-1, sets[i, :lengths[i]], solutions[i, :lengths[i], 0])
-            xests[i, sets[i, :lengths[i]]] = solutions[i, :lengths[i]]
+    if lengths is None:
+        xests[torch.arange(y.shape[0], dtype=sets.dtype, device=sets.device)[:, None], sets] = solutions
     else:
-        xests[torch.arange(y.shape[0], dtype=sets.dtype, device=sets.device)[:, None], sets] = solutions[:, :n_nonzero_coefs]
+        for i in range(y.shape[0]):
+            # print(sets.shape, xests[i, sets[i, :lengths[i]]].shape)
+            # xests[i].scatter_(-1, sets[i, :lengths[i]], solutions[i, :lengths[i]])
+            xests[i, sets[i, :lengths[i]]] = solutions[i, :lengths[i]]
 
     return xests
 
@@ -110,7 +111,7 @@ def cholesky_solve(ATA, ATy):
     return ATy.cholesky_solve(torch.cholesky(ATA)).to(ATy.dtype)
 
 
-def omp_naive_final(X, y, n_nonzero_coefs, tol=None, XTX=None):
+def omp_naive(X, y, n_nonzero_coefs, tol=None, XTX=None):
     on_cpu = not (y.is_cuda or y.dtype == torch.half)
     # Given X as an MxN array and y as an BxN array, do omp to approximately solve Xb=y
 
@@ -138,7 +139,7 @@ def omp_naive_final(X, y, n_nonzero_coefs, tol=None, XTX=None):
 
     solutions = y.new_zeros((r.shape[0], 0))
 
-    for k in range(n_nonzero_coefs+1):
+    for k in range(n_nonzero_coefs+bool(tol)):
         # STOPPING CRITERIA
         if tol:
             problems_done = innerp(r) <= tol
@@ -152,8 +153,9 @@ def omp_naive_final(X, y, n_nonzero_coefs, tol=None, XTX=None):
                 result_sets[orig_idxs, :k] = sets[problems_done, :k]
                 result_solutions[orig_idxs, :k] = solutions[problems_done]
                 result_lengths[orig_idxs] = k
-
                 original_indices = original_indices[remaining]
+
+                # original_indices = original_indices[remaining]
                 ATs = ATs[remaining]
                 ATys = ATys[remaining]
                 ATAs = ATAs[remaining]
@@ -161,10 +163,7 @@ def omp_naive_final(X, y, n_nonzero_coefs, tol=None, XTX=None):
                 y = y[remaining]
                 r = r[remaining]
                 if problems_done.all():
-                    break
-        elif k == n_nonzero_coefs:
-            continue
-
+                    return result_sets, result_solutions, result_lengths
         # GET PROJECTIONS AND INDICES TO ADD
         if on_cpu:
             projections = batch_mm(XT.numpy(), r[:, :, None].numpy())
@@ -186,7 +185,7 @@ def omp_naive_final(X, y, n_nonzero_coefs, tol=None, XTX=None):
         if on_cpu:
             packed_idx = k * (k - 1) // 2
             if XTX is not None:  # Update based on precomputed XTX.
-                ATAs[k + packed_idx:packed_idx + 2 * k + 1, :].t().numpy()[:] = XTX[sets[:, k, None], sets[:, :k + 1]]
+                ATAs.t()[k + packed_idx:packed_idx + 2 * k + 1, :].t().numpy()[:] = XTX[sets[:, k, None], sets[:, :k + 1]]
             else:
                 np.matmul(AT[:, :k + 1, :].numpy(), updateA[:, :, None].numpy(),
                           out=ATAs.t()[k + packed_idx:packed_idx + 2 * k + 1, :].t()[:, :, None].numpy())
@@ -212,13 +211,10 @@ def omp_naive_final(X, y, n_nonzero_coefs, tol=None, XTX=None):
         else:
             torch.baddbmm(y[:, :, None], AT.permute(0, 2, 1), solutions, beta=-1, out=r[:, :, None])
 
-    if tol:
-        return result_sets, result_solutions, result_lengths
-    else:
-        return sets, solutions, None
+    return sets, solutions, None
 
 
-def omp_v0_torch_cuda8(X, y, XTX, n_nonzero_coefs=None, tol=None, inverse_cholesky=True):
+def omp_v0(X, y, XTX, n_nonzero_coefs=None, tol=None, inverse_cholesky=True):
     B = y.shape[0]
     normr2 = innerp(y)  # Norm squared of residual.
     projections = (X.transpose(1, 0) @ y[:, :, None]).squeeze(-1)
@@ -236,13 +232,11 @@ def omp_v0_torch_cuda8(X, y, XTX, n_nonzero_coefs=None, tol=None, inverse_choles
     temp_F_k_k = y.new_ones((B, 1))
 
     if tol:
-        result_sets = sets.new_zeros(y.shape[0], n_nonzero_coefs)
         result_lengths = sets.new_zeros(y.shape[0])
         result_solutions = y.new_zeros((y.shape[0], n_nonzero_coefs, 1))
-        # original_indices = torch.arange(y.shape[0], dtype=sets.dtype, device=sets.device)
         finished_problems = sets.new_zeros(y.shape[0], dtype=torch.bool)
 
-    for k in range(n_nonzero_coefs+1):
+    for k in range(n_nonzero_coefs+bool(tol)):
         # STOPPING CRITERIA
         if tol:
             problems_done = normr2 <= tol
@@ -252,33 +246,13 @@ def omp_v0_torch_cuda8(X, y, XTX, n_nonzero_coefs=None, tol=None, inverse_choles
             if problems_done.any():
                 new_problems_done = problems_done & ~finished_problems
                 finished_problems.logical_or_(problems_done)
-                # remaining = ~problems_done
-                # orig_idxs = original_indices[problems_done]
-                result_sets = sets.t()
-                # result_sets[orig_idxs, :k] = sets[:k, problems_done].t()
-                # result_lengths[orig_idxs] = k
                 result_lengths[new_problems_done] = k
                 if inverse_cholesky:
-                    # result_solutions[orig_idxs, :k] = F[problems_done, :k, :k].permute(0, 2, 1) @ a_F[:k, problems_done].permute(1, 0, 2)
                     result_solutions[new_problems_done, :k] = F[new_problems_done, :k, :k].permute(0, 2, 1) @ a_F[:k, new_problems_done].permute(1, 0, 2)
                 else:
                     assert False, "inverse_cholesky=False with tol != None is not handled"
-                # original_indices = original_indices[remaining]
-                # normr2 = normr2[remaining]
-                # projections = projections[remaining]
-                # D_mybest = D_mybest[remaining]
-                # temp_F_k_k = temp_F_k_k[remaining]
-                # y = y[remaining]
-                # sets = sets[:, remaining]
-                # if inverse_cholesky:
-                #    F = F[remaining]
-                #    a_F = a_F[:, remaining]
-
                 if problems_done.all():
-                    # result_solutions = F[:, :k, :k].permute(0, 2, 1) @ a_F[:k, :].permute(1, 0, 2)
-                    break
-        elif k == n_nonzero_coefs:
-            continue
+                    return sets.t(), result_solutions, result_lengths
 
         sets[k] = projections.abs().argmax(1)
         # D_mybest[:, k, :] = XTX[gamma[k], :]  # Same line as below, but significantly slower. (prob. due to the intermediate array creation)
@@ -307,10 +281,7 @@ def omp_v0_torch_cuda8(X, y, XTX, n_nonzero_coefs=None, tol=None, inverse_choles
             AT = X.T[sets.T]
             solutions = cholesky_solve(AT @ AT.permute(0, 2, 1), AT @ y.T[:, :, None])
 
-    if tol:
-        return result_sets, result_solutions, result_lengths
-    else:
-        return sets.t(), solutions, None
+    return sets.t(), solutions, None
 
 if __name__ == "__main__":
     # The naive algorithm has a memory complexity of kNM = O(N^2M), while the v0 has k(N^2+N(M+k)) = O(N^3+N^2M).
@@ -325,7 +296,7 @@ if __name__ == "__main__":
         n_nonzero_coefs=n_nonzero_coefs,
         random_state=0)
 
-    y = y.T.copy()
+    y = (y.T + np.random.randn(*y.T.shape) * 0.01)
     XTX = X.T @ X
     print("Settings used for the test: ")
     print("Number of Samples: " + str(n_samples))
@@ -335,21 +306,22 @@ if __name__ == "__main__":
     print("\n")
 
     print('Single core. v0 fast implementation.')
-
+    tol = 0.1
+    k = 0
     with elapsed_timer() as elapsed:
-        xests_v0 = run_omp(torch.as_tensor(X.copy()), torch.as_tensor(y.copy()), n_nonzero_coefs, tol=0.7, alg='v0')
+        xests_v0 = run_omp(torch.as_tensor(X.copy()), torch.as_tensor(y.copy()), n_nonzero_coefs-k, normalize=True, fit_intercept=False, tol=tol, alg='v0')
     print('Samples per second:', n_samples / elapsed())
     print("\n")
 
     with elapsed_timer() as elapsed:
-        xests_naive_fast = run_omp(X.copy(), y.copy(), n_nonzero_coefs, tol=0.7, normalize=False, fit_intercept=False)
+        xests_naive_fast = run_omp(X.copy(), y.copy(), n_nonzero_coefs-k, tol=tol, normalize=True, fit_intercept=False, alg='naive')
     print('Samples per second:', n_samples / elapsed())
     print("\n")
     print(xests_v0.numpy().nonzero(), xests_v0.shape)
     print('error in new code (v0)', np.max(np.abs(xests_v0.numpy() - xests_naive_fast.numpy())))
 
-    if False:
-        omp_args = dict(tol=0.7, n_nonzero_coefs=n_nonzero_coefs, precompute=False, fit_intercept=False, normalize=False)
+    if True:
+        omp_args = dict(tol=tol, n_nonzero_coefs=n_nonzero_coefs-k, precompute=False, fit_intercept=False, normalize=True)
         # Single core
         print('Single core. Sklearn')
         omp = OrthogonalMatchingPursuit(**omp_args)
@@ -359,15 +331,11 @@ if __name__ == "__main__":
         print("\n")
 
         # print(omp.coef_[0].nonzero(), omp.coef_.shape, xests_naive_fast.shape, xests_naive_fast.dtype)
-        print(xests_naive_fast[0].numpy().nonzero())
+        # print(xests_naive_fast[0].numpy().nonzero())
+        print((np.linalg.norm(y[..., None] - X @ omp.coef_[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
+        print((np.linalg.norm(y[..., None] - X @ xests_v0.numpy()[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
+        print((np.linalg.norm(y[..., None] - X @ xests_naive_fast.numpy()[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
+        print('error in new code (blas)', np.max(np.abs(omp.coef_ - xests_v0.numpy())))
         print('error in new code (blas)', np.max(np.abs(omp.coef_ - xests_naive_fast.numpy())))
-        print('idx in new code (blas)', np.max(np.abs(omp.coef_[5].nonzero()[0] - xests_naive_fast[5].numpy().nonzero()[0])))
-        print('idx in new code (blas)', np.max(np.abs(omp.coef_.nonzero()[1] - xests_naive_fast.numpy().nonzero()[1])))
-
-    print('Single core. Naive implementation.')
-    with elapsed_timer() as elapsed:
-        xests_naive = omp_naive(X.copy(), y.T.copy(), n_nonzero_coefs)
-    print('Samples per second:', n_samples / elapsed())
-    print("\n")
-
-    print('error in new code (blas)', np.max(np.abs(xests_naive - xests_naive_fast.numpy())))
+        # print('idx in new code (blas)', np.max(np.abs(omp.coef_[5].nonzero()[0] - xests_naive_fast[5].numpy().nonzero()[0])))
+        # print('idx in new code (blas)', np.max(np.abs(omp.coef_.nonzero()[1] - xests_naive_fast.numpy().nonzero()[1])))
