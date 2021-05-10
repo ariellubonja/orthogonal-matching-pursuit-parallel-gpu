@@ -88,7 +88,7 @@ def batch_mm(matrix, matrix_batch, return_contiguous=True):
     vectors = matrix_batch.transpose([1, 0, 2]).reshape(matrix.shape[1], -1)
 
     # A matrix-matrix product is a batched matrix-vector product of the columns.
-    # And then reverse the reshaping. (m, n) x (n, b*k) = (m, b*k) -> (m, b, k) -> (b, m, k)
+    # And then reverse the reshaping. (m, n) x (n, b*k) = (m, b*k) -> (m, b, k) -> (b, m, k).
     if return_contiguous:
         result = np.empty_like(matrix_batch, shape=(batch_size, matrix.shape[0], matrix_batch.shape[2]))
         np.matmul(matrix, vectors, out=result.transpose([1, 0, 2]).reshape(matrix.shape[0], -1))
@@ -113,7 +113,7 @@ def cholesky_solve(ATA, ATy):
 
 def omp_naive(X, y, n_nonzero_coefs, tol=None, XTX=None):
     on_cpu = not (y.is_cuda or y.dtype == torch.half)
-    # Given X as an MxN array and y as an BxN array, do omp to approximately solve Xb=y
+    # Given X as an MxN array and y as an BxN array, do omp to approximately solve Xb=y.
 
     # Base variables
     XT = X.contiguous().t()  # Store XT in fortran-order.
@@ -213,7 +213,7 @@ def omp_naive(X, y, n_nonzero_coefs, tol=None, XTX=None):
 
     return sets, solutions, None
 
-
+@profile
 def omp_v0(X, y, XTX, n_nonzero_coefs=None, tol=None, inverse_cholesky=True):
     B = y.shape[0]
     normr2 = innerp(y)  # Norm squared of residual.
@@ -259,8 +259,7 @@ def omp_v0(X, y, XTX, n_nonzero_coefs=None, tol=None, inverse_cholesky=True):
         torch.gather(XTX, 0, sets[k, :, None].expand(-1, XTX.shape[1]), out=D_mybest[:, k, :])
         if k:
             D_mybest_maxindices = D_mybest.permute(0, 2, 1)[torch.arange(D_mybest.shape[0], dtype=sets.dtype, device=sets.device), sets[k], :k]
-            torch.rsqrt(1 - innerp(D_mybest_maxindices),
-                        out=temp_F_k_k[:, 0])  # torch.exp(-1/2 * torch.log1p(-inp), temp_F_k_k[:, 0])
+            torch.rsqrt(1 - innerp(D_mybest_maxindices), out=temp_F_k_k[:, 0])  # torch.exp(-1/2 * torch.log1p(-inp), temp_F_k_k[:, 0])
             D_mybest_maxindices *= -temp_F_k_k  # minimal operations, exploit linearity
             D_mybest[:, k, :] *= temp_F_k_k
             D_mybest[:, k, :, None].baddbmm_(D_mybest[:, :k, :].permute(0, 2, 1), D_mybest_maxindices[:, :, None])
@@ -309,19 +308,19 @@ if __name__ == "__main__":
     tol = 0.1
     k = 0
     with elapsed_timer() as elapsed:
-        xests_v0 = run_omp(torch.as_tensor(X.copy()), torch.as_tensor(y.copy()), n_nonzero_coefs-k, normalize=True, fit_intercept=False, tol=tol, alg='v0')
+        xests_v0 = run_omp(torch.as_tensor(X.copy()), torch.as_tensor(y.copy()), n_nonzero_coefs-k, normalize=True, fit_intercept=True, tol=tol, alg='v0')
     print('Samples per second:', n_samples / elapsed())
     print("\n")
 
     with elapsed_timer() as elapsed:
-        xests_naive_fast = run_omp(X.copy(), y.copy(), n_nonzero_coefs-k, tol=tol, normalize=True, fit_intercept=False, alg='naive')
+        xests_naive_fast = run_omp(X.copy(), y.copy(), n_nonzero_coefs-k, tol=tol, normalize=True, fit_intercept=True, alg='naive')
     print('Samples per second:', n_samples / elapsed())
     print("\n")
     print(xests_v0.numpy().nonzero(), xests_v0.shape)
     print('error in new code (v0)', np.max(np.abs(xests_v0.numpy() - xests_naive_fast.numpy())))
 
     if True:
-        omp_args = dict(tol=tol, n_nonzero_coefs=n_nonzero_coefs-k, precompute=False, fit_intercept=False, normalize=True)
+        omp_args = dict(tol=tol, n_nonzero_coefs=n_nonzero_coefs-k, precompute=False, fit_intercept=True, normalize=True)
         # Single core
         print('Single core. Sklearn')
         omp = OrthogonalMatchingPursuit(**omp_args)
