@@ -92,7 +92,7 @@ cpdef void ppsv(proj_t[:, :] As,
     cdef int N = ys.shape[1]
     cdef int nrhs = ys.shape[2]
     cdef int info = 0  # Just discard any error signals ;)
-    cdef char uplo = 'U'
+    cdef char uplo = 85 # 'U'
     # cdef int ldb = ys[0].strides[0] // sizeof(double)
 
     for i from 0 <= i < B:
