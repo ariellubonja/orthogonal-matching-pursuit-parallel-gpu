@@ -1,5 +1,5 @@
 # EFFICIENT BATCHED CPU/GPU IMPLEMENTATION OF ORTHOGONAL MATCHINGPURSUIT FOR PYTHON
-Orthogonal Matching Pursuit, implemented using BLAS (cpu) and PyTorch (gpu).
+Orthogonal Matching Pursuit, implemented using BLAS (CPU) and PyTorch (GPU).
 
 Our implementations vastly outperform those in Scikit-Learn, with the PyTorch version on GPU being over 100 times faster.
 
