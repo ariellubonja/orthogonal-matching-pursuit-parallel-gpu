@@ -4,3 +4,6 @@ numpy==1.20.2
 joblib==1.0.1
 torch==1.8.1
 matplotlib==3.4.1
+tqdm==4.60.0
+line_profiler==3.2.5
+numba==0.53.1
