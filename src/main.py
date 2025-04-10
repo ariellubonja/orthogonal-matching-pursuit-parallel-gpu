@@ -9,6 +9,10 @@ from sklearn.linear_model import OrthogonalMatchingPursuit
 from contextlib import contextmanager
 from timeit import default_timer
 from test_omp import omp_naive
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "cython"))
+
 from test import *  # FIXME: better name
 
 n_components, n_features = 100, 100
