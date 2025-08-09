@@ -1,4 +1,4 @@
-from setuptools import Extension, setup
+from setuptools import setup
 from Cython.Build import cythonize
 import numpy
 
@@ -14,6 +14,6 @@ import numpy
 # ]
 
 setup(
-    ext_modules=cythonize("test.pyx"),
+    ext_modules=cythonize("cythomp.pyx"),
     include_dirs=[numpy.get_include()],
 )

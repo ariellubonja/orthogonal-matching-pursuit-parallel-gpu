@@ -1,16 +1,15 @@
 import os
 import torch
 from sklearn.datasets import make_sparse_coded_signal
-import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.linear_model import OrthogonalMatchingPursuit
 from contextlib import contextmanager
 from timeit import default_timer
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "cython"))
+# sys.path.append(os.path.join(os.path.dirname(__file__), "cythomp"))
 
-from test import *  # FIXME: better name
+from _cython.cythomp import argmax_blast
 
 n_components, n_features = 100, 100
 n_nonzero_coefs = 17
