@@ -102,8 +102,8 @@ def run_benchmarks(
     detailed_comparison=True,
     comparison_params=None,
     random_state=2,
-    # GPU control parameter
-    run_gpu=False
+    run_gpu=False, # GPU control parameter
+    print_samples_per_second = False
 ):
     """
     Comprehensive benchmarking function that can run both scaling studies and detailed comparisons.
@@ -139,34 +139,26 @@ def run_benchmarks(
             'n_nonzero_coefs': 17,
             'n_samples': 50
         }
+
+    n_components = comparison_params['n_components']
+    n_features = comparison_params['n_features']
+    n_nonzero_coefs = comparison_params['n_nonzero_coefs']
+    current_n_samples = comparison_params['n_samples']    
+
+    print("Settings used for the test:\n")
+    print(f"Number of Components: {n_components}")
+    print(f"Number of Features: {n_features}")
+    print(f"Number of Nonzero Coefficients: {n_nonzero_coefs}")
+    print(f"GPU algorithms enabled: {run_gpu}")
+    print(f"Number of Samples: {current_n_samples}")
     
     for i, m in enumerate(m_arr):
         print(f"\n{'='*50}")
         print(f"Testing problem size m = {m} ({i+1}/{len(m_arr)})")
         print(f"{'='*50}")
-        
-        # Use comparison_params for first iteration if detailed_comparison is True,
-        # otherwise derive from m
-        if detailed_comparison and i == 0:
-            n_components = comparison_params['n_components']
-            n_features = comparison_params['n_features']
-            n_nonzero_coefs = comparison_params['n_nonzero_coefs']
-            current_n_samples = comparison_params['n_samples']
-        else:
-            n_components, n_features = m*8, m
-            n_nonzero_coefs = m//4
-            current_n_samples = n_samples
-
-        print("Settings used for the test:")
-        print(f"Number of Samples: {current_n_samples}")
-        print(f"Number of Components: {n_components}")
-        print(f"Number of Features: {n_features}")
-        print(f"Number of Nonzero Coefficients: {n_nonzero_coefs}")
-        print(f"GPU algorithms enabled: {run_gpu}")
-        print()
 
         # Generate data
-        y, X, w = make_sparse_coded_signal(
+        y, X, _ = make_sparse_coded_signal(
             n_samples=current_n_samples,
             n_components=n_components,
             n_features=n_features,
@@ -191,17 +183,17 @@ def run_benchmarks(
         results = {}
         
         # Sklearn
-        print('Running Sklearn OMP...')
         omp = OrthogonalMatchingPursuit(**omp_args)
         with elapsed_timer() as elapsed:
             omp.fit(X, y.T)
         sklearn_time = elapsed()
         execution_times["sklearn"].append(sklearn_time)
         results['sklearn'] = omp.coef_
-        print(f'Samples per second: {current_n_samples / sklearn_time:.2f}')
+        print(f'Sklearn OMP runtime: {sklearn_time:.4f}')
+        if print_samples_per_second:
+            print(f'Sklearn OMP Samples per second: {current_n_samples / sklearn_time:.4f}\n')
 
         # Naive CPU
-        print('Running Naive CPU OMP...')
         with elapsed_timer() as elapsed:
             naive_cpu_result = run_omp(
                 torch.as_tensor(X, device='cpu', dtype=torch.float), 
@@ -215,10 +207,11 @@ def run_benchmarks(
         naive_cpu_time = elapsed()
         execution_times["naive_cpu"].append(naive_cpu_time)
         results['naive_cpu'] = naive_cpu_result.numpy()
-        print(f'Samples per second: {current_n_samples / naive_cpu_time:.2f}')
+        print(f'Naive CPU runtime: {naive_cpu_time:.4f}')
+        if print_samples_per_second:
+            print(f'Naive CPU Samples per second: {current_n_samples / naive_cpu_time:.4f}\n')
 
         # V0 CPU
-        print('Running V0 CPU OMP...')
         with elapsed_timer() as elapsed:
             v0_cpu_result = run_omp(
                 torch.as_tensor(X, device='cpu', dtype=torch.float), 
@@ -232,7 +225,9 @@ def run_benchmarks(
         v0_cpu_time = elapsed()
         execution_times["v0_cpu"].append(v0_cpu_time)
         results['v0_cpu'] = v0_cpu_result.numpy()
-        print(f'Samples per second: {current_n_samples / v0_cpu_time:.2f}')
+        print(f'V0 CPU runtime: {v0_cpu_time:.4f}')
+        if print_samples_per_second:
+            print(f'V0 CPU Samples per second: {current_n_samples / v0_cpu_time:.4f}')
 
         # GPU algorithms (conditional)
         if run_gpu:
@@ -242,7 +237,9 @@ def run_benchmarks(
                 naive_gpu_result = gpu_transfer_and_alg(X, y, "naive", n_nonzero_coefs)
             naive_gpu_time = elapsed()
             execution_times["naive_gpu"].append(naive_gpu_time)
-            print(f'Samples per second: {current_n_samples / naive_gpu_time:.2f}')
+            print(f'Naive GPU runtime: {naive_gpu_time:.4f}')
+            if print_samples_per_second:
+                print(f'Samples per second: {current_n_samples / naive_gpu_time:.4f}')
 
             # V0 GPU
             print('Running V0 GPU OMP...')
@@ -250,22 +247,19 @@ def run_benchmarks(
                 v0_gpu_result = gpu_transfer_and_alg(X, y, "v0", n_nonzero_coefs)
             v0_gpu_time = elapsed()
             execution_times["v0_gpu"].append(v0_gpu_time)
-            print(f'Samples per second: {current_n_samples / v0_gpu_time:.2f}')
+            print(f'V0 GPU runtime: {v0_gpu_time:.4f}')
+            if print_samples_per_second:
+                print(f'Samples per second: {current_n_samples / v0_gpu_time:.4f}')
         else:
             print('Skipping GPU algorithms (run_gpu=False)')
 
         # Detailed comparison and error analysis (only for first iteration if enabled)
         if detailed_comparison and i == 0:
-            print(f"\n{'='*30} DETAILED ANALYSIS {'='*30}")
+            print(f"\n{'='*30} RECONSTRUCTION ERROR {'='*30}")
             
             # Print sparsity patterns
-            print(f"V0 CPU nonzero pattern: {v0_cpu_result.numpy().nonzero()}")
-            print(f"V0 CPU result shape: {v0_cpu_result.shape}")
-            
-            # Error comparisons
-            print(f"Error between V0 and Naive CPU: {np.max(np.abs(results['v0_cpu'] - results['naive_cpu'])):.6e}")
-            print(f"Error between V0 CPU and Sklearn: {np.max(np.abs(results['sklearn'] - results['v0_cpu'])):.6e}")
-            print(f"Error between Naive CPU and Sklearn: {np.max(np.abs(results['sklearn'] - results['naive_cpu'])):.6e}")
+            # print(f"V0 CPU nonzero pattern: {v0_cpu_result.numpy().nonzero()}")
+            # print(f"V0 CPU result shape: {v0_cpu_result.shape}")
             
             # Reconstruction error analysis
             sklearn_reconstruction_error = (np.linalg.norm(y[..., None] - X @ results['sklearn'][..., None], ord=2, axis=-2).squeeze(-1) ** 2).max()
