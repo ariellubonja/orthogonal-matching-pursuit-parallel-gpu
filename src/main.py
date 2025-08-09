@@ -4,13 +4,20 @@ import numpy as np
 from sklearn.linear_model import OrthogonalMatchingPursuit
 from contextlib import contextmanager
 from timeit import default_timer
+import argparse
 
 from omp import omp_naive, omp_v0
 
 
-n_components, n_features = 100, 100
-n_nonzero_coefs = 17
-n_samples = 50
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--n_components", type=int, default=100)
+    parser.add_argument("--n_features", type=int, default=100)
+    parser.add_argument("--n_nonzero_coefs", type=int, default=17)
+    parser.add_argument("--n_samples", type=int, default=50)
+
+    return parser.parse_args()
+
 
 @contextmanager
 def elapsed_timer():
@@ -22,7 +29,19 @@ def elapsed_timer():
     elapser = lambda: end-start
 
 
+"""This is a helper function for allowing us to profile both GPU runtime as well as the time it takes to transfer to GPU memory"""
+def gpu_transfer_and_alg(X,y, alg, n_nonzero_coefs):
+    X_gpu = torch.as_tensor(X, device='cuda', dtype=torch.float)
+    y_gpu = torch.as_tensor(y, device='cuda', dtype=torch.float)
+    results = run_omp(X_gpu, y_gpu, n_nonzero_coefs, alg=alg)
+    results.cpu()
+    return results
+
+
 def run_omp(X, y, n_nonzero_coefs, precompute=True, tol=0.0, normalize=False, fit_intercept=False, alg='naive'):
+    """
+    Wrapper function to facilitate running benchmarks against our novel OMP implementations
+    """
     if not isinstance(X, torch.Tensor):
         X = torch.as_tensor(X)
         y = torch.as_tensor(y)
@@ -73,59 +92,194 @@ def run_omp(X, y, n_nonzero_coefs, precompute=True, tol=0.0, normalize=False, fi
     return xests
 
 
-if __name__ == "__main__":
-    # The naive algorithm has a memory complexity of kNM = O(N^2M), while the v0 has k(N^2+N(M+k)) = O(N^3+N^2M).
-    # If k is modest
-    # And all the other proposed algs will also
+def run_benchmarks(
+    # Parameters for scaling study
+    m_arr=[16, 20, 24, 32, 64, 128, 256, 512, 1024, 2048],
+    n_samples=100,
+    tol=0.1,
+    k=0,
+    # Parameters for detailed comparison
+    detailed_comparison=True,
+    comparison_params=None,
+    random_state=2,
+    # GPU control parameter
+    run_gpu=False
+):
+    """
+    Comprehensive benchmarking function that can run both scaling studies and detailed comparisons.
+    
+    Args:
+        m_arr: List of problem sizes (m) to test
+        n_samples: Number of samples to generate
+        tol: Tolerance for OMP algorithms
+        k: Adjustment factor for n_nonzero_coefs
+        detailed_comparison: Whether to run detailed comparison with error analysis
+        comparison_params: Dict with specific parameters for detailed comparison
+                          (overrides derived parameters if provided)
+        random_state: Random seed for reproducibility
+        run_gpu: Whether to run GPU algorithms (naive_gpu and v0_gpu)
+    """
+    
+    execution_times = {
+        "sklearn": [],
+        "naive_cpu": [],
+        "v0_cpu": []
+    }
+    
+    # Add GPU entries only if GPU is enabled
+    if run_gpu:
+        execution_times["naive_gpu"] = []
+        execution_times["v0_gpu"] = []
+    
+    # Set default comparison parameters if not provided
+    if comparison_params is None:
+        comparison_params = {
+            'n_components': 100,
+            'n_features': 10,
+            'n_nonzero_coefs': 17,
+            'n_samples': 50
+        }
+    
+    for i, m in enumerate(m_arr):
+        print(f"\n{'='*50}")
+        print(f"Testing problem size m = {m} ({i+1}/{len(m_arr)})")
+        print(f"{'='*50}")
+        
+        # Use comparison_params for first iteration if detailed_comparison is True,
+        # otherwise derive from m
+        if detailed_comparison and i == 0:
+            n_components = comparison_params['n_components']
+            n_features = comparison_params['n_features']
+            n_nonzero_coefs = comparison_params['n_nonzero_coefs']
+            current_n_samples = comparison_params['n_samples']
+        else:
+            n_components, n_features = m*8, m
+            n_nonzero_coefs = m//4
+            current_n_samples = n_samples
 
-    # TODO: https://roman-kh.github.io/numpy-multicore/
-    y, X, w = make_sparse_coded_signal(
-        n_samples=n_samples,
-        n_components=n_components,
-        n_features=n_features,
-        n_nonzero_coefs=n_nonzero_coefs,
-        random_state=0)
+        print("Settings used for the test:")
+        print(f"Number of Samples: {current_n_samples}")
+        print(f"Number of Components: {n_components}")
+        print(f"Number of Features: {n_features}")
+        print(f"Number of Nonzero Coefficients: {n_nonzero_coefs}")
+        print(f"GPU algorithms enabled: {run_gpu}")
+        print()
 
-    y = (y.T + np.random.randn(*y.T.shape) * 0.01)
-    XTX = X.T @ X
-    print("Settings used for the test: ")
-    print("Number of Samples: " + str(n_samples))
-    print("Number of Components: " + str(n_components))
-    print("Number of Features: " + str(n_features))
-    print("Number of Nonzero Coefficients: " + str(n_nonzero_coefs))
-    print("\n")
+        # Generate data
+        y, X, w = make_sparse_coded_signal(
+            n_samples=current_n_samples,
+            n_components=n_components,
+            n_features=n_features,
+            n_nonzero_coefs=n_nonzero_coefs,
+            random_state=random_state
+        )
 
-    print('Single core. v0 fast implementation.')
-    tol = 0.1
-    k = 0
-    with elapsed_timer() as elapsed:
-        xests_v0 = run_omp(torch.as_tensor(X.copy()), torch.as_tensor(y.copy()), n_nonzero_coefs-k, normalize=True, fit_intercept=True, tol=tol, alg='v0')
-    print('Samples per second:', n_samples / elapsed())
-    print("\n")
+        y = y.T
+        if detailed_comparison and i == 0:
+            # Add noise for detailed comparison
+            y = y + np.random.randn(*y.shape) * 0.01
 
-    with elapsed_timer() as elapsed:
-        xests_naive_fast = run_omp(X.copy().astype(np.float), y.copy().astype(np.float), n_nonzero_coefs-k, tol=tol, normalize=True, fit_intercept=True, alg='naive')
-    print('Samples per second:', n_samples / elapsed())
-    print("\n")
-    print(xests_v0.numpy().nonzero(), xests_v0.shape)
-    print('error in new code (v0)', np.max(np.abs(xests_v0.numpy() - xests_naive_fast.numpy())))
+        omp_args = dict(
+            tol=tol, 
+            n_nonzero_coefs=n_nonzero_coefs-k, 
+            precompute=False, 
+            fit_intercept=True, 
+            normalize=True
+        )
 
-    if True:
-        omp_args = dict(tol=tol, n_nonzero_coefs=n_nonzero_coefs-k, precompute=False, fit_intercept=True, normalize=True)
-        # Single core
-        print('Single core. Sklearn')
+        # Run benchmarks and collect results
+        results = {}
+        
+        # Sklearn
+        print('Running Sklearn OMP...')
         omp = OrthogonalMatchingPursuit(**omp_args)
         with elapsed_timer() as elapsed:
             omp.fit(X, y.T)
-        print('Samples per second:', n_samples / elapsed())
-        print("\n")
+        sklearn_time = elapsed()
+        execution_times["sklearn"].append(sklearn_time)
+        results['sklearn'] = omp.coef_
+        print(f'Samples per second: {current_n_samples / sklearn_time:.2f}')
 
-        # print(omp.coef_[0].nonzero(), omp.coef_.shape, xests_naive_fast.shape, xests_naive_fast.dtype)
-        # print(xests_naive_fast[0].numpy().nonzero())
-        print((np.linalg.norm(y[..., None] - X @ omp.coef_[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
-        print((np.linalg.norm(y[..., None] - X @ xests_v0.numpy()[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
-        print((np.linalg.norm(y[..., None] - X @ xests_naive_fast.numpy()[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
-        print('error in new code (blas)', np.max(np.abs(omp.coef_ - xests_v0.numpy())))
-        print('error in new code (blas)', np.max(np.abs(omp.coef_ - xests_naive_fast.numpy())))
-        # print('idx in new code (blas)', np.max(np.abs(omp.coef_[5].nonzero()[0] - xests_naive_fast[5].numpy().nonzero()[0])))
-        # print('idx in new code (blas)', np.max(np.abs(omp.coef_.nonzero()[1] - xests_naive_fast.numpy().nonzero()[1])))
+        # Naive CPU
+        print('Running Naive CPU OMP...')
+        with elapsed_timer() as elapsed:
+            naive_cpu_result = run_omp(
+                torch.as_tensor(X, device='cpu', dtype=torch.float), 
+                torch.as_tensor(y, device='cpu', dtype=torch.float), 
+                n_nonzero_coefs-k,
+                tol=tol,
+                normalize=True,
+                fit_intercept=True,
+                alg="naive"
+            )
+        naive_cpu_time = elapsed()
+        execution_times["naive_cpu"].append(naive_cpu_time)
+        results['naive_cpu'] = naive_cpu_result.numpy()
+        print(f'Samples per second: {current_n_samples / naive_cpu_time:.2f}')
+
+        # V0 CPU
+        print('Running V0 CPU OMP...')
+        with elapsed_timer() as elapsed:
+            v0_cpu_result = run_omp(
+                torch.as_tensor(X, device='cpu', dtype=torch.float), 
+                torch.as_tensor(y, device='cpu', dtype=torch.float), 
+                n_nonzero_coefs-k,
+                tol=tol,
+                normalize=True,
+                fit_intercept=True,
+                alg="v0"
+            )
+        v0_cpu_time = elapsed()
+        execution_times["v0_cpu"].append(v0_cpu_time)
+        results['v0_cpu'] = v0_cpu_result.numpy()
+        print(f'Samples per second: {current_n_samples / v0_cpu_time:.2f}')
+
+        # GPU algorithms (conditional)
+        if run_gpu:
+            # Naive GPU
+            print('Running Naive GPU OMP...')
+            with elapsed_timer() as elapsed:
+                naive_gpu_result = gpu_transfer_and_alg(X, y, "naive", n_nonzero_coefs)
+            naive_gpu_time = elapsed()
+            execution_times["naive_gpu"].append(naive_gpu_time)
+            print(f'Samples per second: {current_n_samples / naive_gpu_time:.2f}')
+
+            # V0 GPU
+            print('Running V0 GPU OMP...')
+            with elapsed_timer() as elapsed:
+                v0_gpu_result = gpu_transfer_and_alg(X, y, "v0", n_nonzero_coefs)
+            v0_gpu_time = elapsed()
+            execution_times["v0_gpu"].append(v0_gpu_time)
+            print(f'Samples per second: {current_n_samples / v0_gpu_time:.2f}')
+        else:
+            print('Skipping GPU algorithms (run_gpu=False)')
+
+        # Detailed comparison and error analysis (only for first iteration if enabled)
+        if detailed_comparison and i == 0:
+            print(f"\n{'='*30} DETAILED ANALYSIS {'='*30}")
+            
+            # Print sparsity patterns
+            print(f"V0 CPU nonzero pattern: {v0_cpu_result.numpy().nonzero()}")
+            print(f"V0 CPU result shape: {v0_cpu_result.shape}")
+            
+            # Error comparisons
+            print(f"Error between V0 and Naive CPU: {np.max(np.abs(results['v0_cpu'] - results['naive_cpu'])):.6e}")
+            print(f"Error between V0 CPU and Sklearn: {np.max(np.abs(results['sklearn'] - results['v0_cpu'])):.6e}")
+            print(f"Error between Naive CPU and Sklearn: {np.max(np.abs(results['sklearn'] - results['naive_cpu'])):.6e}")
+            
+            # Reconstruction error analysis
+            sklearn_reconstruction_error = (np.linalg.norm(y[..., None] - X @ results['sklearn'][..., None], ord=2, axis=-2).squeeze(-1) ** 2).max()
+            v0_reconstruction_error = (np.linalg.norm(y[..., None] - X @ results['v0_cpu'][..., None], ord=2, axis=-2).squeeze(-1) ** 2).max()
+            naive_reconstruction_error = (np.linalg.norm(y[..., None] - X @ results['naive_cpu'][..., None], ord=2, axis=-2).squeeze(-1) ** 2).max()
+            
+            print(f"Sklearn reconstruction error: {sklearn_reconstruction_error:.6e}")
+            print(f"V0 CPU reconstruction error: {v0_reconstruction_error:.6e}")
+            print(f"Naive CPU reconstruction error: {naive_reconstruction_error:.6e}")
+            
+            print(f"{'='*80}")
+
+    return execution_times
+
+
+if __name__ == "__main__":
+    run_benchmarks()
