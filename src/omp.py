@@ -109,7 +109,7 @@ def omp_naive(X, y, n_nonzero_coefs, tol=None, XTX=None):
         ATy = ATys[:, :k + 1]
         innerp(updateA, y, out=ATy[:, k, 0])
 
-        # UPDATE ATA based on AT or XTX.
+        # UPDATE ATA based on AT or precomputed XTX.
         if on_cpu:
             packed_idx = k * (k - 1) // 2
             if XTX is not None:  # Update based on precomputed XTX.
@@ -178,7 +178,7 @@ def omp_v0(X, y, XTX, n_nonzero_coefs=None, tol=None, inverse_cholesky=True):
                 if inverse_cholesky:
                     result_solutions[new_problems_done, :k] = F[new_problems_done, :k, :k].permute(0, 2, 1) @ a_F[:k, new_problems_done].permute(1, 0, 2)
                 else:
-                    assert False, "inverse_cholesky=False with tol != None is not handled"
+                    assert False, "inverse_cholesky=False with tol != None is not handled yet"
                 if problems_done.all():
                     return sets.t(), result_solutions, result_lengths
 
@@ -198,13 +198,15 @@ def omp_v0(X, y, XTX, n_nonzero_coefs=None, tol=None, inverse_cholesky=True):
         projections -= temp_a_F * D_mybest[:, k, :]
         if inverse_cholesky:
             a_F[k] = temp_a_F
-            if k:  # Could maybe a speedup from triangular mat mul kernel.
+            if k:  # Could maybe get a speedup from triangular mat mul kernel.
                 torch.bmm(D_mybest_maxindices[:, None, :], F[:, :k, :], out=F[:, k, None, :])
                 F[:, k, k] = temp_F_k_k[..., 0]
-    else:
+    else: # FIXME: else branch will not execute if n_nonzero_coefs=0, so solutions is undefined.
+        # Normal exit, used when tolerance=None.
         if inverse_cholesky:
             solutions = F.permute(0, 2, 1) @ a_F.squeeze(-1).transpose(1, 0)[:, :, None]
         else:
+            # Solving the problem in the end without using inverse Cholesky.
             AT = X.T[sets.T]
             solutions = cholesky_solve(AT @ AT.permute(0, 2, 1), AT @ y.T[:, :, None])
 

@@ -87,16 +87,16 @@ cpdef void update_D_mybest_blast(double[:] temp_F_k_k, double[:, :] XTX,
 @cython.wraparound(False)
 cpdef void ppsv(proj_t[:, :] As,
            proj_t[:, :, :] ys) nogil:
-    # Works not for strided array I think. And please do not give a negative-stride
+    # Works not for strided array I think. And please do not give a negative-stride array.
     cdef Py_ssize_t B = ys.shape[0]  # Batch size
     cdef int N = ys.shape[1]
     cdef int nrhs = ys.shape[2]
     cdef int info = 0  # Just discard any error signals ;)
-    cdef char uplo = 85 # 'U'
+    cdef char uplo = 85 # The letter 'U', since we store the lower triangle and fortran sees As.T.
     # cdef int ldb = ys[0].strides[0] // sizeof(double)
 
     for i from 0 <= i < B:
-        if proj_t is double:  # One C-function is created for each of these specializations :) (see argmax_blast.__signatures__)
+        if proj_t is double:  # One C-function is created for each of these specializations! :) (see argmax_blast.__signatures__)
             dppsv(&uplo, &N, &nrhs, &As[i, 0], &ys[i, 0, 0], &N, &info)
         elif proj_t is float:
             sppsv(&uplo, &N, &nrhs, &As[i, 0], &ys[i, 0, 0], &N, &info)
