@@ -6,7 +6,6 @@ import numpy as np
 from sklearn.linear_model import OrthogonalMatchingPursuit
 from contextlib import contextmanager
 from timeit import default_timer
-from test_omp import omp_naive
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "cython"))
@@ -77,28 +76,6 @@ def run_omp(X, y, n_nonzero_coefs, precompute=True, tol=0.0, normalize=False, fi
 
     return xests
 
-def batch_mm(matrix, matrix_batch, return_contiguous=True):
-    """
-    :param matrix: Sparse or dense matrix, size (m, n).
-    :param matrix_batch: Batched dense matrices, size (b, n, k).
-    :return: The batched matrix-matrix product, size (m, n) x (b, n, k) = (b, m, k).
-    """
-    # One dgemm is faster than many dgemv.
-    # From https://github.com/pytorch/pytorch/issues/14489#issuecomment-607730242
-    batch_size = matrix_batch.shape[0]
-    # Stack the vector batch into columns. (b, n, k) -> (n, b, k) -> (n, b*k)
-    vectors = matrix_batch.transpose([1, 0, 2]).reshape(matrix.shape[1], -1)
-
-    # A matrix-matrix product is a batched matrix-vector product of the columns.
-    # And then reverse the reshaping. (m, n) x (n, b*k) = (m, b*k) -> (m, b, k) -> (b, m, k).
-    if return_contiguous:
-        result = np.empty_like(matrix_batch, shape=(batch_size, matrix.shape[0], matrix_batch.shape[2]))
-        np.matmul(matrix, vectors, out=result.transpose([1, 0, 2]).reshape(matrix.shape[0], -1))
-    else:
-        result = (matrix @ vectors).reshape(matrix.shape[0], batch_size, -1).transpose([1, 0, 2])
-
-    return result
-
 
 def innerp(x, y=None, out=None):
     if y is None:
@@ -106,6 +83,7 @@ def innerp(x, y=None, out=None):
     if out is not None:
         out = out[:, None, None]  # Add space for two singleton dimensions.
     return torch.matmul(x[..., None, :], y[..., :, None], out=out)[..., 0, 0]
+
 
 def cholesky_solve(ATA, ATy):
     if ATA.dtype == torch.half or ATy.dtype == torch.half:
@@ -140,6 +118,28 @@ def omp_naive(X, y, n_nonzero_coefs, tol=None, XTX=None):
         ATAs = ATAs[:, tri_idx[0], tri_idx[1]]
 
     solutions = y.new_zeros((r.shape[0], 0))
+
+    def batch_mm(matrix, matrix_batch, return_contiguous=True):
+        """
+        :param matrix: Sparse or dense matrix, size (m, n).
+        :param matrix_batch: Batched dense matrices, size (b, n, k).
+        :return: The batched matrix-matrix product, size (m, n) x (b, n, k) = (b, m, k).
+        """
+        # One dgemm is faster than many dgemv.
+        # From https://github.com/pytorch/pytorch/issues/14489#issuecomment-607730242
+        batch_size = matrix_batch.shape[0]
+        # Stack the vector batch into columns. (b, n, k) -> (n, b, k) -> (n, b*k)
+        vectors = matrix_batch.transpose([1, 0, 2]).reshape(matrix.shape[1], -1)
+
+        # A matrix-matrix product is a batched matrix-vector product of the columns.
+        # And then reverse the reshaping. (m, n) x (n, b*k) = (m, b*k) -> (m, b, k) -> (b, m, k).
+        if return_contiguous:
+            result = np.empty_like(matrix_batch, shape=(batch_size, matrix.shape[0], matrix_batch.shape[2]))
+            np.matmul(matrix, vectors, out=result.transpose([1, 0, 2]).reshape(matrix.shape[0], -1))
+        else:
+            result = (matrix @ vectors).reshape(matrix.shape[0], batch_size, -1).transpose([1, 0, 2])
+
+        return result
 
     for k in range(n_nonzero_coefs+bool(tol)):
         # STOPPING CRITERIA
@@ -215,6 +215,7 @@ def omp_naive(X, y, n_nonzero_coefs, tol=None, XTX=None):
 
     return sets, solutions, None
 
+
 def omp_v0(X, y, XTX, n_nonzero_coefs=None, tol=None, inverse_cholesky=True):
     B = y.shape[0]
     normr2 = innerp(y)  # Norm squared of residual.
@@ -282,6 +283,7 @@ def omp_v0(X, y, XTX, n_nonzero_coefs=None, tol=None, inverse_cholesky=True):
             solutions = cholesky_solve(AT @ AT.permute(0, 2, 1), AT @ y.T[:, :, None])
 
     return sets.t(), solutions, None
+
 
 if __name__ == "__main__":
     # The naive algorithm has a memory complexity of kNM = O(N^2M), while the v0 has k(N^2+N(M+k)) = O(N^3+N^2M).
