@@ -7,9 +7,7 @@ from contextlib import contextmanager
 from timeit import default_timer
 import sys
 
-# sys.path.append(os.path.join(os.path.dirname(__file__), "cythomp"))
-
-from _cython.cythomp import argmax_blast
+from _cython.cythomp import argmax_blast, ppsv
 
 n_components, n_features = 100, 100
 n_nonzero_coefs = 17
