@@ -24,3 +24,10 @@ sudo apt-get install build-essential python3.9-dev   # Replace with specific pyt
 cd src/cython
 python setup.py build_ext --inplace
 ```
+
+
+
+
+### Notes
+
+We do not yet provide a MATLAB version of our code, but a good, efficient version can be found [here](https://github.com/zhuhufei/OMP/blob/master/codeAug2020.m) - though it is lacking many of our optimizations
