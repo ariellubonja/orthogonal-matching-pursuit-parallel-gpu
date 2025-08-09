@@ -1,2 +1,4 @@
 src/__pycache__/
 .idea
+.venv-apr-2021
+.vscode/

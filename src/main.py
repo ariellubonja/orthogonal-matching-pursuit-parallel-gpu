@@ -1,7 +1,5 @@
 import os
 import torch
-import torch.utils
-import torch.utils.data
 from sklearn.datasets import make_sparse_coded_signal
 import matplotlib.pyplot as plt
 import numpy as np
