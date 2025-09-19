@@ -1,0 +1,12 @@
+# Python 3.12
+Cython
+scikit-learn
+scipy
+numpy
+joblib
+torch
+matplotlib
+tqdm
+line_profiler
+numba
+cython
