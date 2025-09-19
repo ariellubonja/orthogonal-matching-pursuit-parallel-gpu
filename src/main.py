@@ -92,6 +92,31 @@ def run_omp(X, y, n_nonzero_coefs, precompute=True, tol=0.0, normalize=False, fi
     return xests
 
 
+def relative_frobenius_error(y, D, coef):
+    """
+    Relative Frobenius reconstruction error
+        ‖Y – D @ A‖_F / ‖Y‖_F
+
+    Parameters
+    ----------
+    y    : ndarray, shape (n_features, n_samples)
+           Signal(s) to be reconstructed.
+    D    : ndarray, shape (n_features, n_components)
+           Dictionary.
+    coef : ndarray, shape (n_components, n_samples)
+           Sparse codes returned by OMP.
+
+    Returns
+    -------
+    float
+        Relative error (unit-less).
+    """
+    recon = D.T @ coef.T          # shape (n_features, n_samples)
+    num   = np.linalg.norm(y.T - recon, ord='fro')
+    den   = np.linalg.norm(y.T,       ord='fro')
+    return num / den
+
+
 def run_benchmarks(
     # Parameters for scaling study
     # Each must be at <= n_components
@@ -176,7 +201,7 @@ def run_benchmarks(
             tol=tol, 
             n_nonzero_coefs=n_nonzero_coefs-k, 
             precompute=False, 
-            fit_intercept=True, 
+            fit_intercept=False, 
             # normalize=True
         )
 
@@ -202,7 +227,7 @@ def run_benchmarks(
                 n_nonzero_coefs-k,
                 tol=tol,
                 # normalize=True, # Removed in 1.2
-                fit_intercept=True,
+                fit_intercept=False,
                 alg="naive"
             )
         naive_cpu_time = elapsed()
@@ -220,7 +245,7 @@ def run_benchmarks(
                 n_nonzero_coefs-k,
                 tol=tol,
                 # normalize=True,
-                fit_intercept=True,
+                fit_intercept=False,
                 alg="v0"
             )
         v0_cpu_time = elapsed()
@@ -263,13 +288,13 @@ def run_benchmarks(
             # print(f"V0 CPU result shape: {v0_cpu_result.shape}")
             
             # Reconstruction error analysis
-            sklearn_reconstruction_error = (np.linalg.norm(y[..., None] - np.einsum('bd,abc->adc', D, results['sklearn'][..., None]), ord=2, axis=-2).squeeze(-1) ** 2).max()
-            v0_reconstruction_error = (np.linalg.norm(y[..., None] - np.einsum('bd,abc->adc', D, results['v0_cpu'][..., None]), ord=2, axis=-2).squeeze(-1) ** 2).max()
-            naive_reconstruction_error = (np.linalg.norm(y[..., None] - np.einsum('bd,abc->adc', D, results['naive_cpu'][..., None]), ord=2, axis=-2).squeeze(-1) ** 2).max()
+            sk_err  = relative_frobenius_error(y, D, results['sklearn'])
+            v0_err  = relative_frobenius_error(y, D, results['v0_cpu'])
+            nv_err  = relative_frobenius_error(y, D, results['naive_cpu'])
             
-            print(f"Sklearn reconstruction error: {sklearn_reconstruction_error:.6e}")
-            print(f"V0 CPU reconstruction error: {v0_reconstruction_error:.6e}")
-            print(f"Naive CPU reconstruction error: {naive_reconstruction_error:.6e}")
+            print(f"Sklearn reconstruction error: {sk_err:.6e}")
+            print(f"V0 CPU reconstruction error: {v0_err:.6e}")
+            print(f"Naive CPU reconstruction error: {nv_err:.6e}")
             
             print(f"{'='*80}")
 
