@@ -1,7 +1,3 @@
-from setuptools import setup
-from Cython.Build import cythonize
-import numpy
-
 # https://stackoverflow.com/questions/28301931/how-to-profile-cython-functions-line-by-line
 # from Cython.Compiler.Options import get_directive_defaults
 # directive_defaults = get_directive_defaults()
@@ -13,7 +9,22 @@ import numpy
 #     Extension("test", ["test.pyx"], define_macros=[('CYTHON_TRACE', '1')])
 # ]
 
+from setuptools import Extension, setup
+from Cython.Build import cythonize
+import numpy as np
+
+extensions = [
+    Extension(
+        "src._cython.cythomp",                 # <-- import name
+        ["src/_cython/cythomp.pyx"],           # <-- relative file path
+        include_dirs=[np.get_include()],
+        # extra_compile_args=[...]  # if you need any
+    )
+]
+
 setup(
-    ext_modules=cythonize("cythomp.pyx"),
-    include_dirs=[numpy.get_include()],
+    ext_modules=cythonize(
+        extensions,
+        language_level="3",
+    ),
 )
