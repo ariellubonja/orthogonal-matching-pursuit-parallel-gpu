@@ -168,7 +168,6 @@ def run_benchmarks(
             random_state=random_state
         )
 
-        y = y.T
         # if detailed_comparison:
         #     # Add noise for detailed comparison
         #     y = y + np.random.randn(*y.shape) * 0.01
@@ -187,7 +186,7 @@ def run_benchmarks(
         # Sklearn
         omp = OrthogonalMatchingPursuit(**omp_args)
         with elapsed_timer() as elapsed:
-            omp.fit(D.T, y)
+            omp.fit(D.T, y.T)
         sklearn_time = elapsed()
         execution_times["sklearn"].append(sklearn_time)
         results['sklearn'] = omp.coef_
@@ -198,7 +197,7 @@ def run_benchmarks(
         # Naive CPU
         with elapsed_timer() as elapsed:
             naive_cpu_result = run_omp(
-                torch.as_tensor(D, device='cpu', dtype=torch.float), 
+                torch.as_tensor(D.T, device='cpu', dtype=torch.float), 
                 torch.as_tensor(y, device='cpu', dtype=torch.float), 
                 n_nonzero_coefs-k,
                 tol=tol,
@@ -216,7 +215,7 @@ def run_benchmarks(
         # V0 CPU
         with elapsed_timer() as elapsed:
             v0_cpu_result = run_omp(
-                torch.as_tensor(D, device='cpu', dtype=torch.float), 
+                torch.as_tensor(D.T, device='cpu', dtype=torch.float), 
                 torch.as_tensor(y, device='cpu', dtype=torch.float), 
                 n_nonzero_coefs-k,
                 tol=tol,
@@ -264,9 +263,9 @@ def run_benchmarks(
             # print(f"V0 CPU result shape: {v0_cpu_result.shape}")
             
             # Reconstruction error analysis
-            sklearn_reconstruction_error = (np.linalg.norm(y[..., None] - D @ results['sklearn'][..., None], ord=2, axis=-2).squeeze(-1) ** 2).max()
-            v0_reconstruction_error = (np.linalg.norm(y[..., None] - D @ results['v0_cpu'][..., None], ord=2, axis=-2).squeeze(-1) ** 2).max()
-            naive_reconstruction_error = (np.linalg.norm(y[..., None] - D @ results['naive_cpu'][..., None], ord=2, axis=-2).squeeze(-1) ** 2).max()
+            sklearn_reconstruction_error = (np.linalg.norm(y[..., None] - np.einsum('bd,abc->adc', D, results['sklearn'][..., None]), ord=2, axis=-2).squeeze(-1) ** 2).max()
+            v0_reconstruction_error = (np.linalg.norm(y[..., None] - np.einsum('bd,abc->adc', D, results['v0_cpu'][..., None]), ord=2, axis=-2).squeeze(-1) ** 2).max()
+            naive_reconstruction_error = (np.linalg.norm(y[..., None] - np.einsum('bd,abc->adc', D, results['naive_cpu'][..., None]), ord=2, axis=-2).squeeze(-1) ** 2).max()
             
             print(f"Sklearn reconstruction error: {sklearn_reconstruction_error:.6e}")
             print(f"V0 CPU reconstruction error: {v0_reconstruction_error:.6e}")

@@ -61,7 +61,7 @@ def omp_naive(X, y, n_nonzero_coefs, tol=None, XTX=None):
         # And then reverse the reshaping. (m, n) x (n, b*k) = (m, b*k) -> (m, b, k) -> (b, m, k).
         if return_contiguous:
             result = np.empty_like(matrix_batch, shape=(batch_size, matrix.shape[0], matrix_batch.shape[2]))
-            np.matmul(matrix, vectors, out=result.transpose([1, 0, 2]).reshape(matrix.shape[0], -1))
+            np.matmul(matrix, vectors)#, out=result.transpose([1, 0, 2]).reshape(matrix.shape[0], -1))
         else:
             result = (matrix @ vectors).reshape(matrix.shape[0], batch_size, -1).transpose([1, 0, 2])
 
