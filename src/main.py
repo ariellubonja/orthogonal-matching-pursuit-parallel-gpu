@@ -13,7 +13,8 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "cython"))
 
-from test import *  # FIXME: better name
+from cython.test import *  # FIXME: better name. Works w/ py312
+# from cython.test import * # Works with py39
 
 n_components, n_features = 100, 100
 n_nonzero_coefs = 17
@@ -297,6 +298,8 @@ if __name__ == "__main__":
         n_features=n_features,
         n_nonzero_coefs=n_nonzero_coefs,
         random_state=0)
+    
+    # y = y.T # Needed for new Sklearn
 
     y = (y.T + np.random.randn(*y.T.shape) * 0.01)
     XTX = X.T @ X
@@ -316,7 +319,7 @@ if __name__ == "__main__":
     print("\n")
 
     with elapsed_timer() as elapsed:
-        xests_naive_fast = run_omp(X.copy().astype(np.float), y.copy().astype(np.float), n_nonzero_coefs-k, tol=tol, normalize=True, fit_intercept=True, alg='naive')
+        xests_naive_fast = run_omp(X.copy().astype(float), y.copy().astype(float), n_nonzero_coefs-k, tol=tol, normalize=True, fit_intercept=True, alg='naive')
     print('Samples per second:', n_samples / elapsed())
     print("\n")
     print(xests_v0.numpy().nonzero(), xests_v0.shape)
