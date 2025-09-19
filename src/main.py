@@ -94,8 +94,8 @@ def run_omp(X, y, n_nonzero_coefs, precompute=True, tol=0.0, normalize=False, fi
 
 def run_benchmarks(
     # Parameters for scaling study
-    m_arr=[16, 20, 24, 32, 64, 128, 256, 512, 1024, 2048],
-    n_samples=100,
+    # Each must be at <= n_components
+    m_arr=[20, 24, 32, 64, 128, 256, 512, 1024, 2048],
     tol=0.1,
     k=0,
     # Parameters for detailed comparison
@@ -135,7 +135,7 @@ def run_benchmarks(
     if comparison_params is None:
         comparison_params = {
             'n_components': 100,
-            'n_features': 10,
+            'n_features': 100,
             'n_nonzero_coefs': 17,
             'n_samples': 50
         }
@@ -146,19 +146,21 @@ def run_benchmarks(
     current_n_samples = comparison_params['n_samples']    
 
     print("Settings used for the test:\n")
-    print(f"Number of Components: {n_components}")
-    print(f"Number of Features: {n_features}")
+    # print(f"Number of Components: {n_components}")
+    # print(f"Number of Features: {n_features}")
     print(f"Number of Nonzero Coefficients: {n_nonzero_coefs}")
     print(f"GPU algorithms enabled: {run_gpu}")
     print(f"Number of Samples: {current_n_samples}")
     
     for i, m in enumerate(m_arr):
+        n_components = m
+        n_features = 8*m
         print(f"\n{'='*50}")
-        print(f"Testing problem size m = {m} ({i+1}/{len(m_arr)})")
+        print(f"Testing problem size n_components = {n_components} and n_features = {n_features} ({i+1}/{len(m_arr)})")
         print(f"{'='*50}")
 
         # Generate data
-        y, X, _ = make_sparse_coded_signal(
+        y, D, X = make_sparse_coded_signal(
             n_samples=current_n_samples,
             n_components=n_components,
             n_features=n_features,
@@ -167,16 +169,16 @@ def run_benchmarks(
         )
 
         y = y.T
-        if detailed_comparison and i == 0:
-            # Add noise for detailed comparison
-            y = y + np.random.randn(*y.shape) * 0.01
+        # if detailed_comparison:
+        #     # Add noise for detailed comparison
+        #     y = y + np.random.randn(*y.shape) * 0.01
 
         omp_args = dict(
             tol=tol, 
             n_nonzero_coefs=n_nonzero_coefs-k, 
             precompute=False, 
             fit_intercept=True, 
-            normalize=True
+            # normalize=True
         )
 
         # Run benchmarks and collect results
@@ -185,7 +187,7 @@ def run_benchmarks(
         # Sklearn
         omp = OrthogonalMatchingPursuit(**omp_args)
         with elapsed_timer() as elapsed:
-            omp.fit(X, y.T)
+            omp.fit(D.T, y)
         sklearn_time = elapsed()
         execution_times["sklearn"].append(sklearn_time)
         results['sklearn'] = omp.coef_
@@ -196,11 +198,11 @@ def run_benchmarks(
         # Naive CPU
         with elapsed_timer() as elapsed:
             naive_cpu_result = run_omp(
-                torch.as_tensor(X, device='cpu', dtype=torch.float), 
+                torch.as_tensor(D, device='cpu', dtype=torch.float), 
                 torch.as_tensor(y, device='cpu', dtype=torch.float), 
                 n_nonzero_coefs-k,
                 tol=tol,
-                normalize=True,
+                # normalize=True, # Removed in 1.2
                 fit_intercept=True,
                 alg="naive"
             )
@@ -214,11 +216,11 @@ def run_benchmarks(
         # V0 CPU
         with elapsed_timer() as elapsed:
             v0_cpu_result = run_omp(
-                torch.as_tensor(X, device='cpu', dtype=torch.float), 
+                torch.as_tensor(D, device='cpu', dtype=torch.float), 
                 torch.as_tensor(y, device='cpu', dtype=torch.float), 
                 n_nonzero_coefs-k,
                 tol=tol,
-                normalize=True,
+                # normalize=True,
                 fit_intercept=True,
                 alg="v0"
             )
@@ -234,7 +236,7 @@ def run_benchmarks(
             # Naive GPU
             print('Running Naive GPU OMP...')
             with elapsed_timer() as elapsed:
-                naive_gpu_result = gpu_transfer_and_alg(X, y, "naive", n_nonzero_coefs)
+                naive_gpu_result = gpu_transfer_and_alg(D, y, "naive", n_nonzero_coefs)
             naive_gpu_time = elapsed()
             execution_times["naive_gpu"].append(naive_gpu_time)
             print(f'Naive GPU runtime: {naive_gpu_time:.4f}')
@@ -244,7 +246,7 @@ def run_benchmarks(
             # V0 GPU
             print('Running V0 GPU OMP...')
             with elapsed_timer() as elapsed:
-                v0_gpu_result = gpu_transfer_and_alg(X, y, "v0", n_nonzero_coefs)
+                v0_gpu_result = gpu_transfer_and_alg(D, y, "v0", n_nonzero_coefs)
             v0_gpu_time = elapsed()
             execution_times["v0_gpu"].append(v0_gpu_time)
             print(f'V0 GPU runtime: {v0_gpu_time:.4f}')
@@ -254,7 +256,7 @@ def run_benchmarks(
             print('Skipping GPU algorithms (run_gpu=False)')
 
         # Detailed comparison and error analysis (only for first iteration if enabled)
-        if detailed_comparison and i == 0:
+        if detailed_comparison:
             print(f"\n{'='*30} RECONSTRUCTION ERROR {'='*30}")
             
             # Print sparsity patterns
@@ -262,9 +264,9 @@ def run_benchmarks(
             # print(f"V0 CPU result shape: {v0_cpu_result.shape}")
             
             # Reconstruction error analysis
-            sklearn_reconstruction_error = (np.linalg.norm(y[..., None] - X @ results['sklearn'][..., None], ord=2, axis=-2).squeeze(-1) ** 2).max()
-            v0_reconstruction_error = (np.linalg.norm(y[..., None] - X @ results['v0_cpu'][..., None], ord=2, axis=-2).squeeze(-1) ** 2).max()
-            naive_reconstruction_error = (np.linalg.norm(y[..., None] - X @ results['naive_cpu'][..., None], ord=2, axis=-2).squeeze(-1) ** 2).max()
+            sklearn_reconstruction_error = (np.linalg.norm(y[..., None] - D @ results['sklearn'][..., None], ord=2, axis=-2).squeeze(-1) ** 2).max()
+            v0_reconstruction_error = (np.linalg.norm(y[..., None] - D @ results['v0_cpu'][..., None], ord=2, axis=-2).squeeze(-1) ** 2).max()
+            naive_reconstruction_error = (np.linalg.norm(y[..., None] - D @ results['naive_cpu'][..., None], ord=2, axis=-2).squeeze(-1) ** 2).max()
             
             print(f"Sklearn reconstruction error: {sklearn_reconstruction_error:.6e}")
             print(f"V0 CPU reconstruction error: {v0_reconstruction_error:.6e}")
