@@ -16,9 +16,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "cython"))
 from cython.test import *  # FIXME: better name. Works w/ py312
 # from cython.test import * # Works with py39
 
-n_components, n_features = 100, 100
+# n_components = 100
+n_features = 100
 n_nonzero_coefs = 17
-n_samples = 50
+n_samples = 1000
 
 @contextmanager
 def elapsed_timer():
@@ -291,56 +292,61 @@ if __name__ == "__main__":
     # If k is modest
     # And all the other proposed algs will also
 
-    # TODO: https://roman-kh.github.io/numpy-multicore/
-    y, X, w = make_sparse_coded_signal(
-        n_samples=n_samples,
-        n_components=n_components,
-        n_features=n_features,
-        n_nonzero_coefs=n_nonzero_coefs,
-        random_state=0)
-    
-    # y = y.T # Needed for new Sklearn
+    for n_components in [20,40,80,160,320,640,1280]:#,2560,5120]:
 
-    y = (y.T + np.random.randn(*y.T.shape) * 0.01)
-    XTX = X.T @ X
-    print("Settings used for the test: ")
-    print("Number of Samples: " + str(n_samples))
-    print("Number of Components: " + str(n_components))
-    print("Number of Features: " + str(n_features))
-    print("Number of Nonzero Coefficients: " + str(n_nonzero_coefs))
-    print("\n")
+        # TODO: https://roman-kh.github.io/numpy-multicore/
+        y, X, w = make_sparse_coded_signal(
+            n_samples=n_samples,
+            n_components=n_components,
+            n_features=n_features,
+            n_nonzero_coefs=n_nonzero_coefs,
+            random_state=0)
+        
+        # y = y.T # Needed for new Sklearn
 
-    print('Single core. v0 fast implementation.')
-    tol = 0.1
-    k = 0
-    with elapsed_timer() as elapsed:
-        xests_v0 = run_omp(torch.as_tensor(X.copy()), torch.as_tensor(y.copy()), n_nonzero_coefs-k, normalize=True, fit_intercept=True, tol=tol, alg='v0')
-    print('Samples per second:', n_samples / elapsed())
-    print("\n")
+        y = (y.T + np.random.randn(*y.T.shape) * 0.01)
+        XTX = X.T @ X
+        print("Settings used for the test: ")
+        print("Number of Samples: " + str(n_samples))
+        print("Number of Components: " + str(n_components))
+        print("Number of Features: " + str(n_features))
+        print("Number of Nonzero Coefficients: " + str(n_nonzero_coefs))
+        print("\n")
 
-    with elapsed_timer() as elapsed:
-        xests_naive_fast = run_omp(X.copy().astype(float), y.copy().astype(float), n_nonzero_coefs-k, tol=tol, normalize=True, fit_intercept=True, alg='naive')
-    print('Samples per second:', n_samples / elapsed())
-    print("\n")
-    print(xests_v0.numpy().nonzero(), xests_v0.shape)
-    print('error in new code (v0)', np.max(np.abs(xests_v0.numpy() - xests_naive_fast.numpy())))
+        # print('Single core. v0 fast implementation.')
+        tol = 0.1
+        k = 0
+        # print("\n")
 
-    if True:
+        # print("\n")
+        # print(xests_v0.numpy().nonzero(), xests_v0.shape)
+        # print('error in new code (v0 - naive)', np.max(np.abs(xests_v0.numpy() - xests_naive_fast.numpy())))
+
         omp_args = dict(tol=tol, n_nonzero_coefs=n_nonzero_coefs-k, precompute=False, fit_intercept=True, normalize=True)
         # Single core
-        print('Single core. Sklearn')
+        # print('Single core. Sklearn')
         omp = OrthogonalMatchingPursuit(**omp_args)
         with elapsed_timer() as elapsed:
             omp.fit(X, y.T)
-        print('Samples per second:', n_samples / elapsed())
-        print("\n")
+        print('Samples per second for Sklearn OMP:', n_samples / elapsed())
+
+        with elapsed_timer() as elapsed:
+            xests_naive_fast = run_omp(X.copy().astype(float), y.copy().astype(float), n_nonzero_coefs-k, tol=tol, normalize=True, fit_intercept=True, alg='naive')
+        print('Samples per second for Naive:', n_samples / elapsed())
+
+        with elapsed_timer() as elapsed:
+            xests_v0 = run_omp(torch.as_tensor(X.copy()), torch.as_tensor(y.copy()), n_nonzero_coefs-k, normalize=True, fit_intercept=True, tol=tol, alg='v0')
+        print('Samples per second for v0:', n_samples / elapsed())
+
+
+        print("\n\n")
 
         # print(omp.coef_[0].nonzero(), omp.coef_.shape, xests_naive_fast.shape, xests_naive_fast.dtype)
         # print(xests_naive_fast[0].numpy().nonzero())
-        print((np.linalg.norm(y[..., None] - X @ omp.coef_[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
-        print((np.linalg.norm(y[..., None] - X @ xests_v0.numpy()[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
-        print((np.linalg.norm(y[..., None] - X @ xests_naive_fast.numpy()[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
-        print('error in new code (blas)', np.max(np.abs(omp.coef_ - xests_v0.numpy())))
-        print('error in new code (blas)', np.max(np.abs(omp.coef_ - xests_naive_fast.numpy())))
+        # print((np.linalg.norm(y[..., None] - X @ omp.coef_[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
+        # print((np.linalg.norm(y[..., None] - X @ xests_v0.numpy()[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
+        # print((np.linalg.norm(y[..., None] - X @ xests_naive_fast.numpy()[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
+        # print('error in new code (blas)', np.max(np.abs(omp.coef_ - xests_v0.numpy())))
+        # print('error in new code (blas)', np.max(np.abs(omp.coef_ - xests_naive_fast.numpy())))
         # print('idx in new code (blas)', np.max(np.abs(omp.coef_[5].nonzero()[0] - xests_naive_fast[5].numpy().nonzero()[0])))
         # print('idx in new code (blas)', np.max(np.abs(omp.coef_.nonzero()[1] - xests_naive_fast.numpy().nonzero()[1])))
