@@ -23,7 +23,7 @@ sudo apt-get install build-essential python3.9-dev   # Replace with specific pyt
 1. You must compile the Cython functions:
 
 ```
-python3 src/_cython/setup.py build_ext --inplace
+python3 ./src/cython/setup.py build_ext --inplace
 ```
 
 
