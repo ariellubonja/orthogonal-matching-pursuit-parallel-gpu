@@ -1,6 +1,6 @@
 src/__pycache__/
 .idea
-.old_venv/
 **/__pycache__
 .venv-py312
+.venv-py39
 build
