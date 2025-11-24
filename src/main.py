@@ -322,9 +322,16 @@ if __name__ == "__main__":
         # print(xests_v0.numpy().nonzero(), xests_v0.shape)
         # print('error in new code (v0 - naive)', np.max(np.abs(xests_v0.numpy() - xests_naive_fast.numpy())))
 
-        omp_args = dict(tol=tol, n_nonzero_coefs=n_nonzero_coefs-k, precompute=False, fit_intercept=True, normalize=True)
+        # Normalize arg no longer supported. Removing gives huge error
+        omp_args = dict(tol=tol, n_nonzero_coefs=n_nonzero_coefs-k, precompute=False, fit_intercept=True)#, normalize=True)
         # Single core
         # print('Single core. Sklearn')
+
+        m = X.mean(axis=0)
+        s = np.linalg.norm(X - m, axis=0)
+        s[s == 0] = 1.0
+        X = (X - m) / s
+
         omp = OrthogonalMatchingPursuit(**omp_args)
         with elapsed_timer() as elapsed:
             omp.fit(X, y.T)
