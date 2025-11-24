@@ -299,7 +299,10 @@ if __name__ == "__main__":
             n_nonzero_coefs=n_nonzero_coefs,
             random_state=0)
         
-        # y = y.T # Needed for new Sklearn
+        # All returns of make_sparse_coded_signal are transposed in new Sklearn
+        y = y.T
+        X = X.T
+        w = w.T
 
         y = (y.T + np.random.randn(*y.T.shape) * 0.01)
         XTX = X.T @ X
