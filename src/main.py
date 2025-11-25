@@ -286,8 +286,7 @@ def omp_v0(X, y, XTX, n_nonzero_coefs=None, tol=None, inverse_cholesky=True):
 
 if __name__ == "__main__":
     # The naive algorithm has a memory complexity of kNM = O(N^2M), while the v0 has k(N^2+N(M+k)) = O(N^3+N^2M).
-    # If k is modest
-    # And all the other proposed algs will also
+    #   if k is modest and all the other proposed algs will also
 
     for n_components in [20,40,80,160,320,640,1280]:#,2560,5120]:
 
@@ -313,19 +312,11 @@ if __name__ == "__main__":
         print("Number of Nonzero Coefficients: " + str(n_nonzero_coefs))
         print("\n")
 
-        # print('Single core. v0 fast implementation.')
         tol = 0.1
         k = 0
-        # print("\n")
-
-        # print("\n")
-        # print(xests_v0.numpy().nonzero(), xests_v0.shape)
-        # print('error in new code (v0 - naive)', np.max(np.abs(xests_v0.numpy() - xests_naive_fast.numpy())))
 
         # Normalize arg no longer supported. Removing gives huge error
         omp_args = dict(tol=tol, n_nonzero_coefs=n_nonzero_coefs-k, precompute=False, fit_intercept=True)#, normalize=True)
-        # Single core
-        # print('Single core. Sklearn')
 
         m = X.mean(axis=0)
         s = np.linalg.norm(X - m, axis=0)
@@ -346,15 +337,23 @@ if __name__ == "__main__":
         print('Samples per second for v0:', n_samples / elapsed())
 
         print("\nPrinting Errors\n")
-        # print(omp.coef_[0].nonzero(), omp.coef_.shape, xests_naive_fast.shape, xests_naive_fast.dtype)
-        # print(xests_naive_fast[0].numpy().nonzero())
-        print((np.linalg.norm(y[..., None] - X @ omp.coef_[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
-        print((np.linalg.norm(y[..., None] - X @ xests_v0.numpy()[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
-        print((np.linalg.norm(y[..., None] - X @ xests_naive_fast.numpy()[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
-        print('error in new code (v0)', np.max(np.abs(omp.coef_ - xests_v0.numpy())))
-        print('error in new code (naive)', np.max(np.abs(omp.coef_ - xests_naive_fast.numpy())))
-        print('NNZ difference in omp.coef_[5].nonzero()[0] - xests_naive_fast[5]', np.max(np.abs(omp.coef_[5].nonzero()[0] - xests_naive_fast[5].numpy().nonzero()[0])))
-        print('NNZ difference in omp.coef_.nonzero()[1] - xests_naive_fast', np.max(np.abs(omp.coef_.nonzero()[1] - xests_naive_fast.numpy().nonzero()[1])))
+
+        eps = 1e-12
+        A = omp.coef_
+        B = xests_naive_fast.numpy()
+        for i in range(A.shape[0]):
+            nzA = np.flatnonzero(np.abs(A[i]) > eps).tolist()
+            nzB = np.flatnonzero(np.abs(B[i]) > eps).tolist()
+            if not np.array_equal(nzA, nzB):
+                print(i, "diff:", set(nzA) ^ set(nzB))
+
+        # print((np.linalg.norm(y[..., None] - X @ omp.coef_[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
+        # print((np.linalg.norm(y[..., None] - X @ xests_v0.numpy()[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
+        # print((np.linalg.norm(y[..., None] - X @ xests_naive_fast.numpy()[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
+        # print('error in new code (v0)', np.max(np.abs(omp.coef_ - xests_v0.numpy())))
+        # print('error in new code (naive)', np.max(np.abs(omp.coef_ - xests_naive_fast.numpy())))
+        # print('NNZ difference in omp.coef_[5].nonzero()[0] - xests_naive_fast[5]', np.max(np.abs(omp.coef_[5].nonzero()[0] - xests_naive_fast[5].numpy().nonzero()[0])))
+        # print('NNZ difference in omp.coef_.nonzero()[1] - xests_naive_fast', np.max(np.abs(omp.coef_.nonzero()[1] - xests_naive_fast.numpy().nonzero()[1])))
 
         print("\n\n")
 
