@@ -50,11 +50,11 @@ def run_omp(X, y, n_nonzero_coefs, precompute=True, tol=0.0, normalize=False, fi
 
     # To keep a good condition number on X, especially with Cholesky compared to LU factorization,
     # we should probably always normalize it (OMP is invariant anyways)
-    if normalize is True:
+    if normalize:
         normalize = (X * X).sum(0).sqrt()  # User can also just optionally supply pre-computed norms.
         X /= normalize[None, :]  # Save compute if already normalized!
 
-    if precompute is True or alg == 'v0':
+    if precompute or alg == 'v0':
         precompute = X.T @ X
 
     # If n_nonzero_coefs is equal to M, one should just return lstsq
@@ -64,7 +64,7 @@ def run_omp(X, y, n_nonzero_coefs, precompute=True, tol=0.0, normalize=False, fi
         sets, solutions, lengths = omp_v0(X, y, n_nonzero_coefs=n_nonzero_coefs, XTX=precompute, tol=tol)
 
     solutions = solutions.squeeze(-1)
-    if normalize is not False:
+    if normalize:
         solutions /= normalize[sets]
 
     xests = y.new_zeros(y.shape[0], X.shape[1])
@@ -338,11 +338,11 @@ if __name__ == "__main__":
         print('Samples per second for Sklearn OMP:', n_samples / elapsed())
 
         with elapsed_timer() as elapsed:
-            xests_naive_fast = run_omp(X.copy().astype(float), y.copy().astype(float), n_nonzero_coefs-k, tol=tol, normalize=True, fit_intercept=True, alg='naive')
+            xests_naive_fast = run_omp(X.copy().astype(float), y.copy().astype(float), n_nonzero_coefs-k, tol=tol, normalize=False, fit_intercept=True, alg='naive')
         print('Samples per second for Naive:', n_samples / elapsed())
 
         with elapsed_timer() as elapsed:
-            xests_v0 = run_omp(torch.as_tensor(X.copy()), torch.as_tensor(y.copy()), n_nonzero_coefs-k, normalize=True, fit_intercept=True, tol=tol, alg='v0')
+            xests_v0 = run_omp(torch.as_tensor(X.copy()), torch.as_tensor(y.copy()), n_nonzero_coefs-k, normalize=False, fit_intercept=True, tol=tol, alg='v0')
         print('Samples per second for v0:', n_samples / elapsed())
 
         print("\nPrinting Errors\n")
