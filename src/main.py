@@ -28,7 +28,7 @@ def elapsed_timer():
     elapser = lambda: end-start
 
 
-def run_omp(X, y, n_nonzero_coefs, precompute=True, tol=0.0, normalize=False, fit_intercept=False, alg='naive'):
+def run_omp(X, y, n_nonzero_coefs, precompute=True, tol=0.0, normalize=True, fit_intercept=True, alg='naive'):
     if not isinstance(X, torch.Tensor):
         X = torch.as_tensor(X)
         y = torch.as_tensor(y)
@@ -62,9 +62,16 @@ def run_omp(X, y, n_nonzero_coefs, precompute=True, tol=0.0, normalize=False, fi
         sets, solutions, lengths = omp_naive(X, y, n_nonzero_coefs=n_nonzero_coefs, XTX=precompute, tol=tol)
     elif alg == 'v0':
         sets, solutions, lengths = omp_v0(X, y, n_nonzero_coefs=n_nonzero_coefs, XTX=precompute, tol=tol)
+    elif alg == 'sklearn':
+        # Normalize arg no longer supported. Removing gives huge error
+        omp_args = dict(tol=tol, n_nonzero_coefs=n_nonzero_coefs, precompute='auto', fit_intercept=False)#, normalize=True)
+        omp = OrthogonalMatchingPursuit(**omp_args)
+        omp.fit(X, y.T)
+
+        return omp
 
     solutions = solutions.squeeze(-1)
-    if normalize:
+    if normalize is not False:
         solutions /= normalize[sets]
 
     xests = y.new_zeros(y.shape[0], X.shape[1])
@@ -304,7 +311,7 @@ if __name__ == "__main__":
         w = w.T
 
         y = (y.T + np.random.randn(*y.T.shape) * 0.01)
-        XTX = X.T @ X
+        
         print("Settings used for the test: ")
         print("Number of Samples: " + str(n_samples))
         print("Number of Components: " + str(n_components))
@@ -315,25 +322,16 @@ if __name__ == "__main__":
         tol = 0.1
         k = 0
 
-        # Normalize arg no longer supported. Removing gives huge error
-        omp_args = dict(tol=tol, n_nonzero_coefs=n_nonzero_coefs-k, precompute=False, fit_intercept=True)#, normalize=True)
-
-        m = X.mean(axis=0)
-        s = np.linalg.norm(X - m, axis=0)
-        s[s == 0] = 1.0
-        X = (X - m) / s
-
-        omp = OrthogonalMatchingPursuit(**omp_args)
         with elapsed_timer() as elapsed:
-            omp.fit(X, y.T)
+            omp = run_omp(X.copy().astype(float), y.copy().astype(float), n_nonzero_coefs-k, tol=tol, normalize=True, fit_intercept=True, alg='sklearn')
         print('Samples per second for Sklearn OMP:', n_samples / elapsed())
 
         with elapsed_timer() as elapsed:
-            xests_naive_fast = run_omp(X.copy().astype(float), y.copy().astype(float), n_nonzero_coefs-k, tol=tol, normalize=False, fit_intercept=True, alg='naive')
+            xests_naive_fast = run_omp(X.copy().astype(float), y.copy().astype(float), n_nonzero_coefs-k, tol=tol, normalize=True, fit_intercept=True, alg='naive')
         print('Samples per second for Naive:', n_samples / elapsed())
 
         with elapsed_timer() as elapsed:
-            xests_v0 = run_omp(torch.as_tensor(X.copy()), torch.as_tensor(y.copy()), n_nonzero_coefs-k, normalize=False, fit_intercept=True, tol=tol, alg='v0')
+            xests_v0 = run_omp(torch.as_tensor(X.copy()), torch.as_tensor(y.copy()), n_nonzero_coefs-k, normalize=True, fit_intercept=True, tol=tol, alg='v0')
         print('Samples per second for v0:', n_samples / elapsed())
 
         print("\nPrinting Errors\n")
