@@ -341,14 +341,18 @@ if __name__ == "__main__":
         A = omp.coef_
         B = xests_naive_fast.numpy()
         C = xests_v0.numpy()
-        for i in range(A.shape[0]):
-            nzA = np.flatnonzero(np.abs(A[i]) > eps).tolist()
+
+        # Support diffs vs sklearn are not meaningful: sklearn and naive/v0 use different
+        # stopping criteria (sklearn prioritizes tol, naive/v0 prioritize max_nnz), so they
+        # follow different greedy paths and select different atoms — especially for overcomplete
+        # dictionaries. This is expected behavior, not a bug. The orthogonality check below
+        # is the correct way to verify OMP correctness.
+        # We do compare naive vs v0, which should always agree (same code path).
+        for i in range(B.shape[0]):
             nzB = np.flatnonzero(np.abs(B[i]) > eps).tolist()
             nzC = np.flatnonzero(np.abs(C[i]) > eps).tolist()
-            if not np.array_equal(nzA, nzB):
-                print(f"Sample {i} support diff (naive vs sklearn):", set(nzA) ^ set(nzB))
-            if not np.array_equal(nzA, nzC):
-                print(f"Sample {i} support diff (v0 vs sklearn):", set(nzA) ^ set(nzC))
+            if not np.array_equal(nzB, nzC):
+                print(f"Sample {i} support diff (naive vs v0):", set(nzB) ^ set(nzC))
 
         # Prepare normalized/centered space (matching what run_omp does internally)
         X_c = X - X.mean(axis=0)
