@@ -312,6 +312,7 @@ if __name__ == "__main__":
 
         y = (y.T + np.random.randn(*y.T.shape) * 0.01)
         
+        print("\n" + "="*60)
         print("Settings used for the test: ")
         print("Number of Samples: " + str(n_samples))
         print("Number of Components: " + str(n_components))
@@ -349,11 +350,40 @@ if __name__ == "__main__":
             if not np.array_equal(nzA, nzC):
                 print(f"Sample {i} support diff (v0 vs sklearn):", set(nzA) ^ set(nzC))
 
-        print('Max reconstruction error (sklearn):', (np.linalg.norm(y[..., None] - X @ omp.coef_[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
-        print('Max reconstruction error (v0):', (np.linalg.norm(y[..., None] - X @ xests_v0.numpy()[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
-        print('Max reconstruction error (naive):', (np.linalg.norm(y[..., None] - X @ xests_naive_fast.numpy()[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
-        print('Max coeff error vs sklearn (v0):', np.max(np.abs(omp.coef_ - xests_v0.numpy())))
-        print('Max coeff error vs sklearn (naive):', np.max(np.abs(omp.coef_ - xests_naive_fast.numpy())))
+        # Prepare normalized/centered space (matching what run_omp does internally)
+        X_c = X - X.mean(axis=0)
+        col_norms = np.linalg.norm(X_c, axis=0)
+        X_n = X_c / col_norms
+        y_c = y - y.mean(axis=1, keepdims=True)
+
+        # Residuals in normalized space (where OMP actually operates)
+        # sklearn coefs are in normalized space; naive/v0 are un-normalized
+        r_sklearn = y_c - (X_n @ A.T).T
+        r_v0 = y_c - (X_c @ C.T).T
+        r_naive = y_c - (X_c @ B.T).T
+
+        # Reconstruction errors (in original space, more interpretable)
+        print('Max reconstruction error (sklearn):', (r_sklearn ** 2).sum(axis=1).max())
+        print('Max reconstruction error (v0):', (r_v0 ** 2).sum(axis=1).max())
+        print('Max reconstruction error (naive):', (r_naive ** 2).sum(axis=1).max())
+
+        # Orthogonality check: X_n[:, selected]^T @ residual should be ~0
+        for label, coefs, resid in [('sklearn', A, r_sklearn), ('v0', C, r_v0), ('naive', B, r_naive)]:
+            orth_violations = []
+            for i in range(coefs.shape[0]):
+                nz = np.flatnonzero(np.abs(coefs[i]) > eps)
+                if len(nz) > 0:
+                    orth_violations.append(np.abs(X_n[:, nz].T @ resid[i]).max())
+            print(f'Max orthogonality violation ({label}):', max(orth_violations) if orth_violations else 0)
+
+        # NNZ / tol invariant (tol is compared against ||r||^2 in normalized space)
+        max_nnz = n_nonzero_coefs - k
+        for label, coefs, resid in [('sklearn', A, r_sklearn), ('v0', C, r_v0), ('naive', B, r_naive)]:
+            nnzs = (np.abs(coefs) > eps).sum(axis=1)
+            resid_norms = (resid ** 2).sum(axis=1)
+            nnz_violations = (nnzs > max_nnz).sum()
+            tol_violations = ((resid_norms > tol) & (nnzs >= max_nnz)).sum()
+            print(f'NNZ/tol violations ({label}): nnz>{max_nnz}: {nnz_violations}, residual>tol with max nnz: {tol_violations}')
 
         print("\n\n")
 
