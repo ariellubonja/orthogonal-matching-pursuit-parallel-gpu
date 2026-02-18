@@ -346,15 +346,15 @@ if __name__ == "__main__":
             nzB = np.flatnonzero(np.abs(B[i]) > eps).tolist()
             nzC = np.flatnonzero(np.abs(C[i]) > eps).tolist()
             if not np.array_equal(nzA, nzB):
-                print(i, "Naive diff:", set(nzA) ^ set(nzB))
+                print(f"Sample {i} support diff (naive vs sklearn):", set(nzA) ^ set(nzB))
             if not np.array_equal(nzA, nzC):
-                print(i, "v0 diff:", set(nzA) ^ set(nzC))
+                print(f"Sample {i} support diff (v0 vs sklearn):", set(nzA) ^ set(nzC))
 
-        print((np.linalg.norm(y[..., None] - X @ omp.coef_[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
-        print((np.linalg.norm(y[..., None] - X @ xests_v0.numpy()[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
-        print((np.linalg.norm(y[..., None] - X @ xests_naive_fast.numpy()[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
-        print('error in new code (v0)', np.max(np.abs(omp.coef_ - xests_v0.numpy())))
-        print('error in new code (naive)', np.max(np.abs(omp.coef_ - xests_naive_fast.numpy())))
+        print('Max reconstruction error (sklearn):', (np.linalg.norm(y[..., None] - X @ omp.coef_[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
+        print('Max reconstruction error (v0):', (np.linalg.norm(y[..., None] - X @ xests_v0.numpy()[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
+        print('Max reconstruction error (naive):', (np.linalg.norm(y[..., None] - X @ xests_naive_fast.numpy()[..., None], ord=2, axis=-2).squeeze(-1) ** 2).max())
+        print('Max coeff error vs sklearn (v0):', np.max(np.abs(omp.coef_ - xests_v0.numpy())))
+        print('Max coeff error vs sklearn (naive):', np.max(np.abs(omp.coef_ - xests_naive_fast.numpy())))
 
         print("\n\n")
 
