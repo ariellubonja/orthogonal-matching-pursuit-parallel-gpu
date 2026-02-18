@@ -4,3 +4,5 @@ src/__pycache__/
 .venv-py312
 .venv-py39
 build
+
+*.so
