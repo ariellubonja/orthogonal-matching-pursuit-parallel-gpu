@@ -117,8 +117,8 @@ def innerp(x, y=None, out=None):
 
 def cholesky_solve(ATA, ATy):
     if ATA.dtype == torch.half or ATy.dtype == torch.half:
-        return ATy.to(torch.float).cholesky_solve(torch.cholesky(ATA.to(torch.float))).to(ATy.dtype)
-    return ATy.cholesky_solve(torch.cholesky(ATA)).to(ATy.dtype)
+        return ATy.to(torch.float).cholesky_solve(torch.linalg.cholesky(ATA.to(torch.float))).to(ATy.dtype)
+    return ATy.cholesky_solve(torch.linalg.cholesky(ATA)).to(ATy.dtype)
 
 
 def omp_naive(X, y, n_nonzero_coefs, tol=None, XTX=None):

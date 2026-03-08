@@ -1,0 +1,260 @@
+Date: 2026-03-08T00:05:13.293618
+CPU: Intel(R) Core(TM) Ultra 9 185H
+GPU: NVIDIA GeForce RTX 4060 Laptop GPU
+
+============================================================
+Benchmark: image_patches
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU sklearn:         277 samples/sec (18.045s)
+CPU naive:          1393 samples/sec (3.588s)
+CPU v0:             1867 samples/sec (2.678s)
+GPU naive:          7966 samples/sec (0.628s)
+GPU v0:            21191 samples/sec (0.236s)
+
+Speedups vs sklearn:
+  NAIVE CPU: 5.0x
+  V0 CPU: 6.7x
+  NAIVE GPU: 28.7x
+  V0 GPU: 76.5x
+
+Correctness:
+  CPU naive vs v0 support: agree on all 5000 samples
+  v0 CPU vs GPU support: agree on all 5000 samples
+  Max orthogonality violation (v0 cpu): 5.86e-15
+  Max orthogonality violation (v0 gpu): 5.17e-15
+
+============================================================
+Benchmark: face_recognition
+  n_features=8064, n_components=1207, n_nonzero_coefs=30, n_samples=1207
+============================================================
+CPU sklearn:         271 samples/sec (4.457s)
+CPU naive:            77 samples/sec (15.619s)
+CPU v0:              517 samples/sec (2.334s)
+GPU naive:           255 samples/sec (4.728s)
+GPU v0:             4134 samples/sec (0.292s)
+
+Speedups vs sklearn:
+  NAIVE CPU: 0.3x
+  V0 CPU: 1.9x
+  NAIVE GPU: 0.9x
+  V0 GPU: 15.3x
+
+Correctness:
+  CPU naive vs v0 support: agree on all 1207 samples
+  v0 CPU vs GPU support: agree on all 1207 samples
+  Max orthogonality violation (v0 cpu): 2.15e-14
+  Max orthogonality violation (v0 gpu): 2.55e-14
+
+============================================================
+Benchmark: audio
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU sklearn:          99 samples/sec (50.457s)
+CPU naive:           230 samples/sec (21.705s)
+CPU v0:              429 samples/sec (11.664s)
+GPU naive:          1374 samples/sec (3.640s)
+GPU v0:             4173 samples/sec (1.198s)
+
+Speedups vs sklearn:
+  NAIVE CPU: 2.3x
+  V0 CPU: 4.3x
+  NAIVE GPU: 13.9x
+  V0 GPU: 42.1x
+
+Correctness:
+  CPU naive vs v0 support: agree on all 5000 samples
+  v0 CPU vs GPU support: agree on all 5000 samples
+  Max orthogonality violation (v0 cpu): 8.47e-15
+  Max orthogonality violation (v0 gpu): 8.36e-15
+
+############################################################
+Paper Fig 1 benchmarks: N=8M, S=M/4, B=100
+############################################################
+
+============================================================
+Benchmark: paper_M=16
+  n_features=16, n_components=128, n_nonzero_coefs=4, n_samples=100
+============================================================
+CPU sklearn:        6954 samples/sec (0.014s)
+CPU naive:         55354 samples/sec (0.002s)
+CPU v0:            49571 samples/sec (0.002s)
+GPU naive:         25873 samples/sec (0.004s)
+GPU v0:            45071 samples/sec (0.002s)
+
+Speedups vs sklearn:
+  NAIVE CPU: 8.0x
+  V0 CPU: 7.1x
+  NAIVE GPU: 3.7x
+  V0 GPU: 6.5x
+
+Correctness:
+  CPU naive vs v0 support: agree on all 100 samples
+  v0 CPU vs GPU support: agree on all 100 samples
+  Max orthogonality violation (v0 cpu): 9.37e-16
+  Max orthogonality violation (v0 gpu): 1.18e-15
+
+============================================================
+Benchmark: paper_M=32
+  n_features=32, n_components=256, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU sklearn:        3571 samples/sec (0.028s)
+CPU naive:          1778 samples/sec (0.056s)
+CPU v0:             5850 samples/sec (0.017s)
+GPU naive:         17216 samples/sec (0.006s)
+GPU v0:            26395 samples/sec (0.004s)
+
+Speedups vs sklearn:
+  NAIVE CPU: 0.5x
+  V0 CPU: 1.6x
+  NAIVE GPU: 4.8x
+  V0 GPU: 7.4x
+
+Correctness:
+  CPU naive vs v0 support: agree on all 100 samples
+  v0 CPU vs GPU support: agree on all 100 samples
+  Max orthogonality violation (v0 cpu): 1.49e-15
+  Max orthogonality violation (v0 gpu): 1.68e-15
+
+============================================================
+Benchmark: paper_M=64
+  n_features=64, n_components=512, n_nonzero_coefs=16, n_samples=100
+============================================================
+CPU sklearn:        1087 samples/sec (0.092s)
+CPU naive:           365 samples/sec (0.274s)
+CPU v0:             1134 samples/sec (0.088s)
+GPU naive:          9476 samples/sec (0.011s)
+GPU v0:            13267 samples/sec (0.008s)
+
+Speedups vs sklearn:
+  NAIVE CPU: 0.3x
+  V0 CPU: 1.0x
+  NAIVE GPU: 8.7x
+  V0 GPU: 12.2x
+
+Correctness:
+  CPU naive vs v0 support: agree on all 100 samples
+  v0 CPU vs GPU support: agree on all 100 samples
+  Max orthogonality violation (v0 cpu): 2.15e-15
+  Max orthogonality violation (v0 gpu): 1.88e-15
+
+============================================================
+Benchmark: paper_M=128
+  n_features=128, n_components=1024, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU sklearn:         438 samples/sec (0.228s)
+CPU naive:           181 samples/sec (0.554s)
+CPU v0:              673 samples/sec (0.149s)
+GPU naive:          4858 samples/sec (0.021s)
+GPU v0:             6793 samples/sec (0.015s)
+
+Speedups vs sklearn:
+  NAIVE CPU: 0.4x
+  V0 CPU: 1.5x
+  NAIVE GPU: 11.1x
+  V0 GPU: 15.5x
+
+Correctness:
+  CPU naive vs v0 support: agree on all 100 samples
+  v0 CPU vs GPU support: agree on all 100 samples
+  Max orthogonality violation (v0 cpu): 2.91e-15
+  Max orthogonality violation (v0 gpu): 3.59e-15
+
+============================================================
+Benchmark: paper_M=256
+  n_features=256, n_components=2048, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU sklearn:         128 samples/sec (0.782s)
+CPU naive:            42 samples/sec (2.376s)
+CPU v0:               64 samples/sec (1.573s)
+GPU naive:          1287 samples/sec (0.078s)
+GPU v0:             2941 samples/sec (0.034s)
+
+Speedups vs sklearn:
+  NAIVE CPU: 0.3x
+  V0 CPU: 0.5x
+  NAIVE GPU: 10.1x
+  V0 GPU: 23.0x
+
+Correctness:
+  CPU naive vs v0 support: agree on all 100 samples
+  v0 CPU vs GPU support: agree on all 100 samples
+  Max orthogonality violation (v0 cpu): 4.51e-15
+  Max orthogonality violation (v0 gpu): 4.35e-15
+
+============================================================
+Benchmark: paper_M=512
+  n_features=512, n_components=4096, n_nonzero_coefs=128, n_samples=100
+============================================================
+CPU sklearn:          12 samples/sec (8.542s)
+CPU naive:             7 samples/sec (14.095s)
+CPU v0:               56 samples/sec (1.800s)
+GPU naive:           226 samples/sec (0.443s)
+GPU v0:              462 samples/sec (0.217s)
+
+Speedups vs sklearn:
+  NAIVE CPU: 0.6x
+  V0 CPU: 4.7x
+  NAIVE GPU: 19.3x
+  V0 GPU: 39.4x
+
+Correctness:
+  CPU naive vs v0 support: agree on all 100 samples
+  v0 CPU vs GPU support: agree on all 100 samples
+  Max orthogonality violation (v0 cpu): 6.15e-15
+  Max orthogonality violation (v0 gpu): 7.52e-15
+
+============================================================
+Benchmark: paper_M=1024
+  n_features=1024, n_components=8192, n_nonzero_coefs=256, n_samples=100
+============================================================
+CPU sklearn:           2 samples/sec (63.266s)
+CPU naive:             2 samples/sec (43.306s)
+CPU v0:                6 samples/sec (15.520s)
+GPU naive:            13 samples/sec (7.805s)
+GPU v0:               61 samples/sec (1.640s)
+
+Speedups vs sklearn:
+  NAIVE CPU: 1.5x
+  V0 CPU: 4.1x
+  NAIVE GPU: 8.1x
+  V0 GPU: 38.6x
+
+Correctness:
+  CPU naive vs v0 support: agree on all 100 samples
+  v0 CPU vs GPU support: agree on all 100 samples
+  Max orthogonality violation (v0 cpu): 8.09e-15
+  Max orthogonality violation (v0 gpu): 1.01e-14
+
+============================================================
+Benchmark: paper_M=2048
+  n_features=2048, n_components=16384, n_nonzero_coefs=512, n_samples=100
+============================================================
+CPU sklearn:           0 samples/sec (323.514s)
+CPU naive:             1 samples/sec (167.872s)
+CPU v0:                2 samples/sec (43.205s)
+GPU naive:             1 samples/sec (67.132s)
+GPU v0:              OOM
+
+Speedups vs sklearn:
+  NAIVE CPU: 1.9x
+  V0 CPU: 7.5x
+  NAIVE GPU: 4.8x
+
+Correctness:
+  CPU naive vs v0 support: agree on all 100 samples
+  Max orthogonality violation (v0 cpu): 1.33e-14
+
+============================================================
+Paper Fig 1 Summary (time in seconds)
+============================================================
+     M |  sklearn |    naive |   v0 CPU | naive GPU |   v0 GPU
+--------------------------------------------------------------
+    16 |    0.014 |    0.002 |    0.002 |     0.004 |    0.002
+    32 |    0.028 |    0.056 |    0.017 |     0.006 |    0.004
+    64 |    0.092 |    0.274 |    0.088 |     0.011 |    0.008
+   128 |    0.228 |    0.554 |    0.149 |     0.021 |    0.015
+   256 |    0.782 |    2.376 |    1.573 |     0.078 |    0.034
+   512 |    8.542 |   14.095 |    1.800 |     0.443 |    0.217
+  1024 |   63.266 |   43.306 |   15.520 |     7.805 |    1.640
+  2048 |  323.514 |  167.872 |   43.205 |    67.132 |      OOM

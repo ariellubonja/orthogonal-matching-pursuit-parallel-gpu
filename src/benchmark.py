@@ -4,6 +4,7 @@ import torch
 import numpy as np
 from sklearn.datasets import make_sparse_coded_signal
 from contextlib import contextmanager
+from datetime import datetime
 from timeit import default_timer
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "cython"))
@@ -199,11 +200,29 @@ def run_paper_benchmarks(run_gpu=True):
     print("-" * len(header))
     for M, res in all_results.items():
         row = f"{M:>6} | {res['sklearn']['time']:>8.3f} | {res['naive_cpu']['time']:>8.3f} | {res['v0_cpu']['time']:>8.3f}"
-        if 'naive_gpu' in res:
-            row += f" | {res['naive_gpu']['time']:>9.3f} | {res['v0_gpu']['time']:>8.3f}"
+        if run_gpu and HAS_CUDA:
+            naive_gpu = f"{res['naive_gpu']['time']:>9.3f}" if 'naive_gpu' in res else "      OOM"
+            v0_gpu = f"{res['v0_gpu']['time']:>8.3f}" if 'v0_gpu' in res else "     OOM"
+            row += f" | {naive_gpu} | {v0_gpu}"
         print(row)
 
     return all_results
+
+
+class Tee:
+    """Write to both stdout and a file."""
+    def __init__(self, file, stream):
+        self.file = file
+        self.stream = stream
+
+    def write(self, data):
+        self.stream.write(data)
+        self.file.write(data)
+
+    def flush(self):
+        self.stream.flush()
+        if not self.file.closed:
+            self.file.flush()
 
 
 if __name__ == '__main__':
@@ -215,16 +234,42 @@ if __name__ == '__main__':
 
     run_gpu = HAS_CUDA and not no_gpu
 
-    if not args or 'all' in args:
-        # Run everything
-        for name in BENCHMARKS:
-            run_benchmark(name, BENCHMARKS[name], run_gpu=run_gpu)
-        run_paper_benchmarks(run_gpu=run_gpu)
-    else:
-        for name in args:
-            if name == 'paper':
-                run_paper_benchmarks(run_gpu=run_gpu)
-            elif name in BENCHMARKS:
+    results_dir = os.path.join(os.path.dirname(__file__), '..', 'results')
+    os.makedirs(results_dir, exist_ok=True)
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    results_path = os.path.join(results_dir, f'benchmark_{timestamp}.txt')
+
+    with open(results_path, 'w') as f:
+        tee = Tee(f, sys.stdout)
+        sys.stdout = tee
+
+        cpu_name = "unknown"
+        try:
+            with open('/proc/cpuinfo') as cpuinfo:
+                for line in cpuinfo:
+                    if line.startswith('model name'):
+                        cpu_name = line.split(':')[1].strip()
+                        break
+        except OSError:
+            pass
+        gpu_name = torch.cuda.get_device_name(0) if HAS_CUDA else "N/A"
+        print(f"Date: {datetime.now().isoformat()}")
+        print(f"CPU: {cpu_name}")
+        print(f"GPU: {gpu_name}")
+
+        if not args or 'all' in args:
+            for name in BENCHMARKS:
                 run_benchmark(name, BENCHMARKS[name], run_gpu=run_gpu)
-            else:
-                print(f"Unknown benchmark: {name}. Available: {', '.join(BENCHMARKS.keys())}, paper, all")
+            run_paper_benchmarks(run_gpu=run_gpu)
+        else:
+            for name in args:
+                if name == 'paper':
+                    run_paper_benchmarks(run_gpu=run_gpu)
+                elif name in BENCHMARKS:
+                    run_benchmark(name, BENCHMARKS[name], run_gpu=run_gpu)
+                else:
+                    print(f"Unknown benchmark: {name}. Available: {', '.join(BENCHMARKS.keys())}, paper, all")
+
+        sys.stdout = tee.stream
+
+    print(f"\nResults written to {results_path}")
