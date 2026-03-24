@@ -1,0 +1,23 @@
+Date: 2026-03-24T10:46:25.607458
+CPU: Intel(R) Core(TM) Ultra 9 185H
+GPU: N/A
+
+============================================================
+Benchmark: image_patches
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU sklearn:         545 samples/sec (9.182s)
+CPU naive:          1313 samples/sec (3.809s)
+CPU v0:             2299 samples/sec (2.175s)
+CPU v0 blas:        1919 samples/sec (2.605s)
+
+Speedups vs sklearn:
+  NAIVE CPU: 2.4x
+  V0 CPU: 4.2x
+  V0 BLAS: 3.5x
+
+Correctness:
+  CPU naive vs v0 support: agree on all 5000 samples
+  v0 CPU vs v0 BLAS support: agree on all 5000 samples
+  Max orthogonality violation (v0 cpu): 5.84e-15
+  Max orthogonality violation (v0 blas): 6.73e-15

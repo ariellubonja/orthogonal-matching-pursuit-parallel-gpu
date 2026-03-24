@@ -6,58 +6,7 @@ from sklearn.datasets import make_sparse_coded_signal
 from sklearn.linear_model import OrthogonalMatchingPursuit
 from datetime import datetime
 
-from batched_omp import run_omp, elapsed_timer
-from batched_omp.blas_kernels import argmax_blast, update_projections_blast, update_D_mybest_blast
-
-
-def omp_v0_blas(X_np, y_np, n_nonzero_coefs):
-    """v0 using Cython BLAS wrappers for inner-loop ops (argmax, D_mybest update, projection update)."""
-    B, N = y_np.shape
-    M = X_np.shape[1]  # n_components
-    XTX_np = (X_np.T @ X_np)  # (M, M)
-
-    # Initial projections: projections[b, m] = X[:, m]^T @ y[b]
-    projections = (y_np @ X_np).copy()                 # (B, M)
-    sets = np.zeros((n_nonzero_coefs, B), dtype=np.int64)
-    F = np.eye(n_nonzero_coefs, dtype=np.float64)[None].repeat(B, axis=0)   # (B, K, K)
-    a_F = np.zeros((n_nonzero_coefs, B, 1), dtype=np.float64)
-    D_mybest = np.empty((B, n_nonzero_coefs, M), dtype=np.float64)
-    temp_F_k_k = np.ones((B,), dtype=np.float64)
-
-    arange_B = np.arange(B, dtype=np.int64)
-
-    for k in range(n_nonzero_coefs):
-        argmax_blast(np.abs(projections), sets[k])                            # sets[k] = argmax |proj|
-
-        D_mybest[:, k, :] = XTX_np[sets[k], :]                               # gather rows of XTX
-
-        if k:
-            # D_mybest_maxindices[i] = column sets[k,i] of D_mybest[i, :k, :]
-            D_mybest_maxindices = D_mybest[:, :k, :].transpose(0, 2, 1)[
-                arange_B, sets[k], :]                                         # (B, k)
-
-            temp_F_k_k[:] = 1.0 / np.sqrt(1.0 - (D_mybest_maxindices ** 2).sum(axis=1))
-
-            # fused: D_mybest[:,k,:] = temp_F_k_k * (D_mybest[:,k,:] - D_mybest[:,:k,:]^T @ D_mybest_maxindices)
-            update_D_mybest_blast(temp_F_k_k, XTX_np, sets[k],
-                                  D_mybest[:, :k, :],
-                                  D_mybest_maxindices,
-                                  D_mybest[:, k, :])
-        else:
-            temp_F_k_k[:] = 1.0
-
-        temp_a_F = temp_F_k_k * projections[arange_B, sets[k]]               # (B,)
-        update_projections_blast(projections, D_mybest[:, k, :], -temp_a_F)  # projections -= temp_a_F * D[:,k,:]
-
-        a_F[k, :, 0] = temp_a_F
-        if k:
-            F[:, k, :k] = (D_mybest_maxindices[:, None, :] @
-                           F[:, :k, :k]).squeeze(1) * (-temp_F_k_k[:, None])
-            F[:, k, k] = temp_F_k_k
-
-    solutions = (F.transpose(0, 2, 1) @
-                 a_F.squeeze(-1).T[:, :, None])         # (B, K, 1)
-    return sets.T, solutions
+from batched_omp import run_omp, omp_v0_blas, elapsed_timer
 
 
 def run_sklearn(X, y, n_nonzero_coefs, tol=None):
