@@ -3,7 +3,7 @@ src/__pycache__/
 **/__pycache__
 .venv-py312
 .venv-py39
-build
+**/build
 
 *.so
 src/cython/test.c
