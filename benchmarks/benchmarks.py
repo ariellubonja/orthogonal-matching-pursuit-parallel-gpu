@@ -66,7 +66,7 @@ def gpu_warmup():
     torch.cuda.synchronize()
 
 
-def run_benchmark(name, cfg, run_gpu=True):
+def run_benchmark(name, cfg, run_gpu=True, skip_correctness=False):
     n_features = cfg['n_features']
     n_components = cfg['n_components']
     n_nonzero_coefs = cfg['n_nonzero_coefs']
@@ -158,6 +158,8 @@ def run_benchmark(name, cfg, run_gpu=True):
             print(f"  {label}: {results[key]['sps'] / sklearn_sps:.1f}x")
 
     # --- Correctness checks ---
+    if skip_correctness:
+        return results
     print(f"\nCorrectness:")
     eps = 1e-12
     coefs_map = {k: v['coefs'] for k, v in results.items()}
@@ -266,6 +268,112 @@ def run_paper_benchmarks(run_gpu=True):
     return all_results
 
 
+SWEEP_N_VALUES = [64, 128, 256, 512, 1024, 2048, 4096]
+SWEEP_B_VALUES = [10, 50, 100, 500, 1000, 5000]
+SWEEP_S_VALUES = [8, 32, 64]
+
+
+def run_sweep(run_gpu=True):
+    """2D parameter sweep: N (n_components) x B (n_samples) for each sparsity level S."""
+    import json
+    from timeit import default_timer
+
+    # Build list of valid cells (S must be <= M = N/4)
+    cells = []
+    for S in SWEEP_S_VALUES:
+        for N in SWEEP_N_VALUES:
+            M = N // 4
+            if S > M:
+                continue
+            for B in SWEEP_B_VALUES:
+                cells.append((S, N, B))
+
+    total = len(cells)
+    print(f"\n{'#'*60}")
+    print(f"Parameter sweep: {total} cells")
+    print(f"  N (n_components): {SWEEP_N_VALUES}")
+    print(f"  B (n_samples):    {SWEEP_B_VALUES}")
+    print(f"  S (sparsity):     {SWEEP_S_VALUES}")
+    print(f"  Fixed: M = N/4")
+    print(f"{'#'*60}")
+
+    cpu_name = "unknown"
+    try:
+        with open('/proc/cpuinfo') as cpuinfo:
+            for line in cpuinfo:
+                if line.startswith('model name'):
+                    cpu_name = line.split(':')[1].strip()
+                    break
+    except OSError:
+        pass
+    gpu_name = torch.cuda.get_device_name(0) if HAS_CUDA else "N/A"
+
+    sweep_results = {
+        'meta': {
+            'timestamp': datetime.now().isoformat(),
+            'cpu': cpu_name,
+            'gpu': gpu_name,
+            'N_values': SWEEP_N_VALUES,
+            'B_values': SWEEP_B_VALUES,
+            'S_values': SWEEP_S_VALUES,
+        },
+        'cells': {},
+    }
+
+    start_time = default_timer()
+
+    for cell_num, (S, N, B) in enumerate(cells):
+        M = N // 4
+        elapsed = default_timer() - start_time
+        if cell_num > 0:
+            eta = elapsed / cell_num * (total - cell_num)
+            eta_str = f"ETA: {eta / 60:.1f}min"
+        else:
+            eta_str = "ETA: --"
+        print(f"\n[{cell_num + 1}/{total}] N={N}, B={B}, S={S} | elapsed: {elapsed / 60:.1f}min, {eta_str}")
+
+        cfg = {
+            'n_features': M,
+            'n_components': N,
+            'n_nonzero_coefs': S,
+            'n_samples': B,
+        }
+        results = run_benchmark(f"sweep_N{N}_B{B}_S{S}", cfg,
+                                run_gpu=run_gpu, skip_correctness=True)
+
+        # Strip coefs (not JSON-serializable, not needed for plotting)
+        stripped = {}
+        for alg, data in results.items():
+            if isinstance(data, dict) and 'coefs' in data:
+                stripped[alg] = {'time': data['time'], 'sps': data['sps']}
+            else:
+                stripped[alg] = data
+
+        # Mark missing GPU algorithms as OOM
+        if run_gpu and HAS_CUDA:
+            for alg_key in ['naive_gpu', 'v0_gpu']:
+                if alg_key not in stripped:
+                    stripped[alg_key] = 'OOM'
+
+        sweep_results['cells'][f"{S}_{N}_{B}"] = stripped
+
+    total_time = default_timer() - start_time
+    print(f"\n{'='*60}")
+    print(f"Sweep complete: {total} cells in {total_time / 60:.1f} minutes")
+    print(f"{'='*60}")
+
+    # Save JSON
+    results_dir = os.path.join(os.path.dirname(__file__), 'results')
+    os.makedirs(results_dir, exist_ok=True)
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    json_path = os.path.join(results_dir, f'sweep_{timestamp}.json')
+    with open(json_path, 'w') as f:
+        json.dump(sweep_results, f, indent=2)
+    print(f"Sweep results saved to {json_path}")
+
+    return sweep_results
+
+
 class Tee:
     """Write to both stdout and a file."""
     def __init__(self, file, stream):
@@ -287,7 +395,7 @@ if __name__ == '__main__':
 
     args = sys.argv[1:]
     no_gpu = '--no-gpu' in args
-    args = [a for a in args if a != '--no-gpu']
+    args = [a for a in args if not a.startswith('--')]
 
     run_gpu = HAS_CUDA and not no_gpu
 
@@ -320,12 +428,14 @@ if __name__ == '__main__':
             run_paper_benchmarks(run_gpu=run_gpu)
         else:
             for name in args:
-                if name == 'paper':
+                if name == 'sweep':
+                    run_sweep(run_gpu=run_gpu)
+                elif name == 'paper':
                     run_paper_benchmarks(run_gpu=run_gpu)
                 elif name in BENCHMARKS:
                     run_benchmark(name, BENCHMARKS[name], run_gpu=run_gpu)
                 else:
-                    print(f"Unknown benchmark: {name}. Available: {', '.join(BENCHMARKS.keys())}, paper, all")
+                    print(f"Unknown benchmark: {name}. Available: {', '.join(BENCHMARKS.keys())}, paper, sweep, all")
 
         sys.stdout = tee.stream
 
