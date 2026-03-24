@@ -5,13 +5,11 @@ import numpy as np
 from sklearn.linear_model import OrthogonalMatchingPursuit
 from contextlib import contextmanager
 from timeit import default_timer
-from test_omp import omp_naive
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "cython"))
 
-from cython.test import *  # FIXME: better name. Works w/ py312
-# from cython.test import * # Works with py39
+from cython.blas_kernels import *
 
 # n_components = 100
 n_features = 100

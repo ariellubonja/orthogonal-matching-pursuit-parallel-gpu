@@ -1,13 +1,9 @@
 import cython
-from cython cimport view
-# import numpy as np
 cimport numpy as np
 
-from cpython cimport PyCapsule_GetPointer
-from scipy.linalg.cython_blas cimport idamax, isamax, daxpy, dgemv, dtrmv, dcopy
-from scipy.linalg.cython_lapack cimport dposv, dppsv, sppsv
-from libc.string cimport memcpy
-cimport scipy.linalg.cython_lapack as lapack
+from scipy.linalg.cython_blas cimport idamax, isamax, daxpy, dgemv
+from scipy.linalg.cython_lapack cimport dppsv, sppsv
+
 ctypedef np.float64_t REAL_t
 ctypedef np.int64_t  INT_t
 

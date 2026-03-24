@@ -9,8 +9,7 @@ from timeit import default_timer
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "cython"))
 
-from test_omp import omp_naive
-from cython.test import *
+from cython.blas_kernels import *
 
 from main import run_omp, elapsed_timer, innerp
 
