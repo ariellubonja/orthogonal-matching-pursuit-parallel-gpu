@@ -3,15 +3,11 @@ import sys
 import torch
 import numpy as np
 from sklearn.datasets import make_sparse_coded_signal
-from contextlib import contextmanager
+from sklearn.linear_model import OrthogonalMatchingPursuit
 from datetime import datetime
-from timeit import default_timer
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "cython"))
-
-from cython.blas_kernels import *
-
-from main import run_omp, elapsed_timer, innerp
+from batched_omp import run_omp, elapsed_timer
+from batched_omp.blas_kernels import argmax_blast, update_projections_blast, update_D_mybest_blast
 
 
 def omp_v0_blas(X_np, y_np, n_nonzero_coefs):
@@ -62,6 +58,14 @@ def omp_v0_blas(X_np, y_np, n_nonzero_coefs):
     solutions = (F.transpose(0, 2, 1) @
                  a_F.squeeze(-1).T[:, :, None])         # (B, K, 1)
     return sets.T, solutions
+
+
+def run_sklearn(X, y, n_nonzero_coefs, tol=None):
+    omp_args = dict(tol=tol, n_nonzero_coefs=n_nonzero_coefs, precompute='auto', fit_intercept=False)
+    omp = OrthogonalMatchingPursuit(**omp_args)
+    omp.fit(X, y.T)
+    return omp
+
 
 BENCHMARKS = {
     'image_patches': {
@@ -126,8 +130,7 @@ def run_benchmark(name, cfg, run_gpu=True):
 
     # --- CPU benchmarks ---
     with elapsed_timer() as elapsed:
-        omp = run_omp(X.copy(), y.copy(), n_nonzero_coefs,
-                      tol=None, normalize=False, fit_intercept=False, alg='sklearn')
+        omp = run_sklearn(X.copy(), y.copy(), n_nonzero_coefs, tol=None)
     t = elapsed()
     results['sklearn'] = {'time': t, 'sps': n_samples / t, 'coefs': omp.coef_}
     print(f"CPU sklearn:  {results['sklearn']['sps']:>10.0f} samples/sec ({t:.3f}s)")
@@ -305,7 +308,7 @@ if __name__ == '__main__':
 
     run_gpu = HAS_CUDA and not no_gpu
 
-    results_dir = os.path.join(os.path.dirname(__file__), '..', 'results')
+    results_dir = os.path.join(os.path.dirname(__file__), 'results')
     os.makedirs(results_dir, exist_ok=True)
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     results_path = os.path.join(results_dir, f'benchmark_{timestamp}.txt')

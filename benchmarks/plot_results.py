@@ -124,6 +124,6 @@ ax.legend(fontsize=8.5)
 ax.grid(True, axis='y', alpha=0.3)
 
 plt.tight_layout()
-out_path = os.path.join(os.path.dirname(__file__), '..', 'results', 'benchmark_plot.png')
+out_path = os.path.join(os.path.dirname(__file__), 'results', 'benchmark_plot.png')
 plt.savefig(out_path, dpi=150, bbox_inches='tight')
 print(f"Saved to {out_path}")

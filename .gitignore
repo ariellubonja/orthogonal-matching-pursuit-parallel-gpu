@@ -1,9 +1,10 @@
-src/__pycache__/
-.idea
 **/__pycache__
+.idea
 .venv-py312
 .venv-py39
 **/build
+*.egg-info
+.claude
 
 *.so
-src/cython/blas_kernels.c
+src/batched_omp/blas_kernels/_kernels.c

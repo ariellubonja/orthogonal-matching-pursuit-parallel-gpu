@@ -1,32 +1,11 @@
-import os
-import torch
-from sklearn.datasets import make_sparse_coded_signal
 import numpy as np
-from sklearn.linear_model import OrthogonalMatchingPursuit
-from contextlib import contextmanager
-from timeit import default_timer
-import sys
+import torch
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "cython"))
-
-from cython.blas_kernels import *
-
-# n_components = 100
-n_features = 100
-n_nonzero_coefs = 17
-n_samples = 1000
-
-@contextmanager
-def elapsed_timer():
-    # https://stackoverflow.com/questions/7370801/how-to-measure-elapsed-time-in-python
-    start = default_timer()
-    elapser = lambda: default_timer() - start
-    yield lambda: elapser()
-    end = default_timer()
-    elapser = lambda: end-start
+from .utils import batch_mm, innerp, cholesky_solve
+from .blas_kernels import argmax_blast, ppsv
 
 
-def run_omp(X, y, n_nonzero_coefs, precompute=True, tol=0.0, normalize=True, fit_intercept=True, alg='naive'):
+def run_omp(X, y, n_nonzero_coefs, precompute=True, tol=0.0, normalize=True, fit_intercept=True, alg='v0'):
     if not isinstance(X, torch.Tensor):
         X = torch.as_tensor(X)
         y = torch.as_tensor(y)
@@ -60,13 +39,8 @@ def run_omp(X, y, n_nonzero_coefs, precompute=True, tol=0.0, normalize=True, fit
         sets, solutions, lengths = omp_naive(X, y, n_nonzero_coefs=n_nonzero_coefs, XTX=precompute, tol=tol)
     elif alg == 'v0':
         sets, solutions, lengths = omp_v0(X, y, n_nonzero_coefs=n_nonzero_coefs, XTX=precompute, tol=tol)
-    elif alg == 'sklearn':
-        # Normalize arg no longer supported. Removing gives huge error
-        omp_args = dict(tol=tol, n_nonzero_coefs=n_nonzero_coefs, precompute='auto', fit_intercept=False)#, normalize=True)
-        omp = OrthogonalMatchingPursuit(**omp_args)
-        omp.fit(X, y.T)
-
-        return omp
+    else:
+        raise ValueError(f"Unknown algorithm: {alg!r}. Use 'naive' or 'v0'.")
 
     solutions = solutions.squeeze(-1)
     if normalize is not False:
@@ -77,46 +51,9 @@ def run_omp(X, y, n_nonzero_coefs, precompute=True, tol=0.0, normalize=True, fit
         xests[torch.arange(y.shape[0], dtype=sets.dtype, device=sets.device)[:, None], sets] = solutions
     else:
         for i in range(y.shape[0]):
-            # print(sets.shape, xests[i, sets[i, :lengths[i]]].shape)
-            # xests[i].scatter_(-1, sets[i, :lengths[i]], solutions[i, :lengths[i]])
             xests[i, sets[i, :lengths[i]]] = solutions[i, :lengths[i]]
 
     return xests
-
-def batch_mm(matrix, matrix_batch, return_contiguous=True):
-    """
-    :param matrix: Sparse or dense matrix, size (m, n).
-    :param matrix_batch: Batched dense matrices, size (b, n, k).
-    :return: The batched matrix-matrix product, size (m, n) x (b, n, k) = (b, m, k).
-    """
-    # One dgemm is faster than many dgemv.
-    # From https://github.com/pytorch/pytorch/issues/14489#issuecomment-607730242
-    batch_size = matrix_batch.shape[0]
-    # Stack the vector batch into columns. (b, n, k) -> (n, b, k) -> (n, b*k)
-    vectors = matrix_batch.transpose([1, 0, 2]).reshape(matrix.shape[1], -1)
-
-    # A matrix-matrix product is a batched matrix-vector product of the columns.
-    # And then reverse the reshaping. (m, n) x (n, b*k) = (m, b*k) -> (m, b, k) -> (b, m, k).
-    if return_contiguous:
-        result = np.empty_like(matrix_batch, shape=(batch_size, matrix.shape[0], matrix_batch.shape[2]))
-        np.matmul(matrix, vectors, out=result.transpose([1, 0, 2]).reshape(matrix.shape[0], -1))
-    else:
-        result = (matrix @ vectors).reshape(matrix.shape[0], batch_size, -1).transpose([1, 0, 2])
-
-    return result
-
-
-def innerp(x, y=None, out=None):
-    if y is None:
-        y = x
-    if out is not None:
-        out = out[:, None, None]  # Add space for two singleton dimensions.
-    return torch.matmul(x[..., None, :], y[..., :, None], out=out)[..., 0, 0]
-
-def cholesky_solve(ATA, ATy):
-    if ATA.dtype == torch.half or ATy.dtype == torch.half:
-        return ATy.to(torch.float).cholesky_solve(torch.linalg.cholesky(ATA.to(torch.float))).to(ATy.dtype)
-    return ATy.cholesky_solve(torch.linalg.cholesky(ATA)).to(ATy.dtype)
 
 
 def omp_naive(X, y, n_nonzero_coefs, tol=None, XTX=None):
@@ -220,6 +157,7 @@ def omp_naive(X, y, n_nonzero_coefs, tol=None, XTX=None):
 
     return sets, solutions, None
 
+
 def omp_v0(X, y, XTX, n_nonzero_coefs=None, tol=None, inverse_cholesky=True):
     B = y.shape[0]
     normr2 = innerp(y)  # Norm squared of residual.
@@ -287,104 +225,3 @@ def omp_v0(X, y, XTX, n_nonzero_coefs=None, tol=None, inverse_cholesky=True):
             solutions = cholesky_solve(AT @ AT.permute(0, 2, 1), AT @ y.T[:, :, None])
 
     return sets.t(), solutions, None
-
-if __name__ == "__main__":
-    # The naive algorithm has a memory complexity of kNM = O(N^2M), while the v0 has k(N^2+N(M+k)) = O(N^3+N^2M).
-    #   if k is modest and all the other proposed algs will also
-
-    for n_components in [20,40,80,160,320,640,1280]:#,2560,5120]:
-
-        # TODO: https://roman-kh.github.io/numpy-multicore/
-        y, X, w = make_sparse_coded_signal(
-            n_samples=n_samples,
-            n_components=n_components,
-            n_features=n_features,
-            n_nonzero_coefs=n_nonzero_coefs,
-            random_state=0)
-        
-        # All returns of make_sparse_coded_signal are transposed in new Sklearn
-        y = y.T
-        X = X.T
-        w = w.T
-
-        y = (y.T + np.random.randn(*y.T.shape) * 0.01)
-        
-        print("\n" + "="*60)
-        print("Settings used for the test: ")
-        print("Number of Samples: " + str(n_samples))
-        print("Number of Components: " + str(n_components))
-        print("Number of Features: " + str(n_features))
-        print("Number of Nonzero Coefficients: " + str(n_nonzero_coefs))
-        print("\n")
-
-        tol = 0.1
-        k = 0
-
-        with elapsed_timer() as elapsed:
-            omp = run_omp(X.copy().astype(float), y.copy().astype(float), n_nonzero_coefs-k, tol=tol, normalize=True, fit_intercept=True, alg='sklearn')
-        print('Samples per second for Sklearn OMP:', n_samples / elapsed())
-
-        with elapsed_timer() as elapsed:
-            xests_naive_fast = run_omp(X.copy().astype(float), y.copy().astype(float), n_nonzero_coefs-k, tol=tol, normalize=True, fit_intercept=True, alg='naive')
-        print('Samples per second for Naive:', n_samples / elapsed())
-
-        with elapsed_timer() as elapsed:
-            xests_v0 = run_omp(torch.as_tensor(X.copy()), torch.as_tensor(y.copy()), n_nonzero_coefs-k, normalize=True, fit_intercept=True, tol=tol, alg='v0')
-        print('Samples per second for v0:', n_samples / elapsed())
-
-        print("\nPrinting Errors\n")
-
-        eps = 1e-12
-        A = omp.coef_
-        B = xests_naive_fast.numpy()
-        C = xests_v0.numpy()
-
-        # Support diffs vs sklearn are not meaningful: sklearn and naive/v0 use different
-        # stopping criteria (sklearn prioritizes tol, naive/v0 prioritize max_nnz), so they
-        # follow different greedy paths and select different atoms — especially for overcomplete
-        # dictionaries. This is expected behavior, not a bug. The orthogonality check below
-        # is the correct way to verify OMP correctness.
-        # We do compare naive vs v0, which should always agree (same code path).
-        for i in range(B.shape[0]):
-            nzB = np.flatnonzero(np.abs(B[i]) > eps).tolist()
-            nzC = np.flatnonzero(np.abs(C[i]) > eps).tolist()
-            if not np.array_equal(nzB, nzC):
-                print(f"Sample {i} support diff (naive vs v0):", set(nzB) ^ set(nzC))
-
-        # Prepare normalized/centered space (matching what run_omp does internally)
-        X_c = X - X.mean(axis=0)
-        col_norms = np.linalg.norm(X_c, axis=0)
-        X_n = X_c / col_norms
-        y_c = y - y.mean(axis=1, keepdims=True)
-
-        # Residuals in normalized space (where OMP actually operates)
-        # sklearn coefs are in normalized space; naive/v0 are un-normalized
-        r_sklearn = y_c - (X_n @ A.T).T
-        r_v0 = y_c - (X_c @ C.T).T
-        r_naive = y_c - (X_c @ B.T).T
-
-        # Reconstruction errors (in original space, more interpretable)
-        print('Max reconstruction error (sklearn):', (r_sklearn ** 2).sum(axis=1).max())
-        print('Max reconstruction error (v0):', (r_v0 ** 2).sum(axis=1).max())
-        print('Max reconstruction error (naive):', (r_naive ** 2).sum(axis=1).max())
-
-        # Orthogonality check: X_n[:, selected]^T @ residual should be ~0
-        for label, coefs, resid in [('sklearn', A, r_sklearn), ('v0', C, r_v0), ('naive', B, r_naive)]:
-            orth_violations = []
-            for i in range(coefs.shape[0]):
-                nz = np.flatnonzero(np.abs(coefs[i]) > eps)
-                if len(nz) > 0:
-                    orth_violations.append(np.abs(X_n[:, nz].T @ resid[i]).max())
-            print(f'Max orthogonality violation ({label}):', max(orth_violations) if orth_violations else 0)
-
-        # NNZ / tol invariant (tol is compared against ||r||^2 in normalized space)
-        max_nnz = n_nonzero_coefs - k
-        for label, coefs, resid in [('sklearn', A, r_sklearn), ('v0', C, r_v0), ('naive', B, r_naive)]:
-            nnzs = (np.abs(coefs) > eps).sum(axis=1)
-            resid_norms = (resid ** 2).sum(axis=1)
-            nnz_violations = (nnzs > max_nnz).sum()
-            tol_violations = ((resid_norms > tol) & (nnzs >= max_nnz)).sum()
-            print(f'NNZ/tol violations ({label}): nnz>{max_nnz}: {nnz_violations}, residual>tol with max nnz: {tol_violations}')
-
-        print("\n\n")
-
