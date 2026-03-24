@@ -12,7 +12,57 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "cython"))
 from test_omp import omp_naive
 from cython.test import *
 
-from main import run_omp, elapsed_timer
+from main import run_omp, elapsed_timer, innerp
+
+
+def omp_v0_blas(X_np, y_np, n_nonzero_coefs):
+    """v0 using Cython BLAS wrappers for inner-loop ops (argmax, D_mybest update, projection update)."""
+    B, N = y_np.shape
+    M = X_np.shape[1]  # n_components
+    XTX_np = (X_np.T @ X_np)  # (M, M)
+
+    # Initial projections: projections[b, m] = X[:, m]^T @ y[b]
+    projections = (y_np @ X_np).copy()                 # (B, M)
+    sets = np.zeros((n_nonzero_coefs, B), dtype=np.int64)
+    F = np.eye(n_nonzero_coefs, dtype=np.float64)[None].repeat(B, axis=0)   # (B, K, K)
+    a_F = np.zeros((n_nonzero_coefs, B, 1), dtype=np.float64)
+    D_mybest = np.empty((B, n_nonzero_coefs, M), dtype=np.float64)
+    temp_F_k_k = np.ones((B,), dtype=np.float64)
+
+    arange_B = np.arange(B, dtype=np.int64)
+
+    for k in range(n_nonzero_coefs):
+        argmax_blast(np.abs(projections), sets[k])                            # sets[k] = argmax |proj|
+
+        D_mybest[:, k, :] = XTX_np[sets[k], :]                               # gather rows of XTX
+
+        if k:
+            # D_mybest_maxindices[i] = column sets[k,i] of D_mybest[i, :k, :]
+            D_mybest_maxindices = D_mybest[:, :k, :].transpose(0, 2, 1)[
+                arange_B, sets[k], :]                                         # (B, k)
+
+            temp_F_k_k[:] = 1.0 / np.sqrt(1.0 - (D_mybest_maxindices ** 2).sum(axis=1))
+
+            # fused: D_mybest[:,k,:] = temp_F_k_k * (D_mybest[:,k,:] - D_mybest[:,:k,:]^T @ D_mybest_maxindices)
+            update_D_mybest_blast(temp_F_k_k, XTX_np, sets[k],
+                                  D_mybest[:, :k, :],
+                                  D_mybest_maxindices,
+                                  D_mybest[:, k, :])
+        else:
+            temp_F_k_k[:] = 1.0
+
+        temp_a_F = temp_F_k_k * projections[arange_B, sets[k]]               # (B,)
+        update_projections_blast(projections, D_mybest[:, k, :], -temp_a_F)  # projections -= temp_a_F * D[:,k,:]
+
+        a_F[k, :, 0] = temp_a_F
+        if k:
+            F[:, k, :k] = (D_mybest_maxindices[:, None, :] @
+                           F[:, :k, :k]).squeeze(1) * (-temp_F_k_k[:, None])
+            F[:, k, k] = temp_F_k_k
+
+    solutions = (F.transpose(0, 2, 1) @
+                 a_F.squeeze(-1).T[:, :, None])         # (B, K, 1)
+    return sets.T, solutions
 
 BENCHMARKS = {
     'image_patches': {
@@ -97,6 +147,16 @@ def run_benchmark(name, cfg, run_gpu=True):
     results['v0_cpu'] = {'time': t, 'sps': n_samples / t, 'coefs': xests_v0.numpy()}
     print(f"CPU v0:       {results['v0_cpu']['sps']:>10.0f} samples/sec ({t:.3f}s)")
 
+    with elapsed_timer() as elapsed:
+        sets_blas, sols_blas = omp_v0_blas(X.copy(), y.copy(), n_nonzero_coefs)
+    t = elapsed()
+    # reconstruct dense coef matrix from (sets, solutions)
+    xests_blas = np.zeros((n_samples, n_components))
+    for i in range(n_samples):
+        xests_blas[i, sets_blas[i]] = sols_blas[i, :, 0]
+    results['v0_blas'] = {'time': t, 'sps': n_samples / t, 'coefs': xests_blas}
+    print(f"CPU v0 blas:  {results['v0_blas']['sps']:>10.0f} samples/sec ({t:.3f}s)")
+
     # --- GPU benchmarks ---
     if run_gpu and HAS_CUDA:
         X_cuda = torch.as_tensor(X.copy()).cuda()
@@ -120,7 +180,7 @@ def run_benchmark(name, cfg, run_gpu=True):
     # --- Speedups ---
     sklearn_sps = results['sklearn']['sps']
     print(f"\nSpeedups vs sklearn:")
-    for key in ['naive_cpu', 'v0_cpu', 'naive_gpu', 'v0_gpu']:
+    for key in ['naive_cpu', 'v0_cpu', 'v0_blas', 'naive_gpu', 'v0_gpu']:
         if key in results:
             label = key.replace('_', ' ').upper()
             print(f"  {label}: {results[key]['sps'] / sklearn_sps:.1f}x")
@@ -154,8 +214,20 @@ def run_benchmark(name, cfg, run_gpu=True):
         else:
             print(f"  v0 CPU vs GPU support: agree on all {C.shape[0]} samples")
 
+    # Check v0_blas vs v0_cpu support agreement
+    if 'v0_blas' in coefs_map:
+        C_blas = coefs_map['v0_blas']
+        blas_diffs = sum(1 for i in range(C.shape[0])
+                         if not np.array_equal(
+                             np.flatnonzero(np.abs(C[i]) > eps),
+                             np.flatnonzero(np.abs(C_blas[i]) > eps)))
+        if blas_diffs:
+            print(f"  WARNING: {blas_diffs}/{C.shape[0]} samples have v0_cpu vs v0_blas support disagreement")
+        else:
+            print(f"  v0 CPU vs v0 BLAS support: agree on all {C.shape[0]} samples")
+
     # Orthogonality check (CPU v0 and GPU v0)
-    for key in ['v0_cpu', 'v0_gpu']:
+    for key in ['v0_cpu', 'v0_blas', 'v0_gpu']:
         if key not in coefs_map:
             continue
         coefs = coefs_map[key]

@@ -22,8 +22,8 @@ cpdef void update_projections_blast(double[:, :] projections,
                              double[:, :] D_mybest, double[:] coefs) nogil:
     cdef Py_ssize_t B = projections.shape[0]
     cdef int N = projections.shape[1]
-    cdef int incy = projections[0].strides[1] // sizeof(double)     # Stride between elements.
-    cdef int incx = D_mybest[0].strides[1] // sizeof(double)  # Stride between elements.
+    cdef int incy = projections.strides[1] // sizeof(double)     # Stride between elements in a row.
+    cdef int incx = D_mybest.strides[1] // sizeof(double)  # Stride between elements in a row.
     cdef Py_ssize_t i
     # TODO: Loop unrolling?
     for i from 0 <= i < B:
@@ -43,28 +43,23 @@ cpdef void update_D_mybest_blast(double[:] temp_F_k_k, double[:, :] XTX,
     cdef Py_ssize_t B = A.shape[0]  # Batch size
     cdef int N = A.shape[1]  # m A.shape[2]
     cdef int k = A.shape[2]  # n
-    # cdef int N = A.shape[2]  # n
-    # cdef int k = A.shape[1]  # m A.shape[2]
-    # cdef int ldaA = (A[0].strides[0]) // sizeof(double)  # Stride in A.
-    cdef int ldaA = 2048 # Stride in A.
-    # cdef int ldaA = A[0].strides[0] // sizeof(double)  # Stride in A.
-    cdef int incx = x[0].strides[1] // sizeof(double)  # Stride between elements.
+    cdef int ldaA = A[0].strides[0] // sizeof(double)  # Leading dim: stride between rows of A[i].
+    cdef int incx = x.strides[1] // sizeof(double)  # Stride between elements in a row.
     cdef int incy = D_mybest[0].strides[0] // sizeof(double)  # Stride between elements.
     cdef int incXTX = XTX.strides[1] // sizeof(double)  # Stride between elements.
-    cdef char trans = 'T'
+    # trans='N': treat C-contiguous (N_atoms, M) as Fortran (M, N_atoms), so A_Fortran = A_C^T.
+    # dgemv 'N' computes A_Fortran @ x = A_C^T @ x (M-dim output, N_atoms-dim input).
+    cdef char trans = 'N'
     cdef double minus_temp_F_k_k
     # Can we use omp parallel for here?
     for i from 0 <= i < B:
-        # dcopy(&N, &XTX[maxindices[i], 0], &incXTX, &D_mybest[i, 0], &incy)
-        # ^ D_mybest[i] = XTX[maxindices[i]]
-
-        minus_temp_F_k_k = -temp_F_k_k[i]  # Great
+        minus_temp_F_k_k = -temp_F_k_k[i]
         dgemv(alpha=&minus_temp_F_k_k, beta=&temp_F_k_k[i],
-              a=&A[i, 0, 0], n=&k, m=&N, lda=&ldaA,
+              a=&A[i, 0, 0], m=&k, n=&N, lda=&ldaA,
               x=&x[i, 0], incx=&incx,
               y=&D_mybest[i, 0], incy=&incy,
               trans=&trans)
-        # ^ D_mybest[i] = temp_F_k_k[i] * D_mybest[i] - temp_F_k_k[i] * (A[i] @ x[i, :, None]).squeeze(-1)
+        # ^ D_mybest[i] = temp_F_k_k[i] * D_mybest[i] - temp_F_k_k[i] * (A[i]^T @ x[i])
 
 
 #@cython.boundscheck(False)

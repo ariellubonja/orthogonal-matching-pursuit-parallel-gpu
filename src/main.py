@@ -212,7 +212,6 @@ def omp_naive(X, y, n_nonzero_coefs, tol=None, XTX=None):
             solutions = ATy.permute(0, 2, 1).clone().permute(0, 2, 1)  # Get a copy.
             ppsv(ATAs.t()[:packed_idx + 2 * k + 1, :].t().contiguous().numpy(), solutions.numpy())
         else:
-            ATA[:, :k, k] = ATA[:, k, :k]  # Copy lower triangle to upper triangle.
             solutions = cholesky_solve(ATA, ATy)
 
         # FINALLY, GET NEW RESIDUAL r=y-Ax
