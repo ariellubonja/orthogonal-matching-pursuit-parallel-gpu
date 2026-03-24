@@ -8,12 +8,26 @@ from datetime import datetime
 
 from batched_omp import run_omp, omp_v0_blas, elapsed_timer
 
+try:
+    import spams
+    HAS_SPAMS = True
+except ImportError:
+    HAS_SPAMS = False
+
 
 def run_sklearn(X, y, n_nonzero_coefs, tol=None):
     omp_args = dict(tol=tol, n_nonzero_coefs=n_nonzero_coefs, precompute='auto', fit_intercept=False)
     omp = OrthogonalMatchingPursuit(**omp_args)
     omp.fit(X, y.T)
     return omp
+
+
+def run_spams(X, y, n_nonzero_coefs):
+    """Run SPAMS OMP. X: (n_features, n_components), y: (n_samples, n_features)."""
+    D = np.asfortranarray(X, dtype=np.float64)
+    signals = np.asfortranarray(y.T, dtype=np.float64)
+    alpha = spams.omp(signals, D, L=n_nonzero_coefs, eps=0.0, numThreads=-1)
+    return np.asarray(alpha.todense()).T
 
 
 BENCHMARKS = {
@@ -84,6 +98,13 @@ def run_benchmark(name, cfg, run_gpu=True):
     results['sklearn'] = {'time': t, 'sps': n_samples / t, 'coefs': omp.coef_}
     print(f"CPU sklearn:  {results['sklearn']['sps']:>10.0f} samples/sec ({t:.3f}s)")
 
+    if HAS_SPAMS:
+        with elapsed_timer() as elapsed:
+            spams_coefs = run_spams(X.copy(), y.copy(), n_nonzero_coefs)
+        t = elapsed()
+        results['spams'] = {'time': t, 'sps': n_samples / t, 'coefs': spams_coefs}
+        print(f"CPU SPAMS:    {results['spams']['sps']:>10.0f} samples/sec ({t:.3f}s)")
+
     with elapsed_timer() as elapsed:
         xests_naive = run_omp(X.copy(), y.copy(), n_nonzero_coefs,
                               tol=None, normalize=False, fit_intercept=False, alg='naive')
@@ -131,7 +152,7 @@ def run_benchmark(name, cfg, run_gpu=True):
     # --- Speedups ---
     sklearn_sps = results['sklearn']['sps']
     print(f"\nSpeedups vs sklearn:")
-    for key in ['naive_cpu', 'v0_cpu', 'v0_blas', 'naive_gpu', 'v0_gpu']:
+    for key in ['spams', 'naive_cpu', 'v0_cpu', 'v0_blas', 'naive_gpu', 'v0_gpu']:
         if key in results:
             label = key.replace('_', ' ').upper()
             print(f"  {label}: {results[key]['sps'] / sklearn_sps:.1f}x")
@@ -152,6 +173,18 @@ def run_benchmark(name, cfg, run_gpu=True):
         print(f"  WARNING: {support_diffs}/{B.shape[0]} samples have CPU naive vs v0 support disagreement")
     else:
         print(f"  CPU naive vs v0 support: agree on all {B.shape[0]} samples")
+
+    # Check SPAMS vs v0_cpu support agreement
+    if 'spams' in coefs_map:
+        C_spams = coefs_map['spams']
+        spams_diffs = sum(1 for i in range(C.shape[0])
+                          if not np.array_equal(
+                              np.flatnonzero(np.abs(C_spams[i]) > eps),
+                              np.flatnonzero(np.abs(C[i]) > eps)))
+        if spams_diffs:
+            print(f"  SPAMS vs v0 CPU support: {spams_diffs}/{C.shape[0]} samples disagree (expected — different tie-breaking)")
+        else:
+            print(f"  SPAMS vs v0 CPU support: agree on all {C.shape[0]} samples")
 
     # Check GPU vs CPU agreement if GPU was run
     if 'v0_gpu' in coefs_map:
@@ -178,7 +211,7 @@ def run_benchmark(name, cfg, run_gpu=True):
             print(f"  v0 CPU vs v0 BLAS support: agree on all {C.shape[0]} samples")
 
     # Orthogonality check (CPU v0 and GPU v0)
-    for key in ['v0_cpu', 'v0_blas', 'v0_gpu']:
+    for key in ['spams', 'v0_cpu', 'v0_blas', 'v0_gpu']:
         if key not in coefs_map:
             continue
         coefs = coefs_map[key]
@@ -216,13 +249,14 @@ def run_paper_benchmarks(run_gpu=True):
     print(f"\n{'='*60}")
     print("Paper Fig 1 Summary (time in seconds)")
     print(f"{'='*60}")
-    header = f"{'M':>6} | {'sklearn':>8} | {'naive':>8} | {'v0 CPU':>8}"
+    header = f"{'M':>6} | {'sklearn':>8} | {'SPAMS':>8} | {'naive':>8} | {'v0 CPU':>8}"
     if run_gpu and HAS_CUDA:
         header += f" | {'naive GPU':>9} | {'v0 GPU':>8}"
     print(header)
     print("-" * len(header))
     for M, res in all_results.items():
-        row = f"{M:>6} | {res['sklearn']['time']:>8.3f} | {res['naive_cpu']['time']:>8.3f} | {res['v0_cpu']['time']:>8.3f}"
+        spams_col = f"{res['spams']['time']:>8.3f}" if 'spams' in res else "     N/A"
+        row = f"{M:>6} | {res['sklearn']['time']:>8.3f} | {spams_col} | {res['naive_cpu']['time']:>8.3f} | {res['v0_cpu']['time']:>8.3f}"
         if run_gpu and HAS_CUDA:
             naive_gpu = f"{res['naive_gpu']['time']:>9.3f}" if 'naive_gpu' in res else "      OOM"
             v0_gpu = f"{res['v0_gpu']['time']:>8.3f}" if 'v0_gpu' in res else "     OOM"
