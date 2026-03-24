@@ -1,0 +1,1960 @@
+Date: 2026-03-24T15:24:49.182253
+CPU: Intel(R) Core(TM) Ultra 9 185H
+GPU: N/A
+
+############################################################
+Parameter sweep: 108 cells
+  N (n_components): [64, 128, 256, 512, 1024, 2048, 4096]
+  B (n_samples):    [10, 50, 100, 500, 1000, 5000]
+  S (sparsity):     [8, 32, 64]
+  Fixed: M = N/4
+############################################################
+
+[1/108] N=64, B=10, S=8 | elapsed: 0.0min, ETA: --
+
+============================================================
+Benchmark: sweep_N64_B10_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU sklearn:        1164 samples/sec (0.009s)
+CPU SPAMS:        108953 samples/sec (0.000s)
+CPU naive:          2807 samples/sec (0.004s)
+CPU v0:             3143 samples/sec (0.003s)
+CPU v0 blas:       20093 samples/sec (0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 93.6x
+  NAIVE CPU: 2.4x
+  V0 CPU: 2.7x
+  V0 BLAS: 17.3x
+
+[2/108] N=64, B=50, S=8 | elapsed: 0.0min, ETA: 0.0min
+
+============================================================
+Benchmark: sweep_N64_B50_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU sklearn:        3953 samples/sec (0.013s)
+CPU SPAMS:        223081 samples/sec (0.000s)
+CPU naive:         22783 samples/sec (0.002s)
+CPU v0:             9517 samples/sec (0.005s)
+CPU v0 blas:       77724 samples/sec (0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 56.4x
+  NAIVE CPU: 5.8x
+  V0 CPU: 2.4x
+  V0 BLAS: 19.7x
+
+[3/108] N=64, B=100, S=8 | elapsed: 0.0min, ETA: 0.0min
+
+============================================================
+Benchmark: sweep_N64_B100_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU sklearn:        3447 samples/sec (0.029s)
+CPU SPAMS:        341733 samples/sec (0.000s)
+CPU naive:         36230 samples/sec (0.003s)
+CPU v0:            34137 samples/sec (0.003s)
+CPU v0 blas:      134472 samples/sec (0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 99.1x
+  NAIVE CPU: 10.5x
+  V0 CPU: 9.9x
+  V0 BLAS: 39.0x
+
+[4/108] N=64, B=500, S=8 | elapsed: 0.0min, ETA: 0.0min
+
+============================================================
+Benchmark: sweep_N64_B500_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU sklearn:        4459 samples/sec (0.112s)
+CPU SPAMS:        525176 samples/sec (0.001s)
+CPU naive:         77099 samples/sec (0.006s)
+CPU v0:            69740 samples/sec (0.007s)
+CPU v0 blas:      203498 samples/sec (0.002s)
+
+Speedups vs sklearn:
+  SPAMS: 117.8x
+  NAIVE CPU: 17.3x
+  V0 CPU: 15.6x
+  V0 BLAS: 45.6x
+
+[5/108] N=64, B=1000, S=8 | elapsed: 0.0min, ETA: 0.1min
+
+============================================================
+Benchmark: sweep_N64_B1000_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU sklearn:        4486 samples/sec (0.223s)
+CPU SPAMS:        563257 samples/sec (0.002s)
+CPU naive:         13284 samples/sec (0.075s)
+CPU v0:            28575 samples/sec (0.035s)
+CPU v0 blas:       90351 samples/sec (0.011s)
+
+Speedups vs sklearn:
+  SPAMS: 125.6x
+  NAIVE CPU: 3.0x
+  V0 CPU: 6.4x
+  V0 BLAS: 20.1x
+
+[6/108] N=64, B=5000, S=8 | elapsed: 0.0min, ETA: 0.2min
+
+============================================================
+Benchmark: sweep_N64_B5000_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU sklearn:        4477 samples/sec (1.117s)
+CPU SPAMS:        429706 samples/sec (0.012s)
+CPU naive:         12298 samples/sec (0.407s)
+CPU v0:            65942 samples/sec (0.076s)
+CPU v0 blas:       76058 samples/sec (0.066s)
+
+Speedups vs sklearn:
+  SPAMS: 96.0x
+  NAIVE CPU: 2.7x
+  V0 CPU: 14.7x
+  V0 BLAS: 17.0x
+
+[7/108] N=128, B=10, S=8 | elapsed: 0.0min, ETA: 0.7min
+
+============================================================
+Benchmark: sweep_N128_B10_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU sklearn:        2958 samples/sec (0.003s)
+CPU SPAMS:         94711 samples/sec (0.000s)
+CPU naive:          3868 samples/sec (0.003s)
+CPU v0:             4844 samples/sec (0.002s)
+CPU v0 blas:         949 samples/sec (0.011s)
+
+Speedups vs sklearn:
+  SPAMS: 32.0x
+  NAIVE CPU: 1.3x
+  V0 CPU: 1.6x
+  V0 BLAS: 0.3x
+
+[8/108] N=128, B=50, S=8 | elapsed: 0.0min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N128_B50_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU sklearn:        2884 samples/sec (0.017s)
+CPU SPAMS:        208282 samples/sec (0.000s)
+CPU naive:         21930 samples/sec (0.002s)
+CPU v0:            18745 samples/sec (0.003s)
+CPU v0 blas:        4587 samples/sec (0.011s)
+
+Speedups vs sklearn:
+  SPAMS: 72.2x
+  NAIVE CPU: 7.6x
+  V0 CPU: 6.5x
+  V0 BLAS: 1.6x
+
+[9/108] N=128, B=100, S=8 | elapsed: 0.0min, ETA: 0.5min
+
+============================================================
+Benchmark: sweep_N128_B100_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU sklearn:        4246 samples/sec (0.024s)
+CPU SPAMS:        308633 samples/sec (0.000s)
+CPU naive:         32798 samples/sec (0.003s)
+CPU v0:            26751 samples/sec (0.004s)
+CPU v0 blas:       15077 samples/sec (0.007s)
+
+Speedups vs sklearn:
+  SPAMS: 72.7x
+  NAIVE CPU: 7.7x
+  V0 CPU: 6.3x
+  V0 BLAS: 3.6x
+
+[10/108] N=128, B=500, S=8 | elapsed: 0.0min, ETA: 0.5min
+
+============================================================
+Benchmark: sweep_N128_B500_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU sklearn:        4336 samples/sec (0.115s)
+CPU SPAMS:        290001 samples/sec (0.002s)
+CPU naive:          5010 samples/sec (0.100s)
+CPU v0:             7084 samples/sec (0.071s)
+CPU v0 blas:       78485 samples/sec (0.006s)
+
+Speedups vs sklearn:
+  SPAMS: 66.9x
+  NAIVE CPU: 1.2x
+  V0 CPU: 1.6x
+  V0 BLAS: 18.1x
+
+[11/108] N=128, B=1000, S=8 | elapsed: 0.0min, ETA: 0.5min
+
+============================================================
+Benchmark: sweep_N128_B1000_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU sklearn:        4361 samples/sec (0.229s)
+CPU SPAMS:        485991 samples/sec (0.002s)
+CPU naive:         13712 samples/sec (0.073s)
+CPU v0:            11500 samples/sec (0.087s)
+CPU v0 blas:       31482 samples/sec (0.032s)
+
+Speedups vs sklearn:
+  SPAMS: 111.4x
+  NAIVE CPU: 3.1x
+  V0 CPU: 2.6x
+  V0 BLAS: 7.2x
+
+[12/108] N=128, B=5000, S=8 | elapsed: 0.1min, ETA: 0.5min
+
+============================================================
+Benchmark: sweep_N128_B5000_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU sklearn:        3964 samples/sec (1.261s)
+CPU SPAMS:        520117 samples/sec (0.010s)
+CPU naive:         19083 samples/sec (0.262s)
+CPU v0:            38769 samples/sec (0.129s)
+CPU v0 blas:       56938 samples/sec (0.088s)
+
+Speedups vs sklearn:
+  SPAMS: 131.2x
+  NAIVE CPU: 4.8x
+  V0 CPU: 9.8x
+  V0 BLAS: 14.4x
+
+[13/108] N=256, B=10, S=8 | elapsed: 0.1min, ETA: 0.7min
+
+============================================================
+Benchmark: sweep_N256_B10_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU sklearn:        2766 samples/sec (0.004s)
+CPU SPAMS:          4207 samples/sec (0.002s)
+CPU naive:          1671 samples/sec (0.006s)
+CPU v0:             4469 samples/sec (0.002s)
+CPU v0 blas:        1274 samples/sec (0.008s)
+
+Speedups vs sklearn:
+  SPAMS: 1.5x
+  NAIVE CPU: 0.6x
+  V0 CPU: 1.6x
+  V0 BLAS: 0.5x
+
+[14/108] N=256, B=50, S=8 | elapsed: 0.1min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N256_B50_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU sklearn:        1751 samples/sec (0.029s)
+CPU SPAMS:         62032 samples/sec (0.001s)
+CPU naive:           399 samples/sec (0.125s)
+CPU v0:             2756 samples/sec (0.018s)
+CPU v0 blas:        3067 samples/sec (0.016s)
+
+Speedups vs sklearn:
+  SPAMS: 35.4x
+  NAIVE CPU: 0.2x
+  V0 CPU: 1.6x
+  V0 BLAS: 1.8x
+
+[15/108] N=256, B=100, S=8 | elapsed: 0.1min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N256_B100_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU sklearn:        3804 samples/sec (0.026s)
+CPU SPAMS:        122424 samples/sec (0.001s)
+CPU naive:           377 samples/sec (0.265s)
+CPU v0:             4752 samples/sec (0.021s)
+CPU v0 blas:        5845 samples/sec (0.017s)
+
+Speedups vs sklearn:
+  SPAMS: 32.2x
+  NAIVE CPU: 0.1x
+  V0 CPU: 1.2x
+  V0 BLAS: 1.5x
+
+[16/108] N=256, B=500, S=8 | elapsed: 0.1min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N256_B500_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU sklearn:        3558 samples/sec (0.141s)
+CPU SPAMS:        200302 samples/sec (0.002s)
+CPU naive:          1743 samples/sec (0.287s)
+CPU v0:             6409 samples/sec (0.078s)
+CPU v0 blas:       16637 samples/sec (0.030s)
+
+Speedups vs sklearn:
+  SPAMS: 56.3x
+  NAIVE CPU: 0.5x
+  V0 CPU: 1.8x
+  V0 BLAS: 4.7x
+
+[17/108] N=256, B=1000, S=8 | elapsed: 0.1min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N256_B1000_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU sklearn:        3549 samples/sec (0.282s)
+CPU SPAMS:        231594 samples/sec (0.004s)
+CPU naive:         16638 samples/sec (0.060s)
+CPU v0:            14162 samples/sec (0.071s)
+CPU v0 blas:       24839 samples/sec (0.040s)
+
+Speedups vs sklearn:
+  SPAMS: 65.3x
+  NAIVE CPU: 4.7x
+  V0 CPU: 4.0x
+  V0 BLAS: 7.0x
+
+[18/108] N=256, B=5000, S=8 | elapsed: 0.1min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N256_B5000_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU sklearn:        3629 samples/sec (1.378s)
+CPU SPAMS:        229142 samples/sec (0.022s)
+CPU naive:         13430 samples/sec (0.372s)
+CPU v0:            28626 samples/sec (0.175s)
+CPU v0 blas:       34048 samples/sec (0.147s)
+
+Speedups vs sklearn:
+  SPAMS: 63.1x
+  NAIVE CPU: 3.7x
+  V0 CPU: 7.9x
+  V0 BLAS: 9.4x
+
+[19/108] N=512, B=10, S=8 | elapsed: 0.2min, ETA: 0.8min
+
+============================================================
+Benchmark: sweep_N512_B10_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU sklearn:        2129 samples/sec (0.005s)
+CPU SPAMS:          2601 samples/sec (0.004s)
+CPU naive:           984 samples/sec (0.010s)
+CPU v0:              920 samples/sec (0.011s)
+CPU v0 blas:         586 samples/sec (0.017s)
+
+Speedups vs sklearn:
+  SPAMS: 1.2x
+  NAIVE CPU: 0.5x
+  V0 CPU: 0.4x
+  V0 BLAS: 0.3x
+
+[20/108] N=512, B=50, S=8 | elapsed: 0.2min, ETA: 0.7min
+
+============================================================
+Benchmark: sweep_N512_B50_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU sklearn:        2364 samples/sec (0.021s)
+CPU SPAMS:         21929 samples/sec (0.002s)
+CPU naive:           126 samples/sec (0.397s)
+CPU v0:             2278 samples/sec (0.022s)
+CPU v0 blas:        2852 samples/sec (0.018s)
+
+Speedups vs sklearn:
+  SPAMS: 9.3x
+  NAIVE CPU: 0.1x
+  V0 CPU: 1.0x
+  V0 BLAS: 1.2x
+
+[21/108] N=512, B=100, S=8 | elapsed: 0.2min, ETA: 0.7min
+
+============================================================
+Benchmark: sweep_N512_B100_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU sklearn:        2280 samples/sec (0.044s)
+CPU SPAMS:         37908 samples/sec (0.003s)
+CPU naive:           201 samples/sec (0.497s)
+CPU v0:             4768 samples/sec (0.021s)
+CPU v0 blas:        2749 samples/sec (0.036s)
+
+Speedups vs sklearn:
+  SPAMS: 16.6x
+  NAIVE CPU: 0.1x
+  V0 CPU: 2.1x
+  V0 BLAS: 1.2x
+
+[22/108] N=512, B=500, S=8 | elapsed: 0.2min, ETA: 0.7min
+
+============================================================
+Benchmark: sweep_N512_B500_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU sklearn:        2596 samples/sec (0.193s)
+CPU SPAMS:         92605 samples/sec (0.005s)
+CPU naive:          3718 samples/sec (0.134s)
+CPU v0:             8091 samples/sec (0.062s)
+CPU v0 blas:       12472 samples/sec (0.040s)
+
+Speedups vs sklearn:
+  SPAMS: 35.7x
+  NAIVE CPU: 1.4x
+  V0 CPU: 3.1x
+  V0 BLAS: 4.8x
+
+[23/108] N=512, B=1000, S=8 | elapsed: 0.2min, ETA: 0.7min
+
+============================================================
+Benchmark: sweep_N512_B1000_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU sklearn:        2684 samples/sec (0.373s)
+CPU SPAMS:        108524 samples/sec (0.009s)
+CPU naive:         11088 samples/sec (0.090s)
+CPU v0:            10201 samples/sec (0.098s)
+CPU v0 blas:       16844 samples/sec (0.059s)
+
+Speedups vs sklearn:
+  SPAMS: 40.4x
+  NAIVE CPU: 4.1x
+  V0 CPU: 3.8x
+  V0 BLAS: 6.3x
+
+[24/108] N=512, B=5000, S=8 | elapsed: 0.2min, ETA: 0.7min
+
+============================================================
+Benchmark: sweep_N512_B5000_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU sklearn:        2719 samples/sec (1.839s)
+CPU SPAMS:        120212 samples/sec (0.042s)
+CPU naive:         12562 samples/sec (0.398s)
+CPU v0:            18101 samples/sec (0.276s)
+CPU v0 blas:       20291 samples/sec (0.246s)
+
+Speedups vs sklearn:
+  SPAMS: 44.2x
+  NAIVE CPU: 4.6x
+  V0 CPU: 6.7x
+  V0 BLAS: 7.5x
+
+[25/108] N=1024, B=10, S=8 | elapsed: 0.2min, ETA: 0.8min
+
+============================================================
+Benchmark: sweep_N1024_B10_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU sklearn:         782 samples/sec (0.013s)
+CPU SPAMS:          2063 samples/sec (0.005s)
+CPU naive:           182 samples/sec (0.055s)
+CPU v0:              541 samples/sec (0.018s)
+CPU v0 blas:         567 samples/sec (0.018s)
+
+Speedups vs sklearn:
+  SPAMS: 2.6x
+  NAIVE CPU: 0.2x
+  V0 CPU: 0.7x
+  V0 BLAS: 0.7x
+
+[26/108] N=1024, B=50, S=8 | elapsed: 0.2min, ETA: 0.8min
+
+============================================================
+Benchmark: sweep_N1024_B50_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU sklearn:        1042 samples/sec (0.048s)
+CPU SPAMS:          4549 samples/sec (0.011s)
+CPU naive:           220 samples/sec (0.227s)
+CPU v0:              615 samples/sec (0.081s)
+CPU v0 blas:        1523 samples/sec (0.033s)
+
+Speedups vs sklearn:
+  SPAMS: 4.4x
+  NAIVE CPU: 0.2x
+  V0 CPU: 0.6x
+  V0 BLAS: 1.5x
+
+[27/108] N=1024, B=100, S=8 | elapsed: 0.3min, ETA: 0.8min
+
+============================================================
+Benchmark: sweep_N1024_B100_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU sklearn:        1032 samples/sec (0.097s)
+CPU SPAMS:          8412 samples/sec (0.012s)
+CPU naive:           628 samples/sec (0.159s)
+CPU v0:             1275 samples/sec (0.078s)
+CPU v0 blas:        2551 samples/sec (0.039s)
+
+Speedups vs sklearn:
+  SPAMS: 8.1x
+  NAIVE CPU: 0.6x
+  V0 CPU: 1.2x
+  V0 BLAS: 2.5x
+
+[28/108] N=1024, B=500, S=8 | elapsed: 0.3min, ETA: 0.8min
+
+============================================================
+Benchmark: sweep_N1024_B500_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU sklearn:        1084 samples/sec (0.461s)
+CPU SPAMS:         26561 samples/sec (0.019s)
+CPU naive:          3336 samples/sec (0.150s)
+CPU v0:             5850 samples/sec (0.085s)
+CPU v0 blas:       12429 samples/sec (0.040s)
+
+Speedups vs sklearn:
+  SPAMS: 24.5x
+  NAIVE CPU: 3.1x
+  V0 CPU: 5.4x
+  V0 BLAS: 11.5x
+
+[29/108] N=1024, B=1000, S=8 | elapsed: 0.3min, ETA: 0.8min
+
+============================================================
+Benchmark: sweep_N1024_B1000_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU sklearn:        1098 samples/sec (0.911s)
+CPU SPAMS:         36163 samples/sec (0.028s)
+CPU naive:          5191 samples/sec (0.193s)
+CPU v0:             8084 samples/sec (0.124s)
+CPU v0 blas:        8831 samples/sec (0.113s)
+
+Speedups vs sklearn:
+  SPAMS: 32.9x
+  NAIVE CPU: 4.7x
+  V0 CPU: 7.4x
+  V0 BLAS: 8.0x
+
+[30/108] N=1024, B=5000, S=8 | elapsed: 0.3min, ETA: 0.8min
+
+============================================================
+Benchmark: sweep_N1024_B5000_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU sklearn:        1033 samples/sec (4.842s)
+CPU SPAMS:         35506 samples/sec (0.141s)
+CPU naive:          7059 samples/sec (0.708s)
+CPU v0:             9586 samples/sec (0.522s)
+CPU v0 blas:        6609 samples/sec (0.757s)
+
+Speedups vs sklearn:
+  SPAMS: 34.4x
+  NAIVE CPU: 6.8x
+  V0 CPU: 9.3x
+  V0 BLAS: 6.4x
+
+[31/108] N=2048, B=10, S=8 | elapsed: 0.4min, ETA: 1.1min
+
+============================================================
+Benchmark: sweep_N2048_B10_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU sklearn:         265 samples/sec (0.038s)
+CPU SPAMS:           691 samples/sec (0.014s)
+CPU naive:            23 samples/sec (0.428s)
+CPU v0:              277 samples/sec (0.036s)
+CPU v0 blas:         183 samples/sec (0.055s)
+
+Speedups vs sklearn:
+  SPAMS: 2.6x
+  NAIVE CPU: 0.1x
+  V0 CPU: 1.0x
+  V0 BLAS: 0.7x
+
+[32/108] N=2048, B=50, S=8 | elapsed: 0.4min, ETA: 1.1min
+
+============================================================
+Benchmark: sweep_N2048_B50_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU sklearn:         674 samples/sec (0.074s)
+CPU SPAMS:           617 samples/sec (0.081s)
+CPU naive:           142 samples/sec (0.351s)
+CPU v0:              557 samples/sec (0.090s)
+CPU v0 blas:         837 samples/sec (0.060s)
+
+Speedups vs sklearn:
+  SPAMS: 0.9x
+  NAIVE CPU: 0.2x
+  V0 CPU: 0.8x
+  V0 BLAS: 1.2x
+
+[33/108] N=2048, B=100, S=8 | elapsed: 0.5min, ETA: 1.1min
+
+============================================================
+Benchmark: sweep_N2048_B100_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU sklearn:         729 samples/sec (0.137s)
+CPU SPAMS:          1159 samples/sec (0.086s)
+CPU naive:           184 samples/sec (0.543s)
+CPU v0:             1994 samples/sec (0.050s)
+CPU v0 blas:        1441 samples/sec (0.069s)
+
+Speedups vs sklearn:
+  SPAMS: 1.6x
+  NAIVE CPU: 0.3x
+  V0 CPU: 2.7x
+  V0 BLAS: 2.0x
+
+[34/108] N=2048, B=500, S=8 | elapsed: 0.5min, ETA: 1.1min
+
+============================================================
+Benchmark: sweep_N2048_B500_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU sklearn:         709 samples/sec (0.706s)
+CPU SPAMS:          4601 samples/sec (0.109s)
+CPU naive:           574 samples/sec (0.871s)
+CPU v0:             4045 samples/sec (0.124s)
+CPU v0 blas:        3423 samples/sec (0.146s)
+
+Speedups vs sklearn:
+  SPAMS: 6.5x
+  NAIVE CPU: 0.8x
+  V0 CPU: 5.7x
+  V0 BLAS: 4.8x
+
+[35/108] N=2048, B=1000, S=8 | elapsed: 0.5min, ETA: 1.1min
+
+============================================================
+Benchmark: sweep_N2048_B1000_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU sklearn:         678 samples/sec (1.475s)
+CPU SPAMS:          6322 samples/sec (0.158s)
+CPU naive:           954 samples/sec (1.048s)
+CPU v0:             3432 samples/sec (0.291s)
+CPU v0 blas:        4074 samples/sec (0.245s)
+
+Speedups vs sklearn:
+  SPAMS: 9.3x
+  NAIVE CPU: 1.4x
+  V0 CPU: 5.1x
+  V0 BLAS: 6.0x
+
+[36/108] N=2048, B=5000, S=8 | elapsed: 0.6min, ETA: 1.2min
+
+============================================================
+Benchmark: sweep_N2048_B5000_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU sklearn:         660 samples/sec (7.571s)
+CPU SPAMS:         10795 samples/sec (0.463s)
+CPU naive:          2617 samples/sec (1.910s)
+CPU v0:             4392 samples/sec (1.138s)
+CPU v0 blas:        3221 samples/sec (1.553s)
+
+Speedups vs sklearn:
+  SPAMS: 16.3x
+  NAIVE CPU: 4.0x
+  V0 CPU: 6.7x
+  V0 BLAS: 4.9x
+
+[37/108] N=4096, B=10, S=8 | elapsed: 0.8min, ETA: 1.6min
+
+============================================================
+Benchmark: sweep_N4096_B10_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU sklearn:          26 samples/sec (0.390s)
+CPU SPAMS:            62 samples/sec (0.161s)
+CPU naive:            10 samples/sec (0.997s)
+CPU v0:               42 samples/sec (0.237s)
+CPU v0 blas:          36 samples/sec (0.275s)
+
+Speedups vs sklearn:
+  SPAMS: 2.4x
+  NAIVE CPU: 0.4x
+  V0 CPU: 1.6x
+  V0 BLAS: 1.4x
+
+[38/108] N=4096, B=50, S=8 | elapsed: 0.9min, ETA: 1.7min
+
+============================================================
+Benchmark: sweep_N4096_B50_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU sklearn:          36 samples/sec (1.384s)
+CPU SPAMS:            93 samples/sec (0.540s)
+CPU naive:            83 samples/sec (0.603s)
+CPU v0:              176 samples/sec (0.283s)
+CPU v0 blas:         173 samples/sec (0.289s)
+
+Speedups vs sklearn:
+  SPAMS: 2.6x
+  NAIVE CPU: 2.3x
+  V0 CPU: 4.9x
+  V0 BLAS: 4.8x
+
+[39/108] N=4096, B=100, S=8 | elapsed: 0.9min, ETA: 1.7min
+
+============================================================
+Benchmark: sweep_N4096_B100_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU sklearn:          36 samples/sec (2.782s)
+CPU SPAMS:           182 samples/sec (0.550s)
+CPU naive:           120 samples/sec (0.832s)
+CPU v0:              321 samples/sec (0.312s)
+CPU v0 blas:         380 samples/sec (0.263s)
+
+Speedups vs sklearn:
+  SPAMS: 5.1x
+  NAIVE CPU: 3.3x
+  V0 CPU: 8.9x
+  V0 BLAS: 10.6x
+
+[40/108] N=4096, B=500, S=8 | elapsed: 1.1min, ETA: 1.9min
+
+============================================================
+Benchmark: sweep_N4096_B500_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU sklearn:          37 samples/sec (13.413s)
+CPU SPAMS:           719 samples/sec (0.696s)
+CPU naive:           366 samples/sec (1.366s)
+CPU v0:              929 samples/sec (0.538s)
+CPU v0 blas:        1159 samples/sec (0.431s)
+
+Speedups vs sklearn:
+  SPAMS: 19.3x
+  NAIVE CPU: 9.8x
+  V0 CPU: 24.9x
+  V0 BLAS: 31.1x
+
+[41/108] N=4096, B=1000, S=8 | elapsed: 1.4min, ETA: 2.3min
+
+============================================================
+Benchmark: sweep_N4096_B1000_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU sklearn:          39 samples/sec (25.457s)
+CPU SPAMS:          1065 samples/sec (0.939s)
+CPU naive:           600 samples/sec (1.668s)
+CPU v0:             1165 samples/sec (0.858s)
+CPU v0 blas:        1548 samples/sec (0.646s)
+
+Speedups vs sklearn:
+  SPAMS: 27.1x
+  NAIVE CPU: 15.3x
+  V0 CPU: 29.7x
+  V0 BLAS: 39.4x
+
+[42/108] N=4096, B=5000, S=8 | elapsed: 1.9min, ETA: 3.1min
+
+============================================================
+Benchmark: sweep_N4096_B5000_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU sklearn:          34 samples/sec (145.042s)
+CPU SPAMS:          1683 samples/sec (2.971s)
+CPU naive:           421 samples/sec (11.863s)
+CPU v0:             1395 samples/sec (3.584s)
+CPU v0 blas:        1567 samples/sec (3.190s)
+
+Speedups vs sklearn:
+  SPAMS: 48.8x
+  NAIVE CPU: 12.2x
+  V0 CPU: 40.5x
+  V0 BLAS: 45.5x
+
+[43/108] N=128, B=10, S=32 | elapsed: 4.8min, ETA: 7.6min
+
+============================================================
+Benchmark: sweep_N128_B10_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU sklearn:         860 samples/sec (0.012s)
+CPU SPAMS:         34752 samples/sec (0.000s)
+CPU naive:           753 samples/sec (0.013s)
+CPU v0:             1262 samples/sec (0.008s)
+CPU v0 blas:        4393 samples/sec (0.002s)
+
+Speedups vs sklearn:
+  SPAMS: 40.4x
+  NAIVE CPU: 0.9x
+  V0 CPU: 1.5x
+  V0 BLAS: 5.1x
+
+[44/108] N=128, B=50, S=32 | elapsed: 4.8min, ETA: 7.3min
+
+============================================================
+Benchmark: sweep_N128_B50_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU sklearn:        1028 samples/sec (0.049s)
+CPU SPAMS:         69475 samples/sec (0.001s)
+CPU naive:          3968 samples/sec (0.013s)
+CPU v0:             3402 samples/sec (0.015s)
+CPU v0 blas:        1848 samples/sec (0.027s)
+
+Speedups vs sklearn:
+  SPAMS: 67.6x
+  NAIVE CPU: 3.9x
+  V0 CPU: 3.3x
+  V0 BLAS: 1.8x
+
+[45/108] N=128, B=100, S=32 | elapsed: 4.8min, ETA: 7.1min
+
+============================================================
+Benchmark: sweep_N128_B100_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU sklearn:         951 samples/sec (0.105s)
+CPU SPAMS:         84424 samples/sec (0.001s)
+CPU naive:          5270 samples/sec (0.019s)
+CPU v0:             4430 samples/sec (0.023s)
+CPU v0 blas:       14165 samples/sec (0.007s)
+
+Speedups vs sklearn:
+  SPAMS: 88.8x
+  NAIVE CPU: 5.5x
+  V0 CPU: 4.7x
+  V0 BLAS: 14.9x
+
+[46/108] N=128, B=500, S=32 | elapsed: 4.9min, ETA: 6.8min
+
+============================================================
+Benchmark: sweep_N128_B500_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU sklearn:        1044 samples/sec (0.479s)
+CPU SPAMS:         98393 samples/sec (0.005s)
+CPU naive:          1352 samples/sec (0.370s)
+CPU v0:             3414 samples/sec (0.146s)
+CPU v0 blas:       16903 samples/sec (0.030s)
+
+Speedups vs sklearn:
+  SPAMS: 94.3x
+  NAIVE CPU: 1.3x
+  V0 CPU: 3.3x
+  V0 BLAS: 16.2x
+
+[47/108] N=128, B=1000, S=32 | elapsed: 4.9min, ETA: 6.6min
+
+============================================================
+Benchmark: sweep_N128_B1000_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU sklearn:        1044 samples/sec (0.958s)
+CPU SPAMS:        100041 samples/sec (0.010s)
+CPU naive:          1408 samples/sec (0.710s)
+CPU v0:             4730 samples/sec (0.211s)
+CPU v0 blas:       12190 samples/sec (0.082s)
+
+Speedups vs sklearn:
+  SPAMS: 95.9x
+  NAIVE CPU: 1.3x
+  V0 CPU: 4.5x
+  V0 BLAS: 11.7x
+
+[48/108] N=128, B=5000, S=32 | elapsed: 4.9min, ETA: 6.4min
+
+============================================================
+Benchmark: sweep_N128_B5000_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU sklearn:         907 samples/sec (5.514s)
+CPU SPAMS:         98067 samples/sec (0.051s)
+CPU naive:          2549 samples/sec (1.962s)
+CPU v0:             6075 samples/sec (0.823s)
+CPU v0 blas:       10158 samples/sec (0.492s)
+
+Speedups vs sklearn:
+  SPAMS: 108.1x
+  NAIVE CPU: 2.8x
+  V0 CPU: 6.7x
+  V0 BLAS: 11.2x
+
+[49/108] N=256, B=10, S=32 | elapsed: 5.1min, ETA: 6.3min
+
+============================================================
+Benchmark: sweep_N256_B10_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU sklearn:         873 samples/sec (0.011s)
+CPU SPAMS:         13735 samples/sec (0.001s)
+CPU naive:          1193 samples/sec (0.008s)
+CPU v0:             1192 samples/sec (0.008s)
+CPU v0 blas:        5051 samples/sec (0.002s)
+
+Speedups vs sklearn:
+  SPAMS: 15.7x
+  NAIVE CPU: 1.4x
+  V0 CPU: 1.4x
+  V0 BLAS: 5.8x
+
+[50/108] N=256, B=50, S=32 | elapsed: 5.1min, ETA: 6.1min
+
+============================================================
+Benchmark: sweep_N256_B50_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU sklearn:         957 samples/sec (0.052s)
+CPU SPAMS:         10806 samples/sec (0.005s)
+CPU naive:           174 samples/sec (0.287s)
+CPU v0:             1056 samples/sec (0.047s)
+CPU v0 blas:        2727 samples/sec (0.018s)
+
+Speedups vs sklearn:
+  SPAMS: 11.3x
+  NAIVE CPU: 0.2x
+  V0 CPU: 1.1x
+  V0 BLAS: 2.8x
+
+[51/108] N=256, B=100, S=32 | elapsed: 5.1min, ETA: 5.9min
+
+============================================================
+Benchmark: sweep_N256_B100_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU sklearn:         777 samples/sec (0.129s)
+CPU SPAMS:         45439 samples/sec (0.002s)
+CPU naive:           216 samples/sec (0.463s)
+CPU v0:             1725 samples/sec (0.058s)
+CPU v0 blas:        5785 samples/sec (0.017s)
+
+Speedups vs sklearn:
+  SPAMS: 58.5x
+  NAIVE CPU: 0.3x
+  V0 CPU: 2.2x
+  V0 BLAS: 7.4x
+
+[52/108] N=256, B=500, S=32 | elapsed: 5.1min, ETA: 5.7min
+
+============================================================
+Benchmark: sweep_N256_B500_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU sklearn:         945 samples/sec (0.529s)
+CPU SPAMS:         54280 samples/sec (0.009s)
+CPU naive:           648 samples/sec (0.771s)
+CPU v0:             2919 samples/sec (0.171s)
+CPU v0 blas:        5711 samples/sec (0.088s)
+
+Speedups vs sklearn:
+  SPAMS: 57.4x
+  NAIVE CPU: 0.7x
+  V0 CPU: 3.1x
+  V0 BLAS: 6.0x
+
+[53/108] N=256, B=1000, S=32 | elapsed: 5.1min, ETA: 5.5min
+
+============================================================
+Benchmark: sweep_N256_B1000_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU sklearn:         912 samples/sec (1.096s)
+CPU SPAMS:         54997 samples/sec (0.018s)
+CPU naive:          1023 samples/sec (0.978s)
+CPU v0:             3941 samples/sec (0.254s)
+CPU v0 blas:        5680 samples/sec (0.176s)
+
+Speedups vs sklearn:
+  SPAMS: 60.3x
+  NAIVE CPU: 1.1x
+  V0 CPU: 4.3x
+  V0 BLAS: 6.2x
+
+[54/108] N=256, B=5000, S=32 | elapsed: 5.1min, ETA: 5.3min
+
+============================================================
+Benchmark: sweep_N256_B5000_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU sklearn:         939 samples/sec (5.326s)
+CPU SPAMS:         52652 samples/sec (0.095s)
+CPU naive:          2337 samples/sec (2.139s)
+CPU v0:             4781 samples/sec (1.046s)
+CPU v0 blas:        6137 samples/sec (0.815s)
+
+Speedups vs sklearn:
+  SPAMS: 56.1x
+  NAIVE CPU: 2.5x
+  V0 CPU: 5.1x
+  V0 BLAS: 6.5x
+
+[55/108] N=512, B=10, S=32 | elapsed: 5.3min, ETA: 5.3min
+
+============================================================
+Benchmark: sweep_N512_B10_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU sklearn:         653 samples/sec (0.015s)
+CPU SPAMS:           627 samples/sec (0.016s)
+CPU naive:           312 samples/sec (0.032s)
+CPU v0:              481 samples/sec (0.021s)
+CPU v0 blas:         496 samples/sec (0.020s)
+
+Speedups vs sklearn:
+  SPAMS: 1.0x
+  NAIVE CPU: 0.5x
+  V0 CPU: 0.7x
+  V0 BLAS: 0.8x
+
+[56/108] N=512, B=50, S=32 | elapsed: 5.3min, ETA: 5.1min
+
+============================================================
+Benchmark: sweep_N512_B50_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU sklearn:         760 samples/sec (0.066s)
+CPU SPAMS:         14344 samples/sec (0.003s)
+CPU naive:            31 samples/sec (1.595s)
+CPU v0:              732 samples/sec (0.068s)
+CPU v0 blas:         954 samples/sec (0.052s)
+
+Speedups vs sklearn:
+  SPAMS: 18.9x
+  NAIVE CPU: 0.0x
+  V0 CPU: 1.0x
+  V0 BLAS: 1.3x
+
+[57/108] N=512, B=100, S=32 | elapsed: 5.3min, ETA: 5.0min
+
+============================================================
+Benchmark: sweep_N512_B100_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU sklearn:         641 samples/sec (0.156s)
+CPU SPAMS:         21139 samples/sec (0.005s)
+CPU naive:           333 samples/sec (0.300s)
+CPU v0:              870 samples/sec (0.115s)
+CPU v0 blas:        2661 samples/sec (0.038s)
+
+Speedups vs sklearn:
+  SPAMS: 33.0x
+  NAIVE CPU: 0.5x
+  V0 CPU: 1.4x
+  V0 BLAS: 4.2x
+
+[58/108] N=512, B=500, S=32 | elapsed: 5.3min, ETA: 4.8min
+
+============================================================
+Benchmark: sweep_N512_B500_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU sklearn:         711 samples/sec (0.703s)
+CPU SPAMS:         28950 samples/sec (0.017s)
+CPU naive:           543 samples/sec (0.921s)
+CPU v0:             2293 samples/sec (0.218s)
+CPU v0 blas:        3592 samples/sec (0.139s)
+
+Speedups vs sklearn:
+  SPAMS: 40.7x
+  NAIVE CPU: 0.8x
+  V0 CPU: 3.2x
+  V0 BLAS: 5.1x
+
+[59/108] N=512, B=1000, S=32 | elapsed: 5.4min, ETA: 4.6min
+
+============================================================
+Benchmark: sweep_N512_B1000_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU sklearn:         708 samples/sec (1.413s)
+CPU SPAMS:         33167 samples/sec (0.030s)
+CPU naive:           891 samples/sec (1.122s)
+CPU v0:             2985 samples/sec (0.335s)
+CPU v0 blas:        3498 samples/sec (0.286s)
+
+Speedups vs sklearn:
+  SPAMS: 46.9x
+  NAIVE CPU: 1.3x
+  V0 CPU: 4.2x
+  V0 BLAS: 4.9x
+
+[60/108] N=512, B=5000, S=32 | elapsed: 5.4min, ETA: 4.5min
+
+============================================================
+Benchmark: sweep_N512_B5000_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU sklearn:         714 samples/sec (7.001s)
+CPU SPAMS:         33807 samples/sec (0.148s)
+CPU naive:          1991 samples/sec (2.511s)
+CPU v0:             3237 samples/sec (1.544s)
+CPU v0 blas:        3626 samples/sec (1.379s)
+
+Speedups vs sklearn:
+  SPAMS: 47.3x
+  NAIVE CPU: 2.8x
+  V0 CPU: 4.5x
+  V0 BLAS: 5.1x
+
+[61/108] N=1024, B=10, S=32 | elapsed: 5.7min, ETA: 4.5min
+
+============================================================
+Benchmark: sweep_N1024_B10_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU sklearn:         242 samples/sec (0.041s)
+CPU SPAMS:           961 samples/sec (0.010s)
+CPU naive:           156 samples/sec (0.064s)
+CPU v0:              323 samples/sec (0.031s)
+CPU v0 blas:         472 samples/sec (0.021s)
+
+Speedups vs sklearn:
+  SPAMS: 4.0x
+  NAIVE CPU: 0.6x
+  V0 CPU: 1.3x
+  V0 BLAS: 1.9x
+
+[62/108] N=1024, B=50, S=32 | elapsed: 5.7min, ETA: 4.4min
+
+============================================================
+Benchmark: sweep_N1024_B50_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU sklearn:         309 samples/sec (0.162s)
+CPU SPAMS:          3534 samples/sec (0.014s)
+CPU naive:           109 samples/sec (0.459s)
+CPU v0:              461 samples/sec (0.108s)
+CPU v0 blas:         845 samples/sec (0.059s)
+
+Speedups vs sklearn:
+  SPAMS: 11.5x
+  NAIVE CPU: 0.4x
+  V0 CPU: 1.5x
+  V0 BLAS: 2.7x
+
+[63/108] N=1024, B=100, S=32 | elapsed: 5.7min, ETA: 4.2min
+
+============================================================
+Benchmark: sweep_N1024_B100_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU sklearn:         292 samples/sec (0.342s)
+CPU SPAMS:          6252 samples/sec (0.016s)
+CPU naive:            86 samples/sec (1.162s)
+CPU v0:              981 samples/sec (0.102s)
+CPU v0 blas:        1572 samples/sec (0.064s)
+
+Speedups vs sklearn:
+  SPAMS: 21.4x
+  NAIVE CPU: 0.3x
+  V0 CPU: 3.4x
+  V0 BLAS: 5.4x
+
+[64/108] N=1024, B=500, S=32 | elapsed: 5.7min, ETA: 4.1min
+
+============================================================
+Benchmark: sweep_N1024_B500_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU sklearn:         303 samples/sec (1.652s)
+CPU SPAMS:         12698 samples/sec (0.039s)
+CPU naive:           353 samples/sec (1.418s)
+CPU v0:             1943 samples/sec (0.257s)
+CPU v0 blas:        1755 samples/sec (0.285s)
+
+Speedups vs sklearn:
+  SPAMS: 41.9x
+  NAIVE CPU: 1.2x
+  V0 CPU: 6.4x
+  V0 BLAS: 5.8x
+
+[65/108] N=1024, B=1000, S=32 | elapsed: 5.8min, ETA: 4.0min
+
+============================================================
+Benchmark: sweep_N1024_B1000_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU sklearn:         303 samples/sec (3.305s)
+CPU SPAMS:         14938 samples/sec (0.067s)
+CPU naive:           685 samples/sec (1.460s)
+CPU v0:             2042 samples/sec (0.490s)
+CPU v0 blas:        1911 samples/sec (0.523s)
+
+Speedups vs sklearn:
+  SPAMS: 49.4x
+  NAIVE CPU: 2.3x
+  V0 CPU: 6.7x
+  V0 BLAS: 6.3x
+
+[66/108] N=1024, B=5000, S=32 | elapsed: 5.9min, ETA: 3.9min
+
+============================================================
+Benchmark: sweep_N1024_B5000_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU sklearn:         324 samples/sec (15.420s)
+CPU SPAMS:         15217 samples/sec (0.329s)
+CPU naive:          1786 samples/sec (2.799s)
+CPU v0:             2026 samples/sec (2.468s)
+CPU v0 blas:        1358 samples/sec (3.682s)
+
+Speedups vs sklearn:
+  SPAMS: 46.9x
+  NAIVE CPU: 5.5x
+  V0 CPU: 6.2x
+  V0 BLAS: 4.2x
+
+[67/108] N=2048, B=10, S=32 | elapsed: 6.3min, ETA: 4.0min
+
+============================================================
+Benchmark: sweep_N2048_B10_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU sklearn:         236 samples/sec (0.042s)
+CPU SPAMS:           435 samples/sec (0.023s)
+CPU naive:            10 samples/sec (1.026s)
+CPU v0:              111 samples/sec (0.090s)
+CPU v0 blas:         149 samples/sec (0.067s)
+
+Speedups vs sklearn:
+  SPAMS: 1.8x
+  NAIVE CPU: 0.0x
+  V0 CPU: 0.5x
+  V0 BLAS: 0.6x
+
+[68/108] N=2048, B=50, S=32 | elapsed: 6.3min, ETA: 3.9min
+
+============================================================
+Benchmark: sweep_N2048_B50_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU sklearn:         300 samples/sec (0.166s)
+CPU SPAMS:           577 samples/sec (0.087s)
+CPU naive:            35 samples/sec (1.428s)
+CPU v0:              483 samples/sec (0.103s)
+CPU v0 blas:         527 samples/sec (0.095s)
+
+Speedups vs sklearn:
+  SPAMS: 1.9x
+  NAIVE CPU: 0.1x
+  V0 CPU: 1.6x
+  V0 BLAS: 1.8x
+
+[69/108] N=2048, B=100, S=32 | elapsed: 6.4min, ETA: 3.7min
+
+============================================================
+Benchmark: sweep_N2048_B100_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU sklearn:         297 samples/sec (0.337s)
+CPU SPAMS:          1051 samples/sec (0.095s)
+CPU naive:            68 samples/sec (1.461s)
+CPU v0:              707 samples/sec (0.141s)
+CPU v0 blas:         658 samples/sec (0.152s)
+
+Speedups vs sklearn:
+  SPAMS: 3.5x
+  NAIVE CPU: 0.2x
+  V0 CPU: 2.4x
+  V0 BLAS: 2.2x
+
+[70/108] N=2048, B=500, S=32 | elapsed: 6.4min, ETA: 3.6min
+
+============================================================
+Benchmark: sweep_N2048_B500_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU sklearn:         289 samples/sec (1.732s)
+CPU SPAMS:          3417 samples/sec (0.146s)
+CPU naive:           149 samples/sec (3.362s)
+CPU v0:             1403 samples/sec (0.356s)
+CPU v0 blas:         934 samples/sec (0.535s)
+
+Speedups vs sklearn:
+  SPAMS: 11.8x
+  NAIVE CPU: 0.5x
+  V0 CPU: 4.9x
+  V0 BLAS: 3.2x
+
+[71/108] N=2048, B=1000, S=32 | elapsed: 6.5min, ETA: 3.5min
+
+============================================================
+Benchmark: sweep_N2048_B1000_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU sklearn:         276 samples/sec (3.622s)
+CPU SPAMS:          4576 samples/sec (0.219s)
+CPU naive:           241 samples/sec (4.147s)
+CPU v0:             1347 samples/sec (0.742s)
+CPU v0 blas:         953 samples/sec (1.049s)
+
+Speedups vs sklearn:
+  SPAMS: 16.6x
+  NAIVE CPU: 0.9x
+  V0 CPU: 4.9x
+  V0 BLAS: 3.5x
+
+[72/108] N=2048, B=5000, S=32 | elapsed: 6.7min, ETA: 3.5min
+
+============================================================
+Benchmark: sweep_N2048_B5000_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU sklearn:         271 samples/sec (18.441s)
+CPU SPAMS:          6124 samples/sec (0.816s)
+CPU naive:           616 samples/sec (8.119s)
+CPU v0:             1295 samples/sec (3.862s)
+CPU v0 blas:         699 samples/sec (7.152s)
+
+Speedups vs sklearn:
+  SPAMS: 22.6x
+  NAIVE CPU: 2.3x
+  V0 CPU: 4.8x
+  V0 BLAS: 2.6x
+
+[73/108] N=4096, B=10, S=32 | elapsed: 7.4min, ETA: 3.7min
+
+============================================================
+Benchmark: sweep_N4096_B10_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU sklearn:          24 samples/sec (0.414s)
+CPU SPAMS:            55 samples/sec (0.182s)
+CPU naive:             3 samples/sec (2.974s)
+CPU v0:               37 samples/sec (0.268s)
+CPU v0 blas:          35 samples/sec (0.288s)
+
+Speedups vs sklearn:
+  SPAMS: 2.3x
+  NAIVE CPU: 0.1x
+  V0 CPU: 1.5x
+  V0 BLAS: 1.4x
+
+[74/108] N=4096, B=50, S=32 | elapsed: 7.5min, ETA: 3.6min
+
+============================================================
+Benchmark: sweep_N4096_B50_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU sklearn:          26 samples/sec (1.912s)
+CPU SPAMS:            89 samples/sec (0.560s)
+CPU naive:            13 samples/sec (3.725s)
+CPU v0:              159 samples/sec (0.314s)
+CPU v0 blas:         153 samples/sec (0.326s)
+
+Speedups vs sklearn:
+  SPAMS: 3.4x
+  NAIVE CPU: 0.5x
+  V0 CPU: 6.1x
+  V0 BLAS: 5.9x
+
+[75/108] N=4096, B=100, S=32 | elapsed: 7.6min, ETA: 3.5min
+
+============================================================
+Benchmark: sweep_N4096_B100_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU sklearn:          23 samples/sec (4.259s)
+CPU SPAMS:           175 samples/sec (0.573s)
+CPU naive:            29 samples/sec (3.418s)
+CPU v0:              260 samples/sec (0.385s)
+CPU v0 blas:         230 samples/sec (0.435s)
+
+Speedups vs sklearn:
+  SPAMS: 7.4x
+  NAIVE CPU: 1.2x
+  V0 CPU: 11.1x
+  V0 BLAS: 9.8x
+
+[76/108] N=4096, B=500, S=32 | elapsed: 7.8min, ETA: 3.4min
+
+============================================================
+Benchmark: sweep_N4096_B500_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU sklearn:          26 samples/sec (19.208s)
+CPU SPAMS:           637 samples/sec (0.784s)
+CPU naive:            99 samples/sec (5.056s)
+CPU v0:              549 samples/sec (0.910s)
+CPU v0 blas:         416 samples/sec (1.203s)
+
+Speedups vs sklearn:
+  SPAMS: 24.5x
+  NAIVE CPU: 3.8x
+  V0 CPU: 21.1x
+  V0 BLAS: 16.0x
+
+[77/108] N=4096, B=1000, S=32 | elapsed: 8.3min, ETA: 3.5min
+
+============================================================
+Benchmark: sweep_N4096_B1000_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU sklearn:          27 samples/sec (36.801s)
+CPU SPAMS:           951 samples/sec (1.051s)
+CPU naive:           164 samples/sec (6.084s)
+CPU v0:              623 samples/sec (1.605s)
+CPU v0 blas:         457 samples/sec (2.187s)
+
+Speedups vs sklearn:
+  SPAMS: 35.0x
+  NAIVE CPU: 6.0x
+  V0 CPU: 22.9x
+  V0 BLAS: 16.8x
+
+[78/108] N=4096, B=5000, S=32 | elapsed: 9.1min, ETA: 3.7min
+
+============================================================
+Benchmark: sweep_N4096_B5000_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU sklearn:          27 samples/sec (184.007s)
+CPU SPAMS:          1518 samples/sec (3.294s)
+CPU naive:           301 samples/sec (16.598s)
+CPU v0:              456 samples/sec (10.966s)
+CPU v0 blas:         343 samples/sec (14.592s)
+
+Speedups vs sklearn:
+  SPAMS: 55.9x
+  NAIVE CPU: 11.1x
+  V0 CPU: 16.8x
+  V0 BLAS: 12.6x
+
+[79/108] N=256, B=10, S=64 | elapsed: 13.1min, ETA: 5.1min
+
+============================================================
+Benchmark: sweep_N256_B10_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU sklearn:         415 samples/sec (0.024s)
+CPU SPAMS:          7812 samples/sec (0.001s)
+CPU naive:           473 samples/sec (0.021s)
+CPU v0:              568 samples/sec (0.018s)
+CPU v0 blas:         809 samples/sec (0.012s)
+
+Speedups vs sklearn:
+  SPAMS: 18.8x
+  NAIVE CPU: 1.1x
+  V0 CPU: 1.4x
+  V0 BLAS: 1.9x
+
+[80/108] N=256, B=50, S=64 | elapsed: 13.1min, ETA: 4.8min
+
+============================================================
+Benchmark: sweep_N256_B50_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU sklearn:         442 samples/sec (0.113s)
+CPU SPAMS:         17212 samples/sec (0.003s)
+CPU naive:            90 samples/sec (0.553s)
+CPU v0:              404 samples/sec (0.124s)
+CPU v0 blas:        1218 samples/sec (0.041s)
+
+Speedups vs sklearn:
+  SPAMS: 39.0x
+  NAIVE CPU: 0.2x
+  V0 CPU: 0.9x
+  V0 BLAS: 2.8x
+
+[81/108] N=256, B=100, S=64 | elapsed: 13.2min, ETA: 4.6min
+
+============================================================
+Benchmark: sweep_N256_B100_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU sklearn:         408 samples/sec (0.245s)
+CPU SPAMS:         13180 samples/sec (0.008s)
+CPU naive:            49 samples/sec (2.044s)
+CPU v0:              798 samples/sec (0.125s)
+CPU v0 blas:        1527 samples/sec (0.065s)
+
+Speedups vs sklearn:
+  SPAMS: 32.3x
+  NAIVE CPU: 0.1x
+  V0 CPU: 2.0x
+  V0 BLAS: 3.7x
+
+[82/108] N=256, B=500, S=64 | elapsed: 13.2min, ETA: 4.4min
+
+============================================================
+Benchmark: sweep_N256_B500_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU sklearn:         448 samples/sec (1.115s)
+CPU SPAMS:         21655 samples/sec (0.023s)
+CPU naive:           258 samples/sec (1.935s)
+CPU v0:             1350 samples/sec (0.370s)
+CPU v0 blas:        1831 samples/sec (0.273s)
+
+Speedups vs sklearn:
+  SPAMS: 48.3x
+  NAIVE CPU: 0.6x
+  V0 CPU: 3.0x
+  V0 BLAS: 4.1x
+
+[83/108] N=256, B=1000, S=64 | elapsed: 13.3min, ETA: 4.2min
+
+============================================================
+Benchmark: sweep_N256_B1000_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU sklearn:         434 samples/sec (2.307s)
+CPU SPAMS:         21305 samples/sec (0.047s)
+CPU naive:           304 samples/sec (3.290s)
+CPU v0:             1482 samples/sec (0.675s)
+CPU v0 blas:        1904 samples/sec (0.525s)
+
+Speedups vs sklearn:
+  SPAMS: 49.1x
+  NAIVE CPU: 0.7x
+  V0 CPU: 3.4x
+  V0 BLAS: 4.4x
+
+[84/108] N=256, B=5000, S=64 | elapsed: 13.4min, ETA: 4.0min
+
+============================================================
+Benchmark: sweep_N256_B5000_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU sklearn:         435 samples/sec (11.501s)
+CPU SPAMS:         20261 samples/sec (0.247s)
+CPU naive:           579 samples/sec (8.636s)
+CPU v0:             1540 samples/sec (3.246s)
+CPU v0 blas:        1956 samples/sec (2.556s)
+
+Speedups vs sklearn:
+  SPAMS: 46.6x
+  NAIVE CPU: 1.3x
+  V0 CPU: 3.5x
+  V0 BLAS: 4.5x
+
+[85/108] N=512, B=10, S=64 | elapsed: 13.8min, ETA: 4.0min
+
+============================================================
+Benchmark: sweep_N512_B10_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU sklearn:         323 samples/sec (0.031s)
+CPU SPAMS:          1263 samples/sec (0.008s)
+CPU naive:           200 samples/sec (0.050s)
+CPU v0:               97 samples/sec (0.104s)
+CPU v0 blas:         533 samples/sec (0.019s)
+
+Speedups vs sklearn:
+  SPAMS: 3.9x
+  NAIVE CPU: 0.6x
+  V0 CPU: 0.3x
+  V0 BLAS: 1.6x
+
+[86/108] N=512, B=50, S=64 | elapsed: 13.8min, ETA: 3.7min
+
+============================================================
+Benchmark: sweep_N512_B50_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU sklearn:         262 samples/sec (0.191s)
+CPU SPAMS:          8417 samples/sec (0.006s)
+CPU naive:            51 samples/sec (0.980s)
+CPU v0:              482 samples/sec (0.104s)
+CPU v0 blas:        1049 samples/sec (0.048s)
+
+Speedups vs sklearn:
+  SPAMS: 32.1x
+  NAIVE CPU: 0.2x
+  V0 CPU: 1.8x
+  V0 BLAS: 4.0x
+
+[87/108] N=512, B=100, S=64 | elapsed: 13.9min, ETA: 3.5min
+
+============================================================
+Benchmark: sweep_N512_B100_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU sklearn:         297 samples/sec (0.337s)
+CPU SPAMS:          8268 samples/sec (0.012s)
+CPU naive:            58 samples/sec (1.712s)
+CPU v0:              539 samples/sec (0.186s)
+CPU v0 blas:        1041 samples/sec (0.096s)
+
+Speedups vs sklearn:
+  SPAMS: 27.8x
+  NAIVE CPU: 0.2x
+  V0 CPU: 1.8x
+  V0 BLAS: 3.5x
+
+[88/108] N=512, B=500, S=64 | elapsed: 13.9min, ETA: 3.4min
+
+============================================================
+Benchmark: sweep_N512_B500_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU sklearn:         332 samples/sec (1.506s)
+CPU SPAMS:         11922 samples/sec (0.042s)
+CPU naive:           148 samples/sec (3.380s)
+CPU v0:              903 samples/sec (0.554s)
+CPU v0 blas:        1149 samples/sec (0.435s)
+
+Speedups vs sklearn:
+  SPAMS: 35.9x
+  NAIVE CPU: 0.4x
+  V0 CPU: 2.7x
+  V0 BLAS: 3.5x
+
+[89/108] N=512, B=1000, S=64 | elapsed: 14.0min, ETA: 3.2min
+
+============================================================
+Benchmark: sweep_N512_B1000_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU sklearn:         299 samples/sec (3.341s)
+CPU SPAMS:         12021 samples/sec (0.083s)
+CPU naive:           241 samples/sec (4.150s)
+CPU v0:             1146 samples/sec (0.872s)
+CPU v0 blas:        1240 samples/sec (0.806s)
+
+Speedups vs sklearn:
+  SPAMS: 40.2x
+  NAIVE CPU: 0.8x
+  V0 CPU: 3.8x
+  V0 BLAS: 4.1x
+
+[90/108] N=512, B=5000, S=64 | elapsed: 14.2min, ETA: 3.0min
+
+============================================================
+Benchmark: sweep_N512_B5000_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU sklearn:         335 samples/sec (14.905s)
+CPU SPAMS:         12354 samples/sec (0.405s)
+CPU naive:           643 samples/sec (7.778s)
+CPU v0:             1135 samples/sec (4.405s)
+CPU v0 blas:        1205 samples/sec (4.150s)
+
+Speedups vs sklearn:
+  SPAMS: 36.8x
+  NAIVE CPU: 1.9x
+  V0 CPU: 3.4x
+  V0 BLAS: 3.6x
+
+[91/108] N=1024, B=10, S=64 | elapsed: 14.7min, ETA: 2.9min
+
+============================================================
+Benchmark: sweep_N1024_B10_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU sklearn:         140 samples/sec (0.071s)
+CPU SPAMS:           986 samples/sec (0.010s)
+CPU naive:           128 samples/sec (0.078s)
+CPU v0:              111 samples/sec (0.090s)
+CPU v0 blas:         483 samples/sec (0.021s)
+
+Speedups vs sklearn:
+  SPAMS: 7.0x
+  NAIVE CPU: 0.9x
+  V0 CPU: 0.8x
+  V0 BLAS: 3.4x
+
+[92/108] N=1024, B=50, S=64 | elapsed: 14.7min, ETA: 2.7min
+
+============================================================
+Benchmark: sweep_N1024_B50_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU sklearn:         151 samples/sec (0.332s)
+CPU SPAMS:          2779 samples/sec (0.018s)
+CPU naive:            31 samples/sec (1.596s)
+CPU v0:              425 samples/sec (0.118s)
+CPU v0 blas:         593 samples/sec (0.084s)
+
+Speedups vs sklearn:
+  SPAMS: 18.4x
+  NAIVE CPU: 0.2x
+  V0 CPU: 2.8x
+  V0 BLAS: 3.9x
+
+[93/108] N=1024, B=100, S=64 | elapsed: 14.8min, ETA: 2.6min
+
+============================================================
+Benchmark: sweep_N1024_B100_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU sklearn:         152 samples/sec (0.658s)
+CPU SPAMS:          3414 samples/sec (0.029s)
+CPU naive:            59 samples/sec (1.701s)
+CPU v0:              346 samples/sec (0.289s)
+CPU v0 blas:         603 samples/sec (0.166s)
+
+Speedups vs sklearn:
+  SPAMS: 22.4x
+  NAIVE CPU: 0.4x
+  V0 CPU: 2.3x
+  V0 BLAS: 4.0x
+
+[94/108] N=1024, B=500, S=64 | elapsed: 14.8min, ETA: 2.4min
+
+============================================================
+Benchmark: sweep_N1024_B500_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU sklearn:         159 samples/sec (3.138s)
+CPU SPAMS:          6199 samples/sec (0.081s)
+CPU naive:           179 samples/sec (2.800s)
+CPU v0:              767 samples/sec (0.652s)
+CPU v0 blas:         686 samples/sec (0.729s)
+
+Speedups vs sklearn:
+  SPAMS: 38.9x
+  NAIVE CPU: 1.1x
+  V0 CPU: 4.8x
+  V0 BLAS: 4.3x
+
+[95/108] N=1024, B=1000, S=64 | elapsed: 14.9min, ETA: 2.2min
+
+============================================================
+Benchmark: sweep_N1024_B1000_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU sklearn:         157 samples/sec (6.365s)
+CPU SPAMS:          6521 samples/sec (0.153s)
+CPU naive:           235 samples/sec (4.248s)
+CPU v0:              871 samples/sec (1.148s)
+CPU v0 blas:         666 samples/sec (1.502s)
+
+Speedups vs sklearn:
+  SPAMS: 41.5x
+  NAIVE CPU: 1.5x
+  V0 CPU: 5.5x
+  V0 BLAS: 4.2x
+
+[96/108] N=1024, B=5000, S=64 | elapsed: 15.2min, ETA: 2.1min
+
+============================================================
+Benchmark: sweep_N1024_B5000_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU sklearn:         160 samples/sec (31.176s)
+CPU SPAMS:          6538 samples/sec (0.765s)
+CPU naive:           546 samples/sec (9.165s)
+CPU v0:              812 samples/sec (6.160s)
+CPU v0 blas:         523 samples/sec (9.556s)
+
+Speedups vs sklearn:
+  SPAMS: 40.8x
+  NAIVE CPU: 3.4x
+  V0 CPU: 5.1x
+  V0 BLAS: 3.3x
+
+[97/108] N=2048, B=10, S=64 | elapsed: 16.2min, ETA: 2.0min
+
+============================================================
+Benchmark: sweep_N2048_B10_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU sklearn:         143 samples/sec (0.070s)
+CPU SPAMS:           228 samples/sec (0.044s)
+CPU naive:             4 samples/sec (2.408s)
+CPU v0:              161 samples/sec (0.062s)
+CPU v0 blas:         142 samples/sec (0.070s)
+
+Speedups vs sklearn:
+  SPAMS: 1.6x
+  NAIVE CPU: 0.0x
+  V0 CPU: 1.1x
+  V0 BLAS: 1.0x
+
+[98/108] N=2048, B=50, S=64 | elapsed: 16.2min, ETA: 1.8min
+
+============================================================
+Benchmark: sweep_N2048_B50_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU sklearn:         137 samples/sec (0.365s)
+CPU SPAMS:           515 samples/sec (0.097s)
+CPU naive:            12 samples/sec (4.213s)
+CPU v0:              391 samples/sec (0.128s)
+CPU v0 blas:         262 samples/sec (0.191s)
+
+Speedups vs sklearn:
+  SPAMS: 3.8x
+  NAIVE CPU: 0.1x
+  V0 CPU: 2.9x
+  V0 BLAS: 1.9x
+
+[99/108] N=2048, B=100, S=64 | elapsed: 16.3min, ETA: 1.7min
+
+============================================================
+Benchmark: sweep_N2048_B100_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU sklearn:         176 samples/sec (0.569s)
+CPU SPAMS:           838 samples/sec (0.119s)
+CPU naive:            29 samples/sec (3.478s)
+CPU v0:              375 samples/sec (0.267s)
+CPU v0 blas:         296 samples/sec (0.338s)
+
+Speedups vs sklearn:
+  SPAMS: 4.8x
+  NAIVE CPU: 0.2x
+  V0 CPU: 2.1x
+  V0 BLAS: 1.7x
+
+[100/108] N=2048, B=500, S=64 | elapsed: 16.4min, ETA: 1.5min
+
+============================================================
+Benchmark: sweep_N2048_B500_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU sklearn:         147 samples/sec (3.402s)
+CPU SPAMS:          2123 samples/sec (0.236s)
+CPU naive:            73 samples/sec (6.861s)
+CPU v0:              539 samples/sec (0.928s)
+CPU v0 blas:         350 samples/sec (1.427s)
+
+Speedups vs sklearn:
+  SPAMS: 14.4x
+  NAIVE CPU: 0.5x
+  V0 CPU: 3.7x
+  V0 BLAS: 2.4x
+
+[101/108] N=2048, B=1000, S=64 | elapsed: 16.6min, ETA: 1.3min
+
+============================================================
+Benchmark: sweep_N2048_B1000_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU sklearn:         145 samples/sec (6.894s)
+CPU SPAMS:          2279 samples/sec (0.439s)
+CPU naive:           110 samples/sec (9.099s)
+CPU v0:              584 samples/sec (1.712s)
+CPU v0 blas:         352 samples/sec (2.842s)
+
+Speedups vs sklearn:
+  SPAMS: 15.7x
+  NAIVE CPU: 0.8x
+  V0 CPU: 4.0x
+  V0 BLAS: 2.4x
+
+[102/108] N=2048, B=5000, S=64 | elapsed: 17.0min, ETA: 1.2min
+
+============================================================
+Benchmark: sweep_N2048_B5000_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU sklearn:         139 samples/sec (36.051s)
+CPU SPAMS:          2714 samples/sec (1.842s)
+CPU naive:           246 samples/sec (20.336s)
+CPU v0:              544 samples/sec (9.198s)
+CPU v0 blas:         274 samples/sec (18.272s)
+
+Speedups vs sklearn:
+  SPAMS: 19.6x
+  NAIVE CPU: 1.8x
+  V0 CPU: 3.9x
+  V0 BLAS: 2.0x
+
+[103/108] N=4096, B=10, S=64 | elapsed: 18.5min, ETA: 1.1min
+
+============================================================
+Benchmark: sweep_N4096_B10_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU sklearn:          16 samples/sec (0.626s)
+CPU SPAMS:            29 samples/sec (0.341s)
+CPU naive:             2 samples/sec (4.778s)
+CPU v0:               33 samples/sec (0.303s)
+CPU v0 blas:          35 samples/sec (0.290s)
+
+Speedups vs sklearn:
+  SPAMS: 1.8x
+  NAIVE CPU: 0.1x
+  V0 CPU: 2.1x
+  V0 BLAS: 2.2x
+
+[104/108] N=4096, B=50, S=64 | elapsed: 18.6min, ETA: 0.9min
+
+============================================================
+Benchmark: sweep_N4096_B50_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU sklearn:          11 samples/sec (4.383s)
+CPU SPAMS:            87 samples/sec (0.574s)
+CPU naive:            11 samples/sec (4.604s)
+CPU v0:              105 samples/sec (0.478s)
+CPU v0 blas:          92 samples/sec (0.543s)
+
+Speedups vs sklearn:
+  SPAMS: 7.6x
+  NAIVE CPU: 1.0x
+  V0 CPU: 9.2x
+  V0 BLAS: 8.1x
+
+[105/108] N=4096, B=100, S=64 | elapsed: 18.8min, ETA: 0.7min
+
+============================================================
+Benchmark: sweep_N4096_B100_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU sklearn:          11 samples/sec (8.973s)
+CPU SPAMS:           145 samples/sec (0.689s)
+CPU naive:            18 samples/sec (5.445s)
+CPU v0:              133 samples/sec (0.754s)
+CPU v0 blas:         126 samples/sec (0.794s)
+
+Speedups vs sklearn:
+  SPAMS: 13.0x
+  NAIVE CPU: 1.6x
+  V0 CPU: 11.9x
+  V0 BLAS: 11.3x
+
+[106/108] N=4096, B=500, S=64 | elapsed: 19.1min, ETA: 0.5min
+
+============================================================
+Benchmark: sweep_N4096_B500_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU sklearn:          11 samples/sec (46.620s)
+CPU SPAMS:           398 samples/sec (1.256s)
+CPU naive:            52 samples/sec (9.621s)
+CPU v0:              293 samples/sec (1.705s)
+CPU v0 blas:         168 samples/sec (2.982s)
+
+Speedups vs sklearn:
+  SPAMS: 37.1x
+  NAIVE CPU: 4.8x
+  V0 CPU: 27.3x
+  V0 BLAS: 15.6x
+
+[107/108] N=4096, B=1000, S=64 | elapsed: 20.2min, ETA: 0.4min
+
+============================================================
+Benchmark: sweep_N4096_B1000_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU sklearn:          20 samples/sec (50.740s)
+CPU SPAMS:           679 samples/sec (1.473s)
+CPU naive:            81 samples/sec (12.400s)
+CPU v0:              317 samples/sec (3.158s)
+CPU v0 blas:         173 samples/sec (5.783s)
+
+Speedups vs sklearn:
+  SPAMS: 34.5x
+  NAIVE CPU: 4.1x
+  V0 CPU: 16.1x
+  V0 BLAS: 8.8x
+
+[108/108] N=4096, B=5000, S=64 | elapsed: 21.6min, ETA: 0.2min
+
+============================================================
+Benchmark: sweep_N4096_B5000_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU sklearn:          19 samples/sec (264.074s)
+CPU SPAMS:           974 samples/sec (5.132s)
+CPU naive:           134 samples/sec (37.210s)
+CPU v0:              284 samples/sec (17.591s)
+CPU v0 blas:         138 samples/sec (36.341s)
+
+Speedups vs sklearn:
+  SPAMS: 51.5x
+  NAIVE CPU: 7.1x
+  V0 CPU: 15.0x
+  V0 BLAS: 7.3x
+
+============================================================
+Sweep complete: 108 cells in 27.8 minutes
+============================================================
+Sweep results saved to /home/ariel/prog/omp/orthogonal-matching-pursuit-parallel-gpu/benchmarks/results/sweep_20260324_155239.json

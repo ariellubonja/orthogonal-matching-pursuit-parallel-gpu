@@ -66,6 +66,14 @@ def gpu_warmup():
     torch.cuda.synchronize()
 
 
+def spams_warmup():
+    if not HAS_SPAMS:
+        return
+    D = np.asfortranarray(np.eye(4, dtype=np.float64))
+    x = np.asfortranarray(np.ones((4, 1), dtype=np.float64))
+    spams.omp(x, D, L=1, numThreads=-1)
+
+
 def run_benchmark(name, cfg, run_gpu=True, skip_correctness=False):
     n_features = cfg['n_features']
     n_components = cfg['n_components']
@@ -99,6 +107,8 @@ def run_benchmark(name, cfg, run_gpu=True, skip_correctness=False):
     print(f"CPU sklearn:  {results['sklearn']['sps']:>10.0f} samples/sec ({t:.3f}s)")
 
     if HAS_SPAMS:
+        for _ in range(3):  # warmup (OpenMP thread pool needs several calls to stabilize)
+            run_spams(X.copy(), y.copy(), n_nonzero_coefs)
         with elapsed_timer() as elapsed:
             spams_coefs = run_spams(X.copy(), y.copy(), n_nonzero_coefs)
         t = elapsed()
@@ -392,6 +402,7 @@ class Tee:
 
 if __name__ == '__main__':
     gpu_warmup()
+    spams_warmup()
 
     args = sys.argv[1:]
     no_gpu = '--no-gpu' in args
