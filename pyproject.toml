@@ -7,7 +7,7 @@ name = "batched-omp"
 version = "0.1.0"
 description = "Batched Orthogonal Matching Pursuit for CPU and GPU"
 authors = [
-    {name = "Ariel Lubonja"},
+    {name = "Ariel Lubonja", email = "ariel@cs.jhu.edu"},
     {name = "Sebastian Praesius"},
 ]
 requires-python = ">=3.10"
