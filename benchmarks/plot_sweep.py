@@ -9,6 +9,7 @@ import sys
 import glob
 
 COLORS = {
+    'sklearn':   '#888888',
     'spams':     '#9C27B0',
     'naive_cpu': '#2196F3',
     'v0_cpu':    '#FF9800',
@@ -17,6 +18,7 @@ COLORS = {
     'v0_gpu':    '#E91E63',
 }
 LABELS = {
+    'sklearn':   'sklearn',
     'spams':     'SPAMS',
     'naive_cpu': 'Naive CPU',
     'v0_cpu':    'v0 CPU',
@@ -25,6 +27,7 @@ LABELS = {
     'v0_gpu':    'v0 GPU',
 }
 ABBREVS = {
+    'sklearn':   'sk',
     'spams':     'SP',
     'naive_cpu': 'nC',
     'v0_cpu':    'v0C',
@@ -39,8 +42,8 @@ def load_sweep(path):
         return json.load(f)
 
 
-def build_speedup_matrix(data, alg, S):
-    """Build 2D array of speedup vs sklearn. NaN for OOM/missing/invalid."""
+def build_speedup_matrix(data, alg, S, baseline='sklearn'):
+    """Build 2D array of speedup vs baseline. NaN for OOM/missing/invalid."""
     N_values = data['meta']['N_values']
     B_values = data['meta']['B_values']
     mat = np.full((len(N_values), len(B_values)), np.nan)
@@ -50,11 +53,11 @@ def build_speedup_matrix(data, alg, S):
             cell = data['cells'].get(f"{S}_{N}_{B}")
             if cell is None or cell == 'skip':
                 continue
-            sklearn_data = cell.get('sklearn')
+            base_data = cell.get(baseline)
             alg_data = cell.get(alg)
-            if (isinstance(sklearn_data, dict) and 'time' in sklearn_data and
+            if (isinstance(base_data, dict) and 'time' in base_data and
                     isinstance(alg_data, dict) and 'time' in alg_data):
-                mat[i, j] = sklearn_data['time'] / alg_data['time']
+                mat[i, j] = base_data['time'] / alg_data['time']
     return mat
 
 
@@ -149,9 +152,10 @@ def draw_best_algorithm_heatmap(ax, data, S, algs):
     return im
 
 
-def plot_sweep_heatmaps(data, output_dir):
-    # Determine which algorithms are present
-    all_algs = ['spams', 'naive_cpu', 'v0_cpu', 'v0_blas', 'naive_gpu', 'v0_gpu']
+def plot_sweep_heatmaps(data, output_dir, baseline='sklearn'):
+    # All algorithms present in data (for best-algorithm panel)
+    every_alg = ['sklearn', 'spams', 'naive_cpu', 'v0_cpu', 'v0_blas', 'naive_gpu', 'v0_gpu']
+
     # Check which algorithms actually have data
     has_gpu = any(
         isinstance(cell.get('v0_gpu'), dict)
@@ -159,7 +163,7 @@ def plot_sweep_heatmaps(data, output_dir):
         if isinstance(cell, dict)
     )
     if not has_gpu:
-        all_algs = [a for a in all_algs if 'gpu' not in a]
+        every_alg = [a for a in every_alg if 'gpu' not in a]
 
     has_spams = any(
         isinstance(cell.get('spams'), dict)
@@ -167,8 +171,12 @@ def plot_sweep_heatmaps(data, output_dir):
         if isinstance(cell, dict)
     )
     if not has_spams:
-        all_algs = [a for a in all_algs if a != 'spams']
+        every_alg = [a for a in every_alg if a != 'spams']
 
+    # Speedup heatmaps exclude baseline (you don't plot "X vs X")
+    all_algs = [a for a in every_alg if a != baseline]
+
+    baseline_label = LABELS.get(baseline, baseline)
     n_algs = len(all_algs)
     # Layout: n_algs + 1 (best) subplots per sparsity level
     ncols = min(n_algs + 1, 4)
@@ -178,7 +186,7 @@ def plot_sweep_heatmaps(data, output_dir):
         # Compute global vmin/vmax across all algorithms for this S
         all_vals = []
         for alg in all_algs:
-            mat = build_speedup_matrix(data, alg, S)
+            mat = build_speedup_matrix(data, alg, S, baseline=baseline)
             valid = mat[~np.isnan(mat)]
             if len(valid) > 0:
                 all_vals.extend(valid.tolist())
@@ -197,13 +205,13 @@ def plot_sweep_heatmaps(data, output_dir):
         elif ncols == 1:
             axes = axes[:, None]
 
-        fig.suptitle(f'Speedup vs sklearn — S={S} (sparsity={S})',
+        fig.suptitle(f'Speedup vs {baseline_label} — S={S}',
                      fontsize=13, fontweight='bold', y=1.02)
 
         for idx, alg in enumerate(all_algs):
             row, col = idx // ncols, idx % ncols
             ax = axes[row][col]
-            mat = build_speedup_matrix(data, alg, S)
+            mat = build_speedup_matrix(data, alg, S, baseline=baseline)
             im = draw_heatmap(ax, mat, data['meta']['N_values'],
                               data['meta']['B_values'],
                               LABELS.get(alg, alg), vmin=vmin, vmax=vmax)
@@ -212,7 +220,7 @@ def plot_sweep_heatmaps(data, output_dir):
         best_idx = n_algs
         row, col = best_idx // ncols, best_idx % ncols
         ax = axes[row][col]
-        draw_best_algorithm_heatmap(ax, data, S, all_algs)
+        draw_best_algorithm_heatmap(ax, data, S, every_alg)
 
         # Hide unused subplots
         for idx in range(best_idx + 1, nrows * ncols):
@@ -221,19 +229,28 @@ def plot_sweep_heatmaps(data, output_dir):
 
         # Shared colorbar
         cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])
-        fig.colorbar(im, cax=cbar_ax, label='Speedup vs sklearn')
+        fig.colorbar(im, cax=cbar_ax, label=f'Speedup vs {baseline_label}')
 
         plt.tight_layout(rect=[0, 0, 0.90, 0.96])
-        out_path = os.path.join(output_dir, f'sweep_heatmap_S{S}.png')
+        suffix = f'_vs_{baseline}' if baseline != 'sklearn' else ''
+        out_path = os.path.join(output_dir, f'sweep_heatmap_S{S}{suffix}.png')
         plt.savefig(out_path, dpi=150, bbox_inches='tight')
         print(f"Saved {out_path}")
         plt.close(fig)
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        json_path = sys.argv[1]
-    else:
+    args = sys.argv[1:]
+    baseline = 'sklearn'
+    json_path = None
+
+    for arg in args:
+        if arg.startswith('--baseline='):
+            baseline = arg.split('=', 1)[1]
+        elif not arg.startswith('--'):
+            json_path = arg
+
+    if json_path is None:
         # Find most recent sweep JSON
         results_dir = os.path.join(os.path.dirname(__file__), 'results')
         sweep_files = sorted(glob.glob(os.path.join(results_dir, 'sweep_*.json')))
@@ -245,4 +262,4 @@ if __name__ == '__main__':
 
     data = load_sweep(json_path)
     output_dir = os.path.dirname(json_path)
-    plot_sweep_heatmaps(data, output_dir)
+    plot_sweep_heatmaps(data, output_dir, baseline=baseline)
