@@ -1,0 +1,63 @@
+Date: 2026-03-23T17:19:19.162315
+CPU: Intel(R) Core(TM) Ultra 9 185H
+GPU: NVIDIA GeForce RTX 4060 Laptop GPU
+
+============================================================
+Benchmark: image_patches
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU sklearn:         543 samples/sec (9.210s)
+CPU naive:          1286 samples/sec (3.889s)
+CPU v0:             2475 samples/sec (2.020s)
+CPU v0 blas:        1980 samples/sec (2.525s)
+
+Speedups vs sklearn:
+  NAIVE CPU: 2.4x
+  V0 CPU: 4.6x
+  V0 BLAS: 3.6x
+
+Correctness:
+  CPU naive vs v0 support: agree on all 5000 samples
+  v0 CPU vs v0 BLAS support: agree on all 5000 samples
+  Max orthogonality violation (v0 cpu): 5.84e-15
+  Max orthogonality violation (v0 blas): 6.73e-15
+
+============================================================
+Benchmark: face_recognition
+  n_features=8064, n_components=1207, n_nonzero_coefs=30, n_samples=1207
+============================================================
+CPU sklearn:         444 samples/sec (2.718s)
+CPU naive:            96 samples/sec (12.535s)
+CPU v0:              783 samples/sec (1.542s)
+CPU v0 blas:        1514 samples/sec (0.797s)
+
+Speedups vs sklearn:
+  NAIVE CPU: 0.2x
+  V0 CPU: 1.8x
+  V0 BLAS: 3.4x
+
+Correctness:
+  CPU naive vs v0 support: agree on all 1207 samples
+  v0 CPU vs v0 BLAS support: agree on all 1207 samples
+  Max orthogonality violation (v0 cpu): 2.15e-14
+  Max orthogonality violation (v0 blas): 2.20e-14
+
+============================================================
+Benchmark: audio
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU sklearn:         152 samples/sec (32.975s)
+CPU naive:           377 samples/sec (13.248s)
+CPU v0:              627 samples/sec (7.975s)
+CPU v0 blas:         389 samples/sec (12.841s)
+
+Speedups vs sklearn:
+  NAIVE CPU: 2.5x
+  V0 CPU: 4.1x
+  V0 BLAS: 2.6x
+
+Correctness:
+  CPU naive vs v0 support: agree on all 5000 samples
+  v0 CPU vs v0 BLAS support: agree on all 5000 samples
+  Max orthogonality violation (v0 cpu): 8.39e-15
+  Max orthogonality violation (v0 blas): 8.69e-15

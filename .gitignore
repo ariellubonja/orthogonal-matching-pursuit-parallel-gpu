@@ -6,3 +6,4 @@ src/__pycache__/
 build
 
 *.so
+src/cython/test.c
