@@ -74,7 +74,7 @@ def spams_warmup():
     spams.omp(x, D, L=1, numThreads=-1)
 
 
-def run_benchmark(name, cfg, run_gpu=True, skip_correctness=False):
+def run_benchmark(name, cfg, run_gpu=True, skip_correctness=False, skip_sklearn=False):
     n_features = cfg['n_features']
     n_components = cfg['n_components']
     n_nonzero_coefs = cfg['n_nonzero_coefs']
@@ -100,20 +100,25 @@ def run_benchmark(name, cfg, run_gpu=True, skip_correctness=False):
     results = {}
 
     # --- CPU benchmarks ---
-    with elapsed_timer() as elapsed:
-        omp = run_sklearn(X.copy(), y.copy(), n_nonzero_coefs, tol=None)
-    t = elapsed()
-    results['sklearn'] = {'time': t, 'sps': n_samples / t, 'coefs': omp.coef_}
-    print(f"CPU sklearn:  {results['sklearn']['sps']:>10.0f} samples/sec ({t:.3f}s)")
+    if not skip_sklearn:
+        with elapsed_timer() as elapsed:
+            omp = run_sklearn(X.copy(), y.copy(), n_nonzero_coefs, tol=None)
+        t = elapsed()
+        results['sklearn'] = {'time': t, 'sps': n_samples / t, 'coefs': omp.coef_}
+        print(f"CPU sklearn:  {results['sklearn']['sps']:>10.0f} samples/sec ({t:.3f}s)")
 
     if HAS_SPAMS:
         for _ in range(3):  # warmup (OpenMP thread pool needs several calls to stabilize)
             run_spams(X.copy(), y.copy(), n_nonzero_coefs)
-        with elapsed_timer() as elapsed:
-            spams_coefs = run_spams(X.copy(), y.copy(), n_nonzero_coefs)
-        t = elapsed()
-        results['spams'] = {'time': t, 'sps': n_samples / t, 'coefs': spams_coefs}
-        print(f"CPU SPAMS:    {results['spams']['sps']:>10.0f} samples/sec ({t:.3f}s)")
+        spams_times = []
+        for _ in range(3):
+            with elapsed_timer() as elapsed:
+                spams_coefs = run_spams(X.copy(), y.copy(), n_nonzero_coefs)
+            spams_times.append(elapsed())
+        t = np.mean(spams_times)
+        t_std = np.std(spams_times)
+        results['spams'] = {'time': t, 'time_std': t_std, 'sps': n_samples / t, 'coefs': spams_coefs}
+        print(f"CPU SPAMS:    {results['spams']['sps']:>10.0f} samples/sec ({t:.3f}s +/- {t_std:.3f}s)")
 
     with elapsed_timer() as elapsed:
         xests_naive = run_omp(X.copy(), y.copy(), n_nonzero_coefs,
@@ -160,12 +165,13 @@ def run_benchmark(name, cfg, run_gpu=True, skip_correctness=False):
                 torch.cuda.empty_cache()
 
     # --- Speedups ---
-    sklearn_sps = results['sklearn']['sps']
-    print(f"\nSpeedups vs sklearn:")
-    for key in ['spams', 'naive_cpu', 'v0_cpu', 'v0_blas', 'naive_gpu', 'v0_gpu']:
-        if key in results:
-            label = key.replace('_', ' ').upper()
-            print(f"  {label}: {results[key]['sps'] / sklearn_sps:.1f}x")
+    if 'sklearn' in results:
+        sklearn_sps = results['sklearn']['sps']
+        print(f"\nSpeedups vs sklearn:")
+        for key in ['spams', 'naive_cpu', 'v0_cpu', 'v0_blas', 'naive_gpu', 'v0_gpu']:
+            if key in results:
+                label = key.replace('_', ' ').upper()
+                print(f"  {label}: {results[key]['sps'] / sklearn_sps:.1f}x")
 
     # --- Correctness checks ---
     if skip_correctness:
@@ -349,13 +355,17 @@ def run_sweep(run_gpu=True):
             'n_samples': B,
         }
         results = run_benchmark(f"sweep_N{N}_B{B}_S{S}", cfg,
-                                run_gpu=run_gpu, skip_correctness=True)
+                                run_gpu=run_gpu, skip_correctness=True,
+                                skip_sklearn=True)
 
         # Strip coefs (not JSON-serializable, not needed for plotting)
         stripped = {}
         for alg, data in results.items():
             if isinstance(data, dict) and 'coefs' in data:
-                stripped[alg] = {'time': data['time'], 'sps': data['sps']}
+                entry = {'time': data['time'], 'sps': data['sps']}
+                if 'time_std' in data:
+                    entry['time_std'] = data['time_std']
+                stripped[alg] = entry
             else:
                 stripped[alg] = data
 

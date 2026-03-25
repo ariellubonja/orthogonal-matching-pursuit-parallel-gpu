@@ -1,0 +1,1204 @@
+Date: 2026-03-24T19:02:45.373899
+CPU: Intel(R) Core(TM) Ultra 9 185H
+GPU: NVIDIA GeForce RTX 4060 Laptop GPU
+
+############################################################
+Parameter sweep: 108 cells
+  N (n_components): [64, 128, 256, 512, 1024, 2048, 4096]
+  B (n_samples):    [10, 50, 100, 500, 1000, 5000]
+  S (sparsity):     [8, 32, 64]
+  Fixed: M = N/4
+############################################################
+
+[1/108] N=64, B=10, S=8 | elapsed: 0.0min, ETA: --
+
+============================================================
+Benchmark: sweep_N64_B10_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU SPAMS:         34549 samples/sec (0.000s +/- 0.000s)
+CPU naive:          3008 samples/sec (0.003s)
+CPU v0:             3923 samples/sec (0.003s)
+CPU v0 blas:       17517 samples/sec (0.001s)
+
+[2/108] N=64, B=50, S=8 | elapsed: 0.0min, ETA: 0.0min
+
+============================================================
+Benchmark: sweep_N64_B50_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU SPAMS:         58764 samples/sec (0.001s +/- 0.001s)
+CPU naive:         23057 samples/sec (0.002s)
+CPU v0:            22006 samples/sec (0.002s)
+CPU v0 blas:       89644 samples/sec (0.001s)
+
+[3/108] N=64, B=100, S=8 | elapsed: 0.0min, ETA: 0.0min
+
+============================================================
+Benchmark: sweep_N64_B100_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU SPAMS:        351717 samples/sec (0.000s +/- 0.000s)
+CPU naive:         37314 samples/sec (0.003s)
+CPU v0:            31835 samples/sec (0.003s)
+CPU v0 blas:      118883 samples/sec (0.001s)
+
+[4/108] N=64, B=500, S=8 | elapsed: 0.0min, ETA: 0.0min
+
+============================================================
+Benchmark: sweep_N64_B500_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU SPAMS:        554301 samples/sec (0.001s +/- 0.000s)
+CPU naive:         87073 samples/sec (0.006s)
+CPU v0:            72408 samples/sec (0.007s)
+CPU v0 blas:      206937 samples/sec (0.002s)
+
+[5/108] N=64, B=1000, S=8 | elapsed: 0.0min, ETA: 0.0min
+
+============================================================
+Benchmark: sweep_N64_B1000_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU SPAMS:         90464 samples/sec (0.011s +/- 0.008s)
+CPU naive:         11915 samples/sec (0.084s)
+CPU v0:            36211 samples/sec (0.028s)
+CPU v0 blas:      114880 samples/sec (0.009s)
+
+[6/108] N=64, B=5000, S=8 | elapsed: 0.0min, ETA: 0.1min
+
+============================================================
+Benchmark: sweep_N64_B5000_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU SPAMS:        500943 samples/sec (0.010s +/- 0.002s)
+CPU naive:         18123 samples/sec (0.276s)
+CPU v0:            47982 samples/sec (0.104s)
+CPU v0 blas:      132284 samples/sec (0.038s)
+
+[7/108] N=128, B=10, S=8 | elapsed: 0.0min, ETA: 0.2min
+
+============================================================
+Benchmark: sweep_N128_B10_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU SPAMS:         31393 samples/sec (0.000s +/- 0.000s)
+CPU naive:          4510 samples/sec (0.002s)
+CPU v0:             5049 samples/sec (0.002s)
+CPU v0 blas:         427 samples/sec (0.023s)
+
+[8/108] N=128, B=50, S=8 | elapsed: 0.0min, ETA: 0.2min
+
+============================================================
+Benchmark: sweep_N128_B50_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU SPAMS:          4240 samples/sec (0.012s +/- 0.001s)
+CPU naive:          8047 samples/sec (0.006s)
+CPU v0:             7814 samples/sec (0.006s)
+CPU v0 blas:        2134 samples/sec (0.023s)
+
+[9/108] N=128, B=100, S=8 | elapsed: 0.0min, ETA: 0.2min
+
+============================================================
+Benchmark: sweep_N128_B100_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU SPAMS:         30731 samples/sec (0.003s +/- 0.002s)
+CPU naive:         13814 samples/sec (0.007s)
+CPU v0:            25247 samples/sec (0.004s)
+CPU v0 blas:       11169 samples/sec (0.009s)
+
+[10/108] N=128, B=500, S=8 | elapsed: 0.0min, ETA: 0.2min
+
+============================================================
+Benchmark: sweep_N128_B500_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU SPAMS:        408898 samples/sec (0.001s +/- 0.000s)
+CPU naive:          1081 samples/sec (0.462s)
+CPU v0:            36603 samples/sec (0.014s)
+CPU v0 blas:       14747 samples/sec (0.034s)
+
+[11/108] N=128, B=1000, S=8 | elapsed: 0.0min, ETA: 0.3min
+
+============================================================
+Benchmark: sweep_N128_B1000_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU SPAMS:        248689 samples/sec (0.004s +/- 0.002s)
+CPU naive:          2726 samples/sec (0.367s)
+CPU v0:            27103 samples/sec (0.037s)
+CPU v0 blas:       26474 samples/sec (0.038s)
+
+[12/108] N=128, B=5000, S=8 | elapsed: 0.0min, ETA: 0.3min
+
+============================================================
+Benchmark: sweep_N128_B5000_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU SPAMS:        350725 samples/sec (0.014s +/- 0.004s)
+CPU naive:          8350 samples/sec (0.599s)
+CPU v0:            31310 samples/sec (0.160s)
+CPU v0 blas:       51767 samples/sec (0.097s)
+
+[13/108] N=256, B=10, S=8 | elapsed: 0.1min, ETA: 0.5min
+
+============================================================
+Benchmark: sweep_N256_B10_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU SPAMS:         28609 samples/sec (0.000s +/- 0.000s)
+CPU naive:          1704 samples/sec (0.006s)
+CPU v0:             2415 samples/sec (0.004s)
+CPU v0 blas:         886 samples/sec (0.011s)
+
+[14/108] N=256, B=50, S=8 | elapsed: 0.1min, ETA: 0.4min
+
+============================================================
+Benchmark: sweep_N256_B50_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU SPAMS:         76763 samples/sec (0.001s +/- 0.000s)
+CPU naive:           312 samples/sec (0.160s)
+CPU v0:              739 samples/sec (0.068s)
+CPU v0 blas:        1751 samples/sec (0.029s)
+
+[15/108] N=256, B=100, S=8 | elapsed: 0.1min, ETA: 0.4min
+
+============================================================
+Benchmark: sweep_N256_B100_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU SPAMS:        122953 samples/sec (0.001s +/- 0.000s)
+CPU naive:           248 samples/sec (0.403s)
+CPU v0:             1789 samples/sec (0.056s)
+CPU v0 blas:        3259 samples/sec (0.031s)
+
+[16/108] N=256, B=500, S=8 | elapsed: 0.1min, ETA: 0.5min
+
+============================================================
+Benchmark: sweep_N256_B500_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU SPAMS:        198930 samples/sec (0.003s +/- 0.000s)
+CPU naive:          1696 samples/sec (0.295s)
+CPU v0:             6842 samples/sec (0.073s)
+CPU v0 blas:       15855 samples/sec (0.032s)
+
+[17/108] N=256, B=1000, S=8 | elapsed: 0.1min, ETA: 0.5min
+
+============================================================
+Benchmark: sweep_N256_B1000_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU SPAMS:        221324 samples/sec (0.005s +/- 0.000s)
+CPU naive:          1584 samples/sec (0.631s)
+CPU v0:            23444 samples/sec (0.043s)
+CPU v0 blas:       20087 samples/sec (0.050s)
+
+[18/108] N=256, B=5000, S=8 | elapsed: 0.1min, ETA: 0.5min
+
+============================================================
+Benchmark: sweep_N256_B5000_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU SPAMS:        213646 samples/sec (0.023s +/- 0.002s)
+CPU naive:          7023 samples/sec (0.712s)
+CPU v0:            13821 samples/sec (0.362s)
+CPU v0 blas:       33542 samples/sec (0.149s)
+
+[19/108] N=512, B=10, S=8 | elapsed: 0.1min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N512_B10_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU SPAMS:          1772 samples/sec (0.006s +/- 0.000s)
+CPU naive:           982 samples/sec (0.010s)
+CPU v0:             1120 samples/sec (0.009s)
+CPU v0 blas:        2035 samples/sec (0.005s)
+
+[20/108] N=512, B=50, S=8 | elapsed: 0.1min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N512_B50_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU SPAMS:         21936 samples/sec (0.002s +/- 0.000s)
+CPU naive:           137 samples/sec (0.364s)
+CPU v0:             2672 samples/sec (0.019s)
+CPU v0 blas:        1427 samples/sec (0.035s)
+
+[21/108] N=512, B=100, S=8 | elapsed: 0.1min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N512_B100_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU SPAMS:         37316 samples/sec (0.003s +/- 0.000s)
+CPU naive:           279 samples/sec (0.359s)
+CPU v0:             1273 samples/sec (0.079s)
+CPU v0 blas:        2798 samples/sec (0.036s)
+
+[22/108] N=512, B=500, S=8 | elapsed: 0.1min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N512_B500_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU SPAMS:         84741 samples/sec (0.006s +/- 0.001s)
+CPU naive:           983 samples/sec (0.508s)
+CPU v0:            11114 samples/sec (0.045s)
+CPU v0 blas:       28235 samples/sec (0.018s)
+
+[23/108] N=512, B=1000, S=8 | elapsed: 0.2min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N512_B1000_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU SPAMS:         76174 samples/sec (0.013s +/- 0.003s)
+CPU naive:          2106 samples/sec (0.475s)
+CPU v0:             9881 samples/sec (0.101s)
+CPU v0 blas:       14717 samples/sec (0.068s)
+
+[24/108] N=512, B=5000, S=8 | elapsed: 0.2min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N512_B5000_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU SPAMS:        109413 samples/sec (0.046s +/- 0.009s)
+CPU naive:         10875 samples/sec (0.460s)
+CPU v0:            17465 samples/sec (0.286s)
+CPU v0 blas:       19946 samples/sec (0.251s)
+
+[25/108] N=1024, B=10, S=8 | elapsed: 0.2min, ETA: 0.7min
+
+============================================================
+Benchmark: sweep_N1024_B10_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU SPAMS:          1673 samples/sec (0.006s +/- 0.000s)
+CPU naive:           178 samples/sec (0.056s)
+CPU v0:              479 samples/sec (0.021s)
+CPU v0 blas:         445 samples/sec (0.022s)
+
+[26/108] N=1024, B=50, S=8 | elapsed: 0.2min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N1024_B50_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU SPAMS:          4519 samples/sec (0.011s +/- 0.000s)
+CPU naive:           110 samples/sec (0.453s)
+CPU v0:             4693 samples/sec (0.011s)
+CPU v0 blas:        1365 samples/sec (0.037s)
+
+[27/108] N=1024, B=100, S=8 | elapsed: 0.2min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N1024_B100_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU SPAMS:          8305 samples/sec (0.012s +/- 0.000s)
+CPU naive:           249 samples/sec (0.402s)
+CPU v0:             1519 samples/sec (0.066s)
+CPU v0 blas:        2031 samples/sec (0.049s)
+
+[28/108] N=1024, B=500, S=8 | elapsed: 0.2min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N1024_B500_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU SPAMS:         24529 samples/sec (0.020s +/- 0.001s)
+CPU naive:           841 samples/sec (0.595s)
+CPU v0:            10424 samples/sec (0.048s)
+CPU v0 blas:        7711 samples/sec (0.065s)
+
+[29/108] N=1024, B=1000, S=8 | elapsed: 0.2min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N1024_B1000_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU SPAMS:         34032 samples/sec (0.029s +/- 0.002s)
+CPU naive:          1667 samples/sec (0.600s)
+CPU v0:             8383 samples/sec (0.119s)
+CPU v0 blas:        8160 samples/sec (0.123s)
+
+[30/108] N=1024, B=5000, S=8 | elapsed: 0.2min, ETA: 0.7min
+
+============================================================
+Benchmark: sweep_N1024_B5000_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU SPAMS:         36332 samples/sec (0.138s +/- 0.001s)
+CPU naive:          6974 samples/sec (0.717s)
+CPU v0:             8928 samples/sec (0.560s)
+CPU v0 blas:        6430 samples/sec (0.778s)
+
+[31/108] N=2048, B=10, S=8 | elapsed: 0.3min, ETA: 0.8min
+
+============================================================
+Benchmark: sweep_N2048_B10_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU SPAMS:          1122 samples/sec (0.009s +/- 0.000s)
+CPU naive:           107 samples/sec (0.093s)
+CPU v0:              144 samples/sec (0.069s)
+CPU v0 blas:         189 samples/sec (0.053s)
+
+[32/108] N=2048, B=50, S=8 | elapsed: 0.3min, ETA: 0.8min
+
+============================================================
+Benchmark: sweep_N2048_B50_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU SPAMS:           623 samples/sec (0.080s +/- 0.001s)
+CPU naive:           137 samples/sec (0.364s)
+CPU v0:              735 samples/sec (0.068s)
+CPU v0 blas:         809 samples/sec (0.062s)
+
+[33/108] N=2048, B=100, S=8 | elapsed: 0.3min, ETA: 0.8min
+
+============================================================
+Benchmark: sweep_N2048_B100_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU SPAMS:          1177 samples/sec (0.085s +/- 0.000s)
+CPU naive:           226 samples/sec (0.443s)
+CPU v0:             1291 samples/sec (0.077s)
+CPU v0 blas:        1501 samples/sec (0.067s)
+
+[34/108] N=2048, B=500, S=8 | elapsed: 0.3min, ETA: 0.8min
+
+============================================================
+Benchmark: sweep_N2048_B500_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU SPAMS:          4372 samples/sec (0.114s +/- 0.004s)
+CPU naive:           512 samples/sec (0.976s)
+CPU v0:             3880 samples/sec (0.129s)
+CPU v0 blas:        3540 samples/sec (0.141s)
+
+[35/108] N=2048, B=1000, S=8 | elapsed: 0.4min, ETA: 0.8min
+
+============================================================
+Benchmark: sweep_N2048_B1000_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU SPAMS:          6690 samples/sec (0.149s +/- 0.006s)
+CPU naive:           904 samples/sec (1.106s)
+CPU v0:             3438 samples/sec (0.291s)
+CPU v0 blas:        3769 samples/sec (0.265s)
+
+[36/108] N=2048, B=5000, S=8 | elapsed: 0.4min, ETA: 0.9min
+
+============================================================
+Benchmark: sweep_N2048_B5000_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU SPAMS:         10847 samples/sec (0.461s +/- 0.013s)
+CPU naive:          2393 samples/sec (2.089s)
+CPU v0:             3888 samples/sec (1.286s)
+CPU v0 blas:        3201 samples/sec (1.562s)
+
+[37/108] N=4096, B=10, S=8 | elapsed: 0.6min, ETA: 1.1min
+
+============================================================
+Benchmark: sweep_N4096_B10_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU SPAMS:           117 samples/sec (0.085s +/- 0.015s)
+CPU naive:            11 samples/sec (0.909s)
+CPU v0:               38 samples/sec (0.264s)
+CPU v0 blas:          35 samples/sec (0.284s)
+
+[38/108] N=4096, B=50, S=8 | elapsed: 0.6min, ETA: 1.1min
+
+============================================================
+Benchmark: sweep_N4096_B50_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU SPAMS:            87 samples/sec (0.573s +/- 0.016s)
+CPU naive:            73 samples/sec (0.689s)
+CPU v0:              165 samples/sec (0.304s)
+CPU v0 blas:         166 samples/sec (0.302s)
+
+[39/108] N=4096, B=100, S=8 | elapsed: 0.7min, ETA: 1.2min
+
+============================================================
+Benchmark: sweep_N4096_B100_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU SPAMS:           171 samples/sec (0.584s +/- 0.027s)
+CPU naive:            98 samples/sec (1.019s)
+CPU v0:              305 samples/sec (0.328s)
+CPU v0 blas:         370 samples/sec (0.270s)
+
+[40/108] N=4096, B=500, S=8 | elapsed: 0.8min, ETA: 1.3min
+
+============================================================
+Benchmark: sweep_N4096_B500_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU SPAMS:           612 samples/sec (0.817s +/- 0.034s)
+CPU naive:           340 samples/sec (1.470s)
+CPU v0:              874 samples/sec (0.572s)
+CPU v0 blas:        1130 samples/sec (0.443s)
+
+[41/108] N=4096, B=1000, S=8 | elapsed: 0.9min, ETA: 1.5min
+
+============================================================
+Benchmark: sweep_N4096_B1000_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU SPAMS:           994 samples/sec (1.006s +/- 0.019s)
+CPU naive:           496 samples/sec (2.017s)
+CPU v0:              855 samples/sec (1.170s)
+CPU v0 blas:        1465 samples/sec (0.683s)
+
+[42/108] N=4096, B=5000, S=8 | elapsed: 1.1min, ETA: 1.7min
+
+============================================================
+Benchmark: sweep_N4096_B5000_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU SPAMS:          1850 samples/sec (2.703s +/- 0.083s)
+CPU naive:           875 samples/sec (5.717s)
+CPU v0:              902 samples/sec (5.546s)
+CPU v0 blas:        1448 samples/sec (3.454s)
+
+[43/108] N=128, B=10, S=32 | elapsed: 1.6min, ETA: 2.5min
+
+============================================================
+Benchmark: sweep_N128_B10_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU SPAMS:          1426 samples/sec (0.007s +/- 0.003s)
+CPU naive:           606 samples/sec (0.017s)
+CPU v0:              661 samples/sec (0.015s)
+CPU v0 blas:         872 samples/sec (0.011s)
+
+[44/108] N=128, B=50, S=32 | elapsed: 1.6min, ETA: 2.4min
+
+============================================================
+Benchmark: sweep_N128_B50_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU SPAMS:         35053 samples/sec (0.001s +/- 0.001s)
+CPU naive:          3248 samples/sec (0.015s)
+CPU v0:             3225 samples/sec (0.016s)
+CPU v0 blas:        1622 samples/sec (0.031s)
+
+[45/108] N=128, B=100, S=32 | elapsed: 1.6min, ETA: 2.3min
+
+============================================================
+Benchmark: sweep_N128_B100_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU SPAMS:         43083 samples/sec (0.002s +/- 0.001s)
+CPU naive:          3842 samples/sec (0.026s)
+CPU v0:             3851 samples/sec (0.026s)
+CPU v0 blas:        2666 samples/sec (0.038s)
+
+[46/108] N=128, B=500, S=32 | elapsed: 1.6min, ETA: 2.2min
+
+============================================================
+Benchmark: sweep_N128_B500_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU SPAMS:          8570 samples/sec (0.058s +/- 0.021s)
+CPU naive:           372 samples/sec (1.343s)
+CPU v0:             1660 samples/sec (0.301s)
+CPU v0 blas:        9609 samples/sec (0.052s)
+
+[47/108] N=128, B=1000, S=32 | elapsed: 1.6min, ETA: 2.2min
+
+============================================================
+Benchmark: sweep_N128_B1000_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU SPAMS:         53942 samples/sec (0.019s +/- 0.003s)
+CPU naive:           696 samples/sec (1.437s)
+CPU v0:             3254 samples/sec (0.307s)
+CPU v0 blas:        9895 samples/sec (0.101s)
+
+[48/108] N=128, B=5000, S=32 | elapsed: 1.7min, ETA: 2.1min
+
+============================================================
+Benchmark: sweep_N128_B5000_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU SPAMS:         40028 samples/sec (0.125s +/- 0.023s)
+CPU naive:          1565 samples/sec (3.195s)
+CPU v0:             5947 samples/sec (0.841s)
+CPU v0 blas:       10588 samples/sec (0.472s)
+
+[49/108] N=256, B=10, S=32 | elapsed: 1.7min, ETA: 2.2min
+
+============================================================
+Benchmark: sweep_N256_B10_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU SPAMS:          9960 samples/sec (0.001s +/- 0.000s)
+CPU naive:          1121 samples/sec (0.009s)
+CPU v0:             1147 samples/sec (0.009s)
+CPU v0 blas:        3536 samples/sec (0.003s)
+
+[50/108] N=256, B=50, S=32 | elapsed: 1.7min, ETA: 2.1min
+
+============================================================
+Benchmark: sweep_N256_B50_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU SPAMS:          3016 samples/sec (0.017s +/- 0.007s)
+CPU naive:            65 samples/sec (0.766s)
+CPU v0:              957 samples/sec (0.052s)
+CPU v0 blas:        1582 samples/sec (0.032s)
+
+[51/108] N=256, B=100, S=32 | elapsed: 1.8min, ETA: 2.0min
+
+============================================================
+Benchmark: sweep_N256_B100_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU SPAMS:         34893 samples/sec (0.003s +/- 0.000s)
+CPU naive:            69 samples/sec (1.444s)
+CPU v0:             1139 samples/sec (0.088s)
+CPU v0 blas:        2616 samples/sec (0.038s)
+
+[52/108] N=256, B=500, S=32 | elapsed: 1.8min, ETA: 2.0min
+
+============================================================
+Benchmark: sweep_N256_B500_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU SPAMS:         16433 samples/sec (0.030s +/- 0.008s)
+CPU naive:           304 samples/sec (1.646s)
+CPU v0:             2962 samples/sec (0.169s)
+CPU v0 blas:        4830 samples/sec (0.104s)
+
+[53/108] N=256, B=1000, S=32 | elapsed: 1.8min, ETA: 2.0min
+
+============================================================
+Benchmark: sweep_N256_B1000_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU SPAMS:         47040 samples/sec (0.021s +/- 0.000s)
+CPU naive:           621 samples/sec (1.611s)
+CPU v0:             1918 samples/sec (0.521s)
+CPU v0 blas:        5830 samples/sec (0.172s)
+
+[54/108] N=256, B=5000, S=32 | elapsed: 1.9min, ETA: 1.9min
+
+============================================================
+Benchmark: sweep_N256_B5000_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU SPAMS:         47697 samples/sec (0.105s +/- 0.009s)
+CPU naive:          1831 samples/sec (2.730s)
+CPU v0:             4366 samples/sec (1.145s)
+CPU v0 blas:        6032 samples/sec (0.829s)
+
+[55/108] N=512, B=10, S=32 | elapsed: 2.0min, ETA: 2.0min
+
+============================================================
+Benchmark: sweep_N512_B10_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU SPAMS:          1670 samples/sec (0.006s +/- 0.001s)
+CPU naive:           223 samples/sec (0.045s)
+CPU v0:              531 samples/sec (0.019s)
+CPU v0 blas:         424 samples/sec (0.024s)
+
+[56/108] N=512, B=50, S=32 | elapsed: 2.0min, ETA: 1.9min
+
+============================================================
+Benchmark: sweep_N512_B50_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU SPAMS:         11247 samples/sec (0.004s +/- 0.001s)
+CPU naive:            44 samples/sec (1.149s)
+CPU v0:              757 samples/sec (0.066s)
+CPU v0 blas:        1320 samples/sec (0.038s)
+
+[57/108] N=512, B=100, S=32 | elapsed: 2.0min, ETA: 1.8min
+
+============================================================
+Benchmark: sweep_N512_B100_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU SPAMS:         14774 samples/sec (0.007s +/- 0.001s)
+CPU naive:           180 samples/sec (0.554s)
+CPU v0:              747 samples/sec (0.134s)
+CPU v0 blas:        5420 samples/sec (0.018s)
+
+[58/108] N=512, B=500, S=32 | elapsed: 2.0min, ETA: 1.8min
+
+============================================================
+Benchmark: sweep_N512_B500_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU SPAMS:         12286 samples/sec (0.041s +/- 0.021s)
+CPU naive:           304 samples/sec (1.646s)
+CPU v0:             2141 samples/sec (0.234s)
+CPU v0 blas:        3246 samples/sec (0.154s)
+
+[59/108] N=512, B=1000, S=32 | elapsed: 2.0min, ETA: 1.8min
+
+============================================================
+Benchmark: sweep_N512_B1000_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU SPAMS:         31492 samples/sec (0.032s +/- 0.000s)
+CPU naive:           466 samples/sec (2.148s)
+CPU v0:             2827 samples/sec (0.354s)
+CPU v0 blas:        3554 samples/sec (0.281s)
+
+[60/108] N=512, B=5000, S=32 | elapsed: 2.1min, ETA: 1.7min
+
+============================================================
+Benchmark: sweep_N512_B5000_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU SPAMS:         30416 samples/sec (0.164s +/- 0.016s)
+CPU naive:          1618 samples/sec (3.091s)
+CPU v0:             2062 samples/sec (2.425s)
+CPU v0 blas:        3331 samples/sec (1.501s)
+
+[61/108] N=1024, B=10, S=32 | elapsed: 2.2min, ETA: 1.8min
+
+============================================================
+Benchmark: sweep_N1024_B10_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU SPAMS:           716 samples/sec (0.014s +/- 0.005s)
+CPU naive:           156 samples/sec (0.064s)
+CPU v0:              112 samples/sec (0.089s)
+CPU v0 blas:         437 samples/sec (0.023s)
+
+[62/108] N=1024, B=50, S=32 | elapsed: 2.2min, ETA: 1.7min
+
+============================================================
+Benchmark: sweep_N1024_B50_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU SPAMS:          1855 samples/sec (0.027s +/- 0.001s)
+CPU naive:            52 samples/sec (0.969s)
+CPU v0:              480 samples/sec (0.104s)
+CPU v0 blas:        1075 samples/sec (0.047s)
+
+[63/108] N=1024, B=100, S=32 | elapsed: 2.2min, ETA: 1.7min
+
+============================================================
+Benchmark: sweep_N1024_B100_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU SPAMS:          4258 samples/sec (0.023s +/- 0.001s)
+CPU naive:            97 samples/sec (1.036s)
+CPU v0:              822 samples/sec (0.122s)
+CPU v0 blas:        1337 samples/sec (0.075s)
+
+[64/108] N=1024, B=500, S=32 | elapsed: 2.3min, ETA: 1.6min
+
+============================================================
+Benchmark: sweep_N1024_B500_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU SPAMS:         10120 samples/sec (0.049s +/- 0.002s)
+CPU naive:           268 samples/sec (1.865s)
+CPU v0:             1844 samples/sec (0.271s)
+CPU v0 blas:        1669 samples/sec (0.300s)
+
+[65/108] N=1024, B=1000, S=32 | elapsed: 2.3min, ETA: 1.6min
+
+============================================================
+Benchmark: sweep_N1024_B1000_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU SPAMS:         11483 samples/sec (0.087s +/- 0.015s)
+CPU naive:           556 samples/sec (1.800s)
+CPU v0:              541 samples/sec (1.850s)
+CPU v0 blas:        1769 samples/sec (0.565s)
+
+[66/108] N=1024, B=5000, S=32 | elapsed: 2.4min, ETA: 1.6min
+
+============================================================
+Benchmark: sweep_N1024_B5000_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU SPAMS:          9744 samples/sec (0.513s +/- 0.022s)
+CPU naive:          1276 samples/sec (3.918s)
+CPU v0:             1887 samples/sec (2.650s)
+CPU v0 blas:        1337 samples/sec (3.740s)
+
+[67/108] N=2048, B=10, S=32 | elapsed: 2.6min, ETA: 1.7min
+
+============================================================
+Benchmark: sweep_N2048_B10_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU SPAMS:           383 samples/sec (0.026s +/- 0.000s)
+CPU naive:             4 samples/sec (2.254s)
+CPU v0:              116 samples/sec (0.086s)
+CPU v0 blas:         134 samples/sec (0.075s)
+
+[68/108] N=2048, B=50, S=32 | elapsed: 2.7min, ETA: 1.6min
+
+============================================================
+Benchmark: sweep_N2048_B50_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU SPAMS:           534 samples/sec (0.094s +/- 0.001s)
+CPU naive:            21 samples/sec (2.432s)
+CPU v0:              289 samples/sec (0.173s)
+CPU v0 blas:         299 samples/sec (0.167s)
+
+[69/108] N=2048, B=100, S=32 | elapsed: 2.7min, ETA: 1.6min
+
+============================================================
+Benchmark: sweep_N2048_B100_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU SPAMS:          1326 samples/sec (0.075s +/- 0.000s)
+CPU naive:            32 samples/sec (3.104s)
+CPU v0:              441 samples/sec (0.227s)
+CPU v0 blas:         607 samples/sec (0.165s)
+
+[70/108] N=2048, B=500, S=32 | elapsed: 2.8min, ETA: 1.6min
+
+============================================================
+Benchmark: sweep_N2048_B500_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU SPAMS:          2980 samples/sec (0.168s +/- 0.018s)
+CPU naive:           129 samples/sec (3.866s)
+CPU v0:             1070 samples/sec (0.467s)
+CPU v0 blas:         931 samples/sec (0.537s)
+
+[71/108] N=2048, B=1000, S=32 | elapsed: 2.9min, ETA: 1.6min
+
+============================================================
+Benchmark: sweep_N2048_B1000_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU SPAMS:          3985 samples/sec (0.251s +/- 0.003s)
+CPU naive:           223 samples/sec (4.486s)
+CPU v0:             1010 samples/sec (0.990s)
+CPU v0 blas:         960 samples/sec (1.041s)
+
+[72/108] N=2048, B=5000, S=32 | elapsed: 3.0min, ETA: 1.6min
+
+============================================================
+Benchmark: sweep_N2048_B5000_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU SPAMS:          5586 samples/sec (0.895s +/- 0.037s)
+CPU naive:           560 samples/sec (8.935s)
+CPU v0:             1192 samples/sec (4.195s)
+CPU v0 blas:         678 samples/sec (7.379s)
+
+[73/108] N=4096, B=10, S=32 | elapsed: 3.5min, ETA: 1.7min
+
+============================================================
+Benchmark: sweep_N4096_B10_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU SPAMS:            43 samples/sec (0.232s +/- 0.011s)
+CPU naive:             4 samples/sec (2.852s)
+CPU v0:               21 samples/sec (0.468s)
+CPU v0 blas:          30 samples/sec (0.335s)
+
+[74/108] N=4096, B=50, S=32 | elapsed: 3.6min, ETA: 1.7min
+
+============================================================
+Benchmark: sweep_N4096_B50_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU SPAMS:            67 samples/sec (0.752s +/- 0.024s)
+CPU naive:            12 samples/sec (4.259s)
+CPU v0:               94 samples/sec (0.531s)
+CPU v0 blas:         120 samples/sec (0.417s)
+
+[75/108] N=4096, B=100, S=32 | elapsed: 3.7min, ETA: 1.7min
+
+============================================================
+Benchmark: sweep_N4096_B100_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU SPAMS:           123 samples/sec (0.815s +/- 0.025s)
+CPU naive:            24 samples/sec (4.193s)
+CPU v0:              247 samples/sec (0.404s)
+CPU v0 blas:         236 samples/sec (0.424s)
+
+[76/108] N=4096, B=500, S=32 | elapsed: 3.9min, ETA: 1.7min
+
+============================================================
+Benchmark: sweep_N4096_B500_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU SPAMS:           550 samples/sec (0.909s +/- 0.023s)
+CPU naive:            88 samples/sec (5.659s)
+CPU v0:              460 samples/sec (1.088s)
+CPU v0 blas:         400 samples/sec (1.249s)
+
+[77/108] N=4096, B=1000, S=32 | elapsed: 4.1min, ETA: 1.7min
+
+============================================================
+Benchmark: sweep_N4096_B1000_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU SPAMS:           781 samples/sec (1.280s +/- 0.054s)
+CPU naive:           140 samples/sec (7.168s)
+CPU v0:              478 samples/sec (2.094s)
+CPU v0 blas:         447 samples/sec (2.235s)
+
+[78/108] N=4096, B=5000, S=32 | elapsed: 4.4min, ETA: 1.8min
+
+============================================================
+Benchmark: sweep_N4096_B5000_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU SPAMS:          1295 samples/sec (3.861s +/- 0.042s)
+CPU naive:           246 samples/sec (20.316s)
+CPU v0:              473 samples/sec (10.568s)
+CPU v0 blas:         343 samples/sec (14.595s)
+
+[79/108] N=256, B=10, S=64 | elapsed: 5.6min, ETA: 2.2min
+
+============================================================
+Benchmark: sweep_N256_B10_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU SPAMS:          8089 samples/sec (0.001s +/- 0.000s)
+CPU naive:           463 samples/sec (0.022s)
+CPU v0:              514 samples/sec (0.019s)
+CPU v0 blas:         350 samples/sec (0.029s)
+
+[80/108] N=256, B=50, S=64 | elapsed: 5.6min, ETA: 2.1min
+
+============================================================
+Benchmark: sweep_N256_B50_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU SPAMS:          5880 samples/sec (0.009s +/- 0.001s)
+CPU naive:            31 samples/sec (1.608s)
+CPU v0:              622 samples/sec (0.080s)
+CPU v0 blas:        1318 samples/sec (0.038s)
+
+[81/108] N=256, B=100, S=64 | elapsed: 5.6min, ETA: 2.0min
+
+============================================================
+Benchmark: sweep_N256_B100_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU SPAMS:         17943 samples/sec (0.006s +/- 0.000s)
+CPU naive:            40 samples/sec (2.514s)
+CPU v0:              866 samples/sec (0.116s)
+CPU v0 blas:        2855 samples/sec (0.035s)
+
+[82/108] N=256, B=500, S=64 | elapsed: 5.7min, ETA: 1.9min
+
+============================================================
+Benchmark: sweep_N256_B500_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU SPAMS:         15514 samples/sec (0.032s +/- 0.000s)
+CPU naive:           178 samples/sec (2.817s)
+CPU v0:              922 samples/sec (0.542s)
+CPU v0 blas:        1844 samples/sec (0.271s)
+
+[83/108] N=256, B=1000, S=64 | elapsed: 5.8min, ETA: 1.8min
+
+============================================================
+Benchmark: sweep_N256_B1000_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU SPAMS:         20853 samples/sec (0.048s +/- 0.001s)
+CPU naive:           216 samples/sec (4.637s)
+CPU v0:             1245 samples/sec (0.803s)
+CPU v0 blas:        1963 samples/sec (0.510s)
+
+[84/108] N=256, B=5000, S=64 | elapsed: 5.9min, ETA: 1.8min
+
+============================================================
+Benchmark: sweep_N256_B5000_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU SPAMS:         18144 samples/sec (0.276s +/- 0.029s)
+CPU naive:           590 samples/sec (8.479s)
+CPU v0:             1341 samples/sec (3.728s)
+CPU v0 blas:        1935 samples/sec (2.583s)
+
+[85/108] N=512, B=10, S=64 | elapsed: 6.1min, ETA: 1.8min
+
+============================================================
+Benchmark: sweep_N512_B10_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU SPAMS:          1105 samples/sec (0.009s +/- 0.003s)
+CPU naive:           201 samples/sec (0.050s)
+CPU v0:              100 samples/sec (0.100s)
+CPU v0 blas:         358 samples/sec (0.028s)
+
+[86/108] N=512, B=50, S=64 | elapsed: 6.1min, ETA: 1.7min
+
+============================================================
+Benchmark: sweep_N512_B50_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU SPAMS:          6696 samples/sec (0.007s +/- 0.001s)
+CPU naive:            22 samples/sec (2.266s)
+CPU v0:              447 samples/sec (0.112s)
+CPU v0 blas:        1069 samples/sec (0.047s)
+
+[87/108] N=512, B=100, S=64 | elapsed: 6.2min, ETA: 1.6min
+
+============================================================
+Benchmark: sweep_N512_B100_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU SPAMS:          7071 samples/sec (0.014s +/- 0.000s)
+CPU naive:            37 samples/sec (2.700s)
+CPU v0:              365 samples/sec (0.274s)
+CPU v0 blas:        1375 samples/sec (0.073s)
+
+[88/108] N=512, B=500, S=64 | elapsed: 6.2min, ETA: 1.5min
+
+============================================================
+Benchmark: sweep_N512_B500_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU SPAMS:          9177 samples/sec (0.054s +/- 0.003s)
+CPU naive:           125 samples/sec (4.008s)
+CPU v0:              757 samples/sec (0.661s)
+CPU v0 blas:        1148 samples/sec (0.436s)
+
+[89/108] N=512, B=1000, S=64 | elapsed: 6.3min, ETA: 1.4min
+
+============================================================
+Benchmark: sweep_N512_B1000_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU SPAMS:          9972 samples/sec (0.100s +/- 0.005s)
+CPU naive:           230 samples/sec (4.343s)
+CPU v0:              806 samples/sec (1.240s)
+CPU v0 blas:        1231 samples/sec (0.812s)
+
+[90/108] N=512, B=5000, S=64 | elapsed: 6.4min, ETA: 1.4min
+
+============================================================
+Benchmark: sweep_N512_B5000_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU SPAMS:         11036 samples/sec (0.453s +/- 0.032s)
+CPU naive:           563 samples/sec (8.881s)
+CPU v0:              886 samples/sec (5.643s)
+CPU v0 blas:        1200 samples/sec (4.166s)
+
+[91/108] N=1024, B=10, S=64 | elapsed: 6.8min, ETA: 1.4min
+
+============================================================
+Benchmark: sweep_N1024_B10_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU SPAMS:           644 samples/sec (0.016s +/- 0.005s)
+CPU naive:           128 samples/sec (0.078s)
+CPU v0:               97 samples/sec (0.104s)
+CPU v0 blas:         254 samples/sec (0.039s)
+
+[92/108] N=1024, B=50, S=64 | elapsed: 6.8min, ETA: 1.3min
+
+============================================================
+Benchmark: sweep_N1024_B50_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU SPAMS:          2414 samples/sec (0.021s +/- 0.001s)
+CPU naive:            15 samples/sec (3.440s)
+CPU v0:              275 samples/sec (0.182s)
+CPU v0 blas:         440 samples/sec (0.114s)
+
+[93/108] N=1024, B=100, S=64 | elapsed: 6.9min, ETA: 1.2min
+
+============================================================
+Benchmark: sweep_N1024_B100_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU SPAMS:          3091 samples/sec (0.032s +/- 0.003s)
+CPU naive:            37 samples/sec (2.670s)
+CPU v0:              455 samples/sec (0.220s)
+CPU v0 blas:         582 samples/sec (0.172s)
+
+[94/108] N=1024, B=500, S=64 | elapsed: 6.9min, ETA: 1.1min
+
+============================================================
+Benchmark: sweep_N1024_B500_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU SPAMS:          4319 samples/sec (0.116s +/- 0.008s)
+CPU naive:           124 samples/sec (4.038s)
+CPU v0:              479 samples/sec (1.044s)
+CPU v0 blas:         661 samples/sec (0.756s)
+
+[95/108] N=1024, B=1000, S=64 | elapsed: 7.0min, ETA: 1.0min
+
+============================================================
+Benchmark: sweep_N1024_B1000_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU SPAMS:          4833 samples/sec (0.207s +/- 0.009s)
+CPU naive:           211 samples/sec (4.734s)
+CPU v0:              587 samples/sec (1.703s)
+CPU v0 blas:         674 samples/sec (1.484s)
+
+[96/108] N=1024, B=5000, S=64 | elapsed: 7.2min, ETA: 1.0min
+
+============================================================
+Benchmark: sweep_N1024_B5000_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU SPAMS:          5387 samples/sec (0.928s +/- 0.022s)
+CPU naive:           446 samples/sec (11.222s)
+CPU v0:              583 samples/sec (8.575s)
+CPU v0 blas:         517 samples/sec (9.664s)
+
+[97/108] N=2048, B=10, S=64 | elapsed: 7.8min, ETA: 1.0min
+
+============================================================
+Benchmark: sweep_N2048_B10_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU SPAMS:           196 samples/sec (0.051s +/- 0.006s)
+CPU naive:             2 samples/sec (4.044s)
+CPU v0:              167 samples/sec (0.060s)
+CPU v0 blas:         121 samples/sec (0.082s)
+
+[98/108] N=2048, B=50, S=64 | elapsed: 7.9min, ETA: 0.9min
+
+============================================================
+Benchmark: sweep_N2048_B50_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU SPAMS:           504 samples/sec (0.099s +/- 0.014s)
+CPU naive:             9 samples/sec (5.696s)
+CPU v0:              297 samples/sec (0.168s)
+CPU v0 blas:         260 samples/sec (0.192s)
+
+[99/108] N=2048, B=100, S=64 | elapsed: 8.0min, ETA: 0.8min
+
+============================================================
+Benchmark: sweep_N2048_B100_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU SPAMS:           851 samples/sec (0.118s +/- 0.006s)
+CPU naive:            15 samples/sec (6.642s)
+CPU v0:              305 samples/sec (0.328s)
+CPU v0 blas:         292 samples/sec (0.343s)
+
+[100/108] N=2048, B=500, S=64 | elapsed: 8.1min, ETA: 0.7min
+
+============================================================
+Benchmark: sweep_N2048_B500_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU SPAMS:          1673 samples/sec (0.299s +/- 0.014s)
+CPU naive:            61 samples/sec (8.239s)
+CPU v0:              338 samples/sec (1.478s)
+CPU v0 blas:         343 samples/sec (1.459s)
+
+[101/108] N=2048, B=1000, S=64 | elapsed: 8.3min, ETA: 0.7min
+
+============================================================
+Benchmark: sweep_N2048_B1000_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU SPAMS:          2100 samples/sec (0.476s +/- 0.014s)
+CPU naive:           100 samples/sec (10.030s)
+CPU v0:              407 samples/sec (2.454s)
+CPU v0 blas:         348 samples/sec (2.876s)
+
+[102/108] N=2048, B=5000, S=64 | elapsed: 8.6min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N2048_B5000_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU SPAMS:          2449 samples/sec (2.042s +/- 0.030s)
+CPU naive:           209 samples/sec (23.977s)
+CPU v0:              392 samples/sec (12.742s)
+CPU v0 blas:         268 samples/sec (18.638s)
+
+[103/108] N=4096, B=10, S=64 | elapsed: 9.8min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N4096_B10_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU SPAMS:            29 samples/sec (0.340s +/- 0.001s)
+CPU naive:             2 samples/sec (5.552s)
+CPU v0:               34 samples/sec (0.293s)
+CPU v0 blas:          30 samples/sec (0.328s)
+
+[104/108] N=4096, B=50, S=64 | elapsed: 9.9min, ETA: 0.5min
+
+============================================================
+Benchmark: sweep_N4096_B50_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU SPAMS:            83 samples/sec (0.605s +/- 0.021s)
+CPU naive:             7 samples/sec (6.784s)
+CPU v0:              114 samples/sec (0.437s)
+CPU v0 blas:          90 samples/sec (0.558s)
+
+[105/108] N=4096, B=100, S=64 | elapsed: 10.1min, ETA: 0.4min
+
+============================================================
+Benchmark: sweep_N4096_B100_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU SPAMS:           150 samples/sec (0.667s +/- 0.033s)
+CPU naive:            13 samples/sec (7.759s)
+CPU v0:              179 samples/sec (0.559s)
+CPU v0 blas:         126 samples/sec (0.793s)
+
+[106/108] N=4096, B=500, S=64 | elapsed: 10.3min, ETA: 0.3min
+
+============================================================
+Benchmark: sweep_N4096_B500_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU SPAMS:           452 samples/sec (1.105s +/- 0.018s)
+CPU naive:            46 samples/sec (10.923s)
+CPU v0:              226 samples/sec (2.208s)
+CPU v0 blas:         165 samples/sec (3.035s)
+
+[107/108] N=4096, B=1000, S=64 | elapsed: 10.7min, ETA: 0.2min
+
+============================================================
+Benchmark: sweep_N4096_B1000_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU SPAMS:           611 samples/sec (1.638s +/- 0.052s)
+CPU naive:            69 samples/sec (14.584s)
+CPU v0:              222 samples/sec (4.506s)
+CPU v0 blas:         170 samples/sec (5.877s)
+
+[108/108] N=4096, B=5000, S=64 | elapsed: 11.3min, ETA: 0.1min
+
+============================================================
+Benchmark: sweep_N4096_B5000_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU SPAMS:           869 samples/sec (5.753s +/- 0.047s)
+CPU naive:           108 samples/sec (46.097s)
+CPU v0:              277 samples/sec (18.082s)
+CPU v0 blas:         137 samples/sec (36.518s)
+
+============================================================
+Sweep complete: 108 cells in 13.5 minutes
+============================================================
+Sweep results saved to /home/ariel/prog/omp/orthogonal-matching-pursuit-parallel-gpu/benchmarks/results/sweep_20260324_191618.json
