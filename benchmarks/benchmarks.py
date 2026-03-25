@@ -14,12 +14,36 @@ try:
 except ImportError:
     HAS_SPAMS = False
 
+try:
+    os.environ['XLA_PYTHON_CLIENT_MEM_FRACTION'] = '0.4'  # limit JAX to 40% GPU memory
+    import jax
+    import jax.numpy as jnp
+    import cr.sparse.pursuit.omp as cr_omp
+    HAS_CR_SPARSE = True
+    _cr_sparse_jit_cache = {}
+except ImportError:
+    HAS_CR_SPARSE = False
+
 
 def run_sklearn(X, y, n_nonzero_coefs, tol=None):
     omp_args = dict(tol=tol, n_nonzero_coefs=n_nonzero_coefs, precompute='auto', fit_intercept=False)
     omp = OrthogonalMatchingPursuit(**omp_args)
     omp.fit(X, y.T)
     return omp
+
+
+def run_cr_sparse(X, y, n_nonzero_coefs):
+    """Run cr-sparse OMP via JAX vmap. X: (n_features, n_components), y: (n_samples, n_features)."""
+    Phi = jnp.array(X, dtype=jnp.float32)
+    Y = jnp.array(y, dtype=jnp.float32)
+    # Cache the JIT-compiled batched solve per sparsity level
+    if n_nonzero_coefs not in _cr_sparse_jit_cache:
+        solve_fn = lambda yi: cr_omp.matrix_solve(Phi, yi, max_iters=n_nonzero_coefs).x
+        _cr_sparse_jit_cache[n_nonzero_coefs] = jax.vmap(solve_fn)
+    solve_batch = _cr_sparse_jit_cache[n_nonzero_coefs]
+    coefs = solve_batch(Y)
+    coefs.block_until_ready()
+    return np.array(coefs)
 
 
 def run_spams(X, y, n_nonzero_coefs):
@@ -120,6 +144,17 @@ def run_benchmark(name, cfg, run_gpu=True, skip_correctness=False, skip_sklearn=
         results['spams'] = {'time': t, 'time_std': t_std, 'sps': n_samples / t, 'coefs': spams_coefs}
         print(f"CPU SPAMS:    {results['spams']['sps']:>10.0f} samples/sec ({t:.3f}s +/- {t_std:.3f}s)")
 
+    if HAS_CR_SPARSE:
+        try:
+            run_cr_sparse(X.copy(), y.copy(), n_nonzero_coefs)  # warmup (JIT compile)
+            with elapsed_timer() as elapsed:
+                cr_coefs = run_cr_sparse(X.copy(), y.copy(), n_nonzero_coefs)
+            t = elapsed()
+            results['cr_sparse'] = {'time': t, 'sps': n_samples / t, 'coefs': cr_coefs}
+            print(f"GPU cr-sparse:{results['cr_sparse']['sps']:>10.0f} samples/sec ({t:.3f}s)")
+        except Exception as e:
+            print(f"GPU cr-sparse:       FAIL ({e})")
+
     with elapsed_timer() as elapsed:
         xests_naive = run_omp(X.copy(), y.copy(), n_nonzero_coefs,
                               tol=None, normalize=False, fit_intercept=False, alg='naive')
@@ -168,7 +203,7 @@ def run_benchmark(name, cfg, run_gpu=True, skip_correctness=False, skip_sklearn=
     if 'sklearn' in results:
         sklearn_sps = results['sklearn']['sps']
         print(f"\nSpeedups vs sklearn:")
-        for key in ['spams', 'naive_cpu', 'v0_cpu', 'v0_blas', 'naive_gpu', 'v0_gpu']:
+        for key in ['spams', 'cr_sparse', 'naive_cpu', 'v0_cpu', 'v0_blas', 'naive_gpu', 'v0_gpu']:
             if key in results:
                 label = key.replace('_', ' ').upper()
                 print(f"  {label}: {results[key]['sps'] / sklearn_sps:.1f}x")
@@ -229,7 +264,7 @@ def run_benchmark(name, cfg, run_gpu=True, skip_correctness=False, skip_sklearn=
             print(f"  v0 CPU vs v0 BLAS support: agree on all {C.shape[0]} samples")
 
     # Orthogonality check (CPU v0 and GPU v0)
-    for key in ['spams', 'v0_cpu', 'v0_blas', 'v0_gpu']:
+    for key in ['spams', 'cr_sparse', 'v0_cpu', 'v0_blas', 'v0_gpu']:
         if key not in coefs_map:
             continue
         coefs = coefs_map[key]
@@ -374,6 +409,8 @@ def run_sweep(run_gpu=True):
             for alg_key in ['naive_gpu', 'v0_gpu']:
                 if alg_key not in stripped:
                     stripped[alg_key] = 'OOM'
+        if HAS_CR_SPARSE and 'cr_sparse' not in stripped:
+            stripped['cr_sparse'] = 'FAIL'
 
         sweep_results['cells'][f"{S}_{N}_{B}"] = stripped
 

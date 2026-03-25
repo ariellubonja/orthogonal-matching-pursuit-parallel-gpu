@@ -1,0 +1,30 @@
+Date: 2026-03-25T09:52:11.742398
+CPU: Intel(R) Core(TM) Ultra 9 185H
+GPU: NVIDIA GeForce RTX 4060 Laptop GPU
+
+============================================================
+Benchmark: image_patches
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU sklearn:         520 samples/sec (9.614s)
+CPU SPAMS:         23766 samples/sec (0.210s +/- 0.006s)
+CPU cr-sparse:      1870 samples/sec (2.674s)
+CPU naive:          1266 samples/sec (3.950s)
+CPU v0:             2222 samples/sec (2.250s)
+CPU v0 blas:        1889 samples/sec (2.647s)
+
+Speedups vs sklearn:
+  SPAMS: 45.7x
+  CR SPARSE: 3.6x
+  NAIVE CPU: 2.4x
+  V0 CPU: 4.3x
+  V0 BLAS: 3.6x
+
+Correctness:
+  CPU naive vs v0 support: agree on all 5000 samples
+  SPAMS vs v0 CPU support: agree on all 5000 samples
+  v0 CPU vs v0 BLAS support: agree on all 5000 samples
+  Max orthogonality violation (spams): 5.63e-15
+  Max orthogonality violation (cr sparse): 3.07e-06
+  Max orthogonality violation (v0 cpu): 5.84e-15
+  Max orthogonality violation (v0 blas): 6.73e-15

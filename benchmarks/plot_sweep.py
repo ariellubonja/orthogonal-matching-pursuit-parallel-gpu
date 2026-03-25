@@ -11,6 +11,7 @@ import glob
 COLORS = {
     'sklearn':   '#888888',
     'spams':     '#9C27B0',
+    'cr_sparse': '#00BCD4',
     'naive_cpu': '#2196F3',
     'v0_cpu':    '#FF9800',
     'v0_blas':   '#795548',
@@ -20,6 +21,7 @@ COLORS = {
 LABELS = {
     'sklearn':   'sklearn',
     'spams':     'SPAMS',
+    'cr_sparse': 'cr-sparse (JAX GPU)',
     'naive_cpu': 'Naive CPU',
     'v0_cpu':    'v0 CPU',
     'v0_blas':   'v0 BLAS',
@@ -29,6 +31,7 @@ LABELS = {
 ABBREVS = {
     'sklearn':   'sk',
     'spams':     'SP',
+    'cr_sparse': 'CR',
     'naive_cpu': 'nC',
     'v0_cpu':    'v0C',
     'v0_blas':   'BL',
@@ -154,7 +157,7 @@ def draw_best_algorithm_heatmap(ax, data, S, algs):
 
 def plot_sweep_heatmaps(data, output_dir, baseline='sklearn'):
     # All algorithms present in data (for best-algorithm panel)
-    every_alg = ['sklearn', 'spams', 'naive_cpu', 'v0_cpu', 'v0_blas', 'naive_gpu', 'v0_gpu']
+    every_alg = ['sklearn', 'spams', 'cr_sparse', 'naive_cpu', 'v0_cpu', 'v0_blas', 'naive_gpu', 'v0_gpu']
 
     # Check which algorithms actually have data
     has_gpu = any(
@@ -172,6 +175,14 @@ def plot_sweep_heatmaps(data, output_dir, baseline='sklearn'):
     )
     if not has_spams:
         every_alg = [a for a in every_alg if a != 'spams']
+
+    has_cr_sparse = any(
+        isinstance(cell.get('cr_sparse'), dict)
+        for cell in data['cells'].values()
+        if isinstance(cell, dict)
+    )
+    if not has_cr_sparse:
+        every_alg = [a for a in every_alg if a != 'cr_sparse']
 
     # Speedup heatmaps exclude baseline (you don't plot "X vs X")
     all_algs = [a for a in every_alg if a != baseline]
