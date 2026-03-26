@@ -30,13 +30,13 @@ LABELS = {
 }
 ABBREVS = {
     'sklearn':   'sk',
-    'spams':     'SP',
+    'spams':     'SPAMS',
     'cr_sparse': 'CR',
     'naive_cpu': 'nC',
     'v0_cpu':    'v0C',
-    'v0_blas':   'BL',
+    'v0_blas':   'BLAS',
     'naive_gpu': 'nG',
-    'v0_gpu':    'v0G',
+    'v0_gpu':    'GPU',
 }
 
 
@@ -182,7 +182,9 @@ def plot_sweep_heatmaps(data, output_dir, baseline='sklearn'):
         every_alg = [a for a in every_alg if a != 'cr_sparse']
 
     # Speedup heatmaps exclude baseline (you don't plot "X vs X")
-    all_algs = [a for a in every_alg if a != baseline]
+    # Also exclude cr_sparse and naive variants — not useful for users
+    skip_from_speedup = {baseline, 'cr_sparse', 'naive_cpu', 'naive_gpu', 'sklearn'}
+    all_algs = [a for a in every_alg if a not in skip_from_speedup]
 
     baseline_label = LABELS.get(baseline, baseline)
     n_algs = len(all_algs)
