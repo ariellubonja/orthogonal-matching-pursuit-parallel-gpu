@@ -6,7 +6,7 @@ from sklearn.datasets import make_sparse_coded_signal
 from sklearn.linear_model import OrthogonalMatchingPursuit
 from datetime import datetime
 
-from batched_omp import run_omp, omp_v0_blas, elapsed_timer
+from batched_omp import run_omp, omp_v0, omp_naive, omp_v0_blas, elapsed_timer
 
 try:
     import spams
@@ -431,6 +431,232 @@ def run_sweep(run_gpu=True):
     return sweep_results
 
 
+# ── Ablation study ──────────────────────────────────────────────
+
+ABLATION_CONFIGS = {
+    'small':  {'n_features': 32,   'n_components': 128,  'n_nonzero_coefs': 8,  'n_samples': 500},
+    'medium': {'n_features': 128,  'n_components': 512,  'n_nonzero_coefs': 32, 'n_samples': 1000},
+    'large':  {'n_features': 512,  'n_components': 2048, 'n_nonzero_coefs': 64, 'n_samples': 5000},
+    'face':   {'n_features': 8064, 'n_components': 1207, 'n_nonzero_coefs': 30, 'n_samples': 1207},
+}
+
+
+def _ablation_a1(X_t, y_t, XTX, S, B, cell, device='cpu'):
+    """A1: Batching — v0 full batch vs single-sample loop."""
+    is_gpu = device == 'gpu'
+    suffix = f'_{device}'
+
+    # Warmup (compiles GPU kernels, stabilizes CPU caches)
+    omp_v0(X_t, y_t[:1], XTX, n_nonzero_coefs=S)
+    if is_gpu:
+        torch.cuda.synchronize()
+
+    if is_gpu:
+        torch.cuda.synchronize()
+    with elapsed_timer() as elapsed:
+        omp_v0(X_t, y_t, XTX, n_nonzero_coefs=S)
+        if is_gpu:
+            torch.cuda.synchronize()
+    cell[f'a1_batched{suffix}'] = elapsed()
+    print(f"  v0 batched {device.upper():<3}:           {cell[f'a1_batched{suffix}']:.3f}s")
+
+    if is_gpu:
+        torch.cuda.synchronize()
+    with elapsed_timer() as elapsed:
+        for i in range(B):
+            omp_v0(X_t, y_t[i:i+1], XTX, n_nonzero_coefs=S)
+        if is_gpu:
+            torch.cuda.synchronize()
+    cell[f'a1_loop{suffix}'] = elapsed()
+    spd = cell[f'a1_loop{suffix}'] / cell[f'a1_batched{suffix}']
+    print(f"  v0 loop (B=1) {device.upper():<3}:        {cell[f'a1_loop{suffix}']:.3f}s  ({spd:.1f}x slower)")
+
+
+def _ablation_a2(X_t, y_t, XTX, S, cell, device='cpu'):
+    """A2: Gram precomputation — naive with vs without precomputed X^T X."""
+    is_gpu = device == 'gpu'
+    suffix = f'_{device}'
+
+    # Warmup
+    omp_naive(X_t, y_t[:1], 1, XTX=XTX)
+    if is_gpu:
+        torch.cuda.synchronize()
+
+    if is_gpu:
+        torch.cuda.synchronize()
+    with elapsed_timer() as elapsed:
+        omp_naive(X_t, y_t, S, XTX=XTX)
+        if is_gpu:
+            torch.cuda.synchronize()
+    cell[f'a2_precompute{suffix}'] = elapsed()
+    print(f"  naive + precompute {device.upper():<3}:    {cell[f'a2_precompute{suffix}']:.3f}s")
+
+    if is_gpu:
+        torch.cuda.synchronize()
+    with elapsed_timer() as elapsed:
+        omp_naive(X_t, y_t, S, XTX=None)
+        if is_gpu:
+            torch.cuda.synchronize()
+    cell[f'a2_no_precompute{suffix}'] = elapsed()
+    spd = cell[f'a2_no_precompute{suffix}'] / cell[f'a2_precompute{suffix}']
+    print(f"  naive no precomp {device.upper():<3}:      {cell[f'a2_no_precompute{suffix}']:.3f}s  ({spd:.1f}x slower)")
+
+
+def _ablation_a3(X_t, y_t, XTX, S, cell, device='cpu'):
+    """A3: Inverse Cholesky — v0 with iterative inverse vs standard Cholesky solve."""
+    is_gpu = device == 'gpu'
+    suffix = f'_{device}'
+
+    # Warmup
+    omp_v0(X_t, y_t[:1], XTX, n_nonzero_coefs=S)
+    if is_gpu:
+        torch.cuda.synchronize()
+
+    if is_gpu:
+        torch.cuda.synchronize()
+    with elapsed_timer() as elapsed:
+        omp_v0(X_t, y_t, XTX, n_nonzero_coefs=S, inverse_cholesky=True)
+        if is_gpu:
+            torch.cuda.synchronize()
+    cell[f'a3_inv_chol{suffix}'] = elapsed()
+    print(f"  v0 inv Cholesky {device.upper():<3}:      {cell[f'a3_inv_chol{suffix}']:.3f}s")
+
+    if is_gpu:
+        torch.cuda.synchronize()
+    with elapsed_timer() as elapsed:
+        omp_v0(X_t, y_t, XTX, n_nonzero_coefs=S, inverse_cholesky=False)
+        if is_gpu:
+            torch.cuda.synchronize()
+    cell[f'a3_std_chol{suffix}'] = elapsed()
+    spd = cell[f'a3_std_chol{suffix}'] / cell[f'a3_inv_chol{suffix}']
+    print(f"  v0 std Cholesky {device.upper():<3}:      {cell[f'a3_std_chol{suffix}']:.3f}s  ({spd:.1f}x slower)")
+
+
+def run_ablation(run_gpu=True):
+    """Ablation study: isolate the contribution of batching, Gram precomputation, and inverse Cholesky."""
+    import json
+
+    all_results = {}
+
+    for config_name, cfg in ABLATION_CONFIGS.items():
+        M = cfg['n_features']
+        N = cfg['n_components']
+        S = cfg['n_nonzero_coefs']
+        B = cfg['n_samples']
+
+        print(f"\n{'='*60}")
+        print(f"Ablation: {config_name}  (M={M}, N={N}, S={S}, B={B})")
+        print(f"{'='*60}")
+
+        y, X, w = make_sparse_coded_signal(
+            n_samples=B, n_components=N, n_features=M,
+            n_nonzero_coefs=S, random_state=0,
+        )
+        X = X.T  # (M, N)
+
+        X_t = torch.as_tensor(X, dtype=torch.float64)
+        y_t = torch.as_tensor(y, dtype=torch.float64)
+        XTX = X_t.T @ X_t
+
+        cell = {}
+
+        # Reference: sklearn
+        with elapsed_timer() as elapsed:
+            run_sklearn(X.copy(), y.copy(), S)
+        cell['sklearn'] = elapsed()
+        print(f"  sklearn (reference):       {cell['sklearn']:.3f}s")
+
+        # --- CPU ablations ---
+        print(f"\n  --- A1: Batching (CPU) ---")
+        _ablation_a1(X_t, y_t, XTX, S, B, cell, device='cpu')
+
+        print(f"\n  --- A2: Gram precomputation (CPU) ---")
+        _ablation_a2(X_t, y_t, XTX, S, cell, device='cpu')
+
+        print(f"\n  --- A3: Inverse Cholesky (CPU) ---")
+        _ablation_a3(X_t, y_t, XTX, S, cell, device='cpu')
+
+        # --- GPU ablations ---
+        if run_gpu and HAS_CUDA:
+            X_cuda = X_t.cuda()
+            y_cuda = y_t.cuda()
+            XTX_cuda = XTX.cuda()
+
+            for ablation_name, ablation_fn, needs_B in [
+                ('A1: Batching (GPU)', _ablation_a1, True),
+                ('A2: Gram precomputation (GPU)', _ablation_a2, False),
+                ('A3: Inverse Cholesky (GPU)', _ablation_a3, False),
+            ]:
+                print(f"\n  --- {ablation_name} ---")
+                try:
+                    if needs_B:
+                        ablation_fn(X_cuda, y_cuda, XTX_cuda, S, B, cell, device='gpu')
+                    else:
+                        ablation_fn(X_cuda, y_cuda, XTX_cuda, S, cell, device='gpu')
+                except torch.cuda.OutOfMemoryError:
+                    print(f"  OOM")
+                    torch.cuda.empty_cache()
+
+        all_results[config_name] = cell
+
+    # --- Summary table ---
+    print(f"\n{'#'*60}")
+    print("Ablation Summary — Speedup from each optimization (CPU)")
+    print(f"{'#'*60}")
+    print(f"  {'Config':<10} | {'A1 Batch':>10} | {'A2 Gram':>10} | {'A3 InvChol':>10}")
+    print(f"  {'-'*10}-+-{'-'*10}-+-{'-'*10}-+-{'-'*10}")
+    for config_name, cell in all_results.items():
+        a1 = cell.get('a1_loop_cpu', 0) / max(cell.get('a1_batched_cpu', 1), 1e-9)
+        a2 = cell.get('a2_no_precompute_cpu', 0) / max(cell.get('a2_precompute_cpu', 1), 1e-9)
+        a3 = cell.get('a3_std_chol_cpu', 0) / max(cell.get('a3_inv_chol_cpu', 1), 1e-9)
+        print(f"  {config_name:<10} | {a1:>9.1f}x | {a2:>9.1f}x | {a3:>9.1f}x")
+
+    if run_gpu and HAS_CUDA:
+        print(f"\nAblation Summary — Speedup from each optimization (GPU)")
+        print(f"  {'Config':<10} | {'A1 Batch':>10} | {'A2 Gram':>10} | {'A3 InvChol':>10}")
+        print(f"  {'-'*10}-+-{'-'*10}-+-{'-'*10}-+-{'-'*10}")
+        for config_name, cell in all_results.items():
+            a1 = cell.get('a1_loop_gpu', 0) / max(cell.get('a1_batched_gpu', 1), 1e-9)
+            a2 = cell.get('a2_no_precompute_gpu', 0) / max(cell.get('a2_precompute_gpu', 1), 1e-9)
+            a3 = cell.get('a3_std_chol_gpu', 0) / max(cell.get('a3_inv_chol_gpu', 1), 1e-9)
+            vals = []
+            for v in [a1, a2, a3]:
+                vals.append(f'{v:>9.1f}x' if v > 0 else f'{"OOM":>10}')
+            print(f"  {config_name:<10} | {vals[0]} | {vals[1]} | {vals[2]}")
+
+    # Save JSON
+    results_dir = os.path.join(os.path.dirname(__file__), 'results')
+    os.makedirs(results_dir, exist_ok=True)
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    json_path = os.path.join(results_dir, f'ablation_{timestamp}.json')
+
+    cpu_name = "unknown"
+    try:
+        with open('/proc/cpuinfo') as cpuinfo:
+            for line in cpuinfo:
+                if line.startswith('model name'):
+                    cpu_name = line.split(':')[1].strip()
+                    break
+    except OSError:
+        pass
+    gpu_name = torch.cuda.get_device_name(0) if HAS_CUDA else "N/A"
+
+    output = {
+        'meta': {
+            'timestamp': datetime.now().isoformat(),
+            'cpu': cpu_name,
+            'gpu': gpu_name,
+            'configs': ABLATION_CONFIGS,
+        },
+        'results': all_results,
+    }
+    with open(json_path, 'w') as f:
+        json.dump(output, f, indent=2)
+    print(f"\nAblation results saved to {json_path}")
+
+    return all_results
+
+
 class Tee:
     """Write to both stdout and a file."""
     def __init__(self, file, stream):
@@ -490,10 +716,12 @@ if __name__ == '__main__':
                     run_sweep(run_gpu=run_gpu)
                 elif name == 'paper':
                     run_paper_benchmarks(run_gpu=run_gpu)
+                elif name == 'ablation':
+                    run_ablation(run_gpu=run_gpu)
                 elif name in BENCHMARKS:
                     run_benchmark(name, BENCHMARKS[name], run_gpu=run_gpu)
                 else:
-                    print(f"Unknown benchmark: {name}. Available: {', '.join(BENCHMARKS.keys())}, paper, sweep, all")
+                    print(f"Unknown benchmark: {name}. Available: {', '.join(BENCHMARKS.keys())}, paper, sweep, ablation, all")
 
         sys.stdout = tee.stream
 

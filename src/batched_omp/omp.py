@@ -231,7 +231,7 @@ def omp_v0(X, y, XTX, n_nonzero_coefs=None, tol=None, inverse_cholesky=True):
             solutions = F.permute(0, 2, 1) @ a_F.squeeze(-1).transpose(1, 0)[:, :, None]
         else:
             AT = X.T[sets.T]
-            solutions = cholesky_solve(AT @ AT.permute(0, 2, 1), AT @ y.T[:, :, None])
+            solutions = cholesky_solve(AT @ AT.permute(0, 2, 1), AT @ y[:, :, None])
 
     return sets.t(), solutions, None
 

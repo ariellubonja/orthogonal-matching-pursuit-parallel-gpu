@@ -1,0 +1,91 @@
+{
+  "meta": {
+    "timestamp": "2026-03-26T11:20:36.133076",
+    "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+    "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "configs": {
+      "small": {
+        "n_features": 32,
+        "n_components": 128,
+        "n_nonzero_coefs": 8,
+        "n_samples": 500
+      },
+      "medium": {
+        "n_features": 128,
+        "n_components": 512,
+        "n_nonzero_coefs": 32,
+        "n_samples": 1000
+      },
+      "large": {
+        "n_features": 512,
+        "n_components": 2048,
+        "n_nonzero_coefs": 64,
+        "n_samples": 5000
+      },
+      "face": {
+        "n_features": 8064,
+        "n_components": 1207,
+        "n_nonzero_coefs": 30,
+        "n_samples": 1207
+      }
+    }
+  },
+  "results": {
+    "small": {
+      "sklearn": 0.1367131139995763,
+      "a1_batched_cpu": 0.016236347997619305,
+      "a1_loop_cpu": 0.6923316309985239,
+      "a2_precompute_cpu": 0.0785364399998798,
+      "a2_no_precompute_cpu": 0.06412321799871279,
+      "a3_inv_chol_cpu": 0.08152498999697855,
+      "a3_std_chol_cpu": 0.03435062199423555,
+      "a1_batched_gpu": 0.0044584990027942695,
+      "a1_loop_gpu": 1.6394921719984268,
+      "a2_precompute_gpu": 0.022418263004510663,
+      "a2_no_precompute_gpu": 0.004268352000508457,
+      "a3_inv_chol_gpu": 0.0033241330020246096,
+      "a3_std_chol_gpu": 0.006442669000534806
+    },
+    "medium": {
+      "sklearn": 1.5226972780001233,
+      "a1_batched_cpu": 0.4682283500005724,
+      "a1_loop_cpu": 9.19637903799594,
+      "a2_precompute_cpu": 1.856589297996834,
+      "a2_no_precompute_cpu": 1.598645452002529,
+      "a3_inv_chol_cpu": 0.4432513459978509,
+      "a3_std_chol_cpu": 0.36178726599609945,
+      "a1_batched_gpu": 0.01726991299801739,
+      "a1_loop_gpu": 12.92191675099457,
+      "a2_precompute_gpu": 0.04703891200188082,
+      "a2_no_precompute_gpu": 0.04812656300055096,
+      "a3_inv_chol_gpu": 0.016609391997917555,
+      "a3_std_chol_gpu": 0.022273212001891807
+    },
+    "large": {
+      "sklearn": 58.86524365100195,
+      "a1_batched_cpu": 12.775116878001427,
+      "a1_loop_cpu": 91.68128588599939,
+      "a2_precompute_cpu": 22.620048210999812,
+      "a2_no_precompute_cpu": 27.597859688001336,
+      "a3_inv_chol_cpu": 12.134212617995217,
+      "a3_std_chol_cpu": 11.678442399999767,
+      "a2_precompute_gpu": 3.553625929998816,
+      "a2_no_precompute_gpu": 3.6752618470054585
+    },
+    "face": {
+      "sklearn": 4.105333213999984,
+      "a1_batched_cpu": 2.6578028950025328,
+      "a1_loop_cpu": 11.505590736000158,
+      "a2_precompute_cpu": 16.698769104004896,
+      "a2_no_precompute_cpu": 18.1650326529998,
+      "a3_inv_chol_cpu": 2.471830720998696,
+      "a3_std_chol_cpu": 3.3641623750008876,
+      "a1_batched_gpu": 0.18742899400240276,
+      "a1_loop_gpu": 14.689827779002371,
+      "a2_precompute_gpu": 4.4841573880039505,
+      "a2_no_precompute_gpu": 4.6483532459969865,
+      "a3_inv_chol_gpu": 0.1729597779994947,
+      "a3_std_chol_gpu": 0.4095064220018685
+    }
+  }
+}
