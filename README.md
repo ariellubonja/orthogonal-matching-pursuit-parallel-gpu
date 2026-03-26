@@ -9,20 +9,20 @@ Batched implementation of Orthogonal Matching Pursuit (OMP) using BLAS (CPU) and
 
 ### Speedup vs scikit-learn
 
-| Config | Best CPU | v0 GPU | SPAMS (C++) |
+| Config | Best CPU | GPU | SPAMS (C++) |
 |--------|----------|--------|-------------|
 | Image patches (256×1024, S=32, B=5K) | 4.4x | 37x | **43x** |
 | Face recognition (8064×1207, S=30, B=1.2K) | 3.2x† | **9.1x** | 2.9x |
 | Audio (512×2048, S=64, B=5K) | 5.5x | OOM | 54x |
 
-† v0_blas variant, best CPU method for large n_features. Standard v0 CPU gets 4.4x / 1.2x / 5.5x respectively.
+† v0_blas variant (inverse Cholesky + Cython BLAS), best CPU method for large n_features.
 
 *Hardware: Intel Core Ultra 9 185H, NVIDIA RTX 4060 Laptop (8 GB)*
 
 ### When to use batched-omp
 
-- **Have a GPU?** Use `v0` on CUDA — fastest pure-Python OMP available (beats SPAMS on face recognition by 3x)
-- **CPU only, want a sklearn drop-in?** Use `v0` or `v0_blas` — 3-5x faster, same API, no C dependencies
+- **Have a GPU?** Fastest pure-Python OMP available (beats SPAMS on face recognition by 3x)
+- **CPU only, want a sklearn drop-in?** 3-5x faster, same API, no C dependencies
 - **CPU only, maximum speed?** [SPAMS](https://thoth.inrialpes.fr/people/mairal/spams/) is faster (C++ with OpenMP) but harder to install
 - **Few signals or small problems?** sklearn is fine — batching helps most with hundreds+ of signals
 
@@ -80,7 +80,7 @@ run_omp(X, y, n_nonzero_coefs, precompute=True, tol=0.0,
 | `tol` | Residual norm threshold for early stopping. `0` disables. |
 | `normalize` | Column-normalize `X` before solving (undo on output). |
 | `fit_intercept` | Center `X` and `y` before solving. |
-| `alg` | `'v0'` (default, fastest), `'naive'`, or `'v0_blas'` (CPU-only, Cython BLAS). |
+| `alg` | `'v0'` (default, inverse Cholesky — fastest) or `'v0_blas'` (CPU-only, Cython BLAS). |
 
 Returns a `(n_samples, n_components)` tensor of sparse coefficients.
 
@@ -90,9 +90,8 @@ All algorithms are **batched** — they solve B sparse coding problems in parall
 
 | Algorithm | Description | Best for |
 |-----------|-------------|----------|
-| **v0** | Inverse Cholesky factorization. Updates the Cholesky inverse iteratively, avoiding a linear solve each iteration. Uses `torch.baddbmm`, `torch.bmm`, `torch.gather`. | GPU (any size), CPU (small-medium n_features) |
-| **naive** | Batched Cholesky. Builds and solves the normal equations each iteration. CPU path uses packed triangular storage + BLAS (`dppsv`, `idamax`). | GPU when memory is tight |
-| **v0_blas** | NumPy + Cython BLAS variant of v0. Calls `dgemv`/`daxpy`/`idamax` directly via scipy's BLAS interface. | CPU with large n_features (e.g. 8064) |
+| **v0** (inverse Cholesky) | Updates the Cholesky inverse iteratively, avoiding a linear solve each iteration. Based on [Zhu et al. 2020](https://www.mdpi.com/2079-9292/9/9/1507). | GPU (any size), CPU (small-medium n_features) |
+| **v0_blas** | Cython BLAS variant of v0. Calls `dgemv`/`daxpy`/`idamax` directly via scipy. | CPU with large n_features (e.g. 8064) |
 
 ## Project Structure
 

@@ -156,13 +156,6 @@ def run_benchmark(name, cfg, run_gpu=True, skip_correctness=False, skip_sklearn=
             print(f"GPU cr-sparse:       FAIL ({e})")
 
     with elapsed_timer() as elapsed:
-        xests_naive = run_omp(X.copy(), y.copy(), n_nonzero_coefs,
-                              tol=None, normalize=False, fit_intercept=False, alg='naive')
-    t = elapsed()
-    results['naive_cpu'] = {'time': t, 'sps': n_samples / t, 'coefs': xests_naive.numpy()}
-    print(f"CPU naive:    {results['naive_cpu']['sps']:>10.0f} samples/sec ({t:.3f}s)")
-
-    with elapsed_timer() as elapsed:
         xests_v0 = run_omp(torch.as_tensor(X.copy()), torch.as_tensor(y.copy()), n_nonzero_coefs,
                            tol=None, normalize=False, fit_intercept=False, alg='v0')
     t = elapsed()
@@ -184,26 +177,33 @@ def run_benchmark(name, cfg, run_gpu=True, skip_correctness=False, skip_sklearn=
         X_cuda = torch.as_tensor(X.copy()).cuda()
         y_cuda = torch.as_tensor(y.copy()).cuda()
 
-        for alg in ['naive', 'v0']:
-            key = f'{alg}_gpu'
-            try:
+        try:
+            # Warmup
+            run_omp(X_cuda.clone(), y_cuda.clone(), n_nonzero_coefs,
+                    tol=None, normalize=False, fit_intercept=False, alg='v0')
+            torch.cuda.synchronize()
+
+            gpu_times = []
+            for _ in range(3):
                 torch.cuda.synchronize()
                 with elapsed_timer() as elapsed:
                     xests_gpu = run_omp(X_cuda.clone(), y_cuda.clone(), n_nonzero_coefs,
-                                        tol=None, normalize=False, fit_intercept=False, alg=alg)
+                                        tol=None, normalize=False, fit_intercept=False, alg='v0')
                     torch.cuda.synchronize()
-                t = elapsed()
-                results[key] = {'time': t, 'sps': n_samples / t, 'coefs': xests_gpu.cpu().numpy()}
-                print(f"GPU {alg + ':':9s} {results[key]['sps']:>10.0f} samples/sec ({t:.3f}s)")
-            except torch.cuda.OutOfMemoryError:
-                print(f"GPU {alg + ':':9s}        OOM")
-                torch.cuda.empty_cache()
+                gpu_times.append(elapsed())
+            t = np.mean(gpu_times)
+            t_std = np.std(gpu_times)
+            results['v0_gpu'] = {'time': t, 'time_std': t_std, 'sps': n_samples / t, 'coefs': xests_gpu.cpu().numpy()}
+            print(f"GPU v0:       {results['v0_gpu']['sps']:>10.0f} samples/sec ({t:.3f}s +/- {t_std:.3f}s)")
+        except torch.cuda.OutOfMemoryError:
+            print(f"GPU v0:              OOM")
+            torch.cuda.empty_cache()
 
     # --- Speedups ---
     if 'sklearn' in results:
         sklearn_sps = results['sklearn']['sps']
         print(f"\nSpeedups vs sklearn:")
-        for key in ['spams', 'cr_sparse', 'naive_cpu', 'v0_cpu', 'v0_blas', 'naive_gpu', 'v0_gpu']:
+        for key in ['spams', 'cr_sparse', 'v0_cpu', 'v0_blas', 'v0_gpu']:
             if key in results:
                 label = key.replace('_', ' ').upper()
                 print(f"  {label}: {results[key]['sps'] / sklearn_sps:.1f}x")
@@ -215,17 +215,7 @@ def run_benchmark(name, cfg, run_gpu=True, skip_correctness=False, skip_sklearn=
     eps = 1e-12
     coefs_map = {k: v['coefs'] for k, v in results.items()}
 
-    # Check naive vs v0 support agreement (CPU versions)
-    B = coefs_map['naive_cpu']
     C = coefs_map['v0_cpu']
-    support_diffs = sum(1 for i in range(B.shape[0])
-                        if not np.array_equal(
-                            np.flatnonzero(np.abs(B[i]) > eps),
-                            np.flatnonzero(np.abs(C[i]) > eps)))
-    if support_diffs:
-        print(f"  WARNING: {support_diffs}/{B.shape[0]} samples have CPU naive vs v0 support disagreement")
-    else:
-        print(f"  CPU naive vs v0 support: agree on all {B.shape[0]} samples")
 
     # Check SPAMS vs v0_cpu support agreement
     if 'spams' in coefs_map:
@@ -390,8 +380,7 @@ def run_sweep(run_gpu=True):
             'n_samples': B,
         }
         results = run_benchmark(f"sweep_N{N}_B{B}_S{S}", cfg,
-                                run_gpu=run_gpu, skip_correctness=True,
-                                skip_sklearn=True)
+                                run_gpu=run_gpu, skip_correctness=True)
 
         # Strip coefs (not JSON-serializable, not needed for plotting)
         stripped = {}
@@ -406,7 +395,7 @@ def run_sweep(run_gpu=True):
 
         # Mark missing GPU algorithms as OOM
         if run_gpu and HAS_CUDA:
-            for alg_key in ['naive_gpu', 'v0_gpu']:
+            for alg_key in ['v0_gpu']:
                 if alg_key not in stripped:
                     stripped[alg_key] = 'OOM'
         if HAS_CR_SPARSE and 'cr_sparse' not in stripped:
