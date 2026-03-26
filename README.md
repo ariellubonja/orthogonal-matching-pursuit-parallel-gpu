@@ -2,18 +2,18 @@
 
 **Paper:** [Efficient Batched CPU/GPU Implementation of Orthogonal Matching Pursuit for Python](https://arxiv.org/abs/2407.06434)
 
-Batched implementation of Orthogonal Matching Pursuit (OMP) using BLAS (CPU) and PyTorch (GPU). Solves thousands of sparse coding problems simultaneously, achieving **up to 37x speedup over scikit-learn** on GPU and **3-5x on CPU**. Drop-in sklearn replacement with native GPU support.
+Batched implementation of Orthogonal Matching Pursuit (OMP) using BLAS (CPU) and PyTorch (GPU). Solves thousands of sparse coding problems simultaneously, achieving **up to 37x speedup over scikit-learn** on GPU and **3-5x on CPU**. **Drop-in sklearn replacement** with native GPU support.
 
 
 ![Benchmark plot](benchmarks/results/benchmark_plot.png)
 
 ### Speedup vs scikit-learn
 
-| Config | Dimensions | Sparsity | Samples | Best CPU | v0 GPU | SPAMS (C++) |
-|--------|-----------|----------|---------|----------|--------|-------------|
-| Image patches | 256 x 1024 | 32 | 5000 | 4.4x | 37x | **43x** |
-| Face recognition | 8064 x 1207 | 30 | 1207 | 3.2x† | **9.1x** | 2.9x |
-| Audio | 512 x 2048 | 64 | 5000 | 5.5x | OOM | 54x |
+| Config | Best CPU | v0 GPU | SPAMS (C++) |
+|--------|----------|--------|-------------|
+| Image patches (256×1024, S=32, B=5K) | 4.4x | 37x | **43x** |
+| Face recognition (8064×1207, S=30, B=1.2K) | 3.2x† | **9.1x** | 2.9x |
+| Audio (512×2048, S=64, B=5K) | 5.5x | OOM | 54x |
 
 † v0_blas variant, best CPU method for large n_features. Standard v0 CPU gets 4.4x / 1.2x / 5.5x respectively.
 

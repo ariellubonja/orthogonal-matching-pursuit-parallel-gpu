@@ -1,0 +1,1528 @@
+Date: 2026-03-25T10:11:20.424417
+CPU: Intel(R) Core(TM) Ultra 9 185H
+GPU: NVIDIA GeForce RTX 4060 Laptop GPU
+
+############################################################
+Parameter sweep: 108 cells
+  N (n_components): [64, 128, 256, 512, 1024, 2048, 4096]
+  B (n_samples):    [10, 50, 100, 500, 1000, 5000]
+  S (sparsity):     [8, 32, 64]
+  Fixed: M = N/4
+############################################################
+
+[1/108] N=64, B=10, S=8 | elapsed: 0.0min, ETA: --
+
+============================================================
+Benchmark: sweep_N64_B10_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU SPAMS:        113466 samples/sec (0.000s +/- 0.000s)
+GPU cr-sparse:        89 samples/sec (0.112s)
+CPU naive:          2342 samples/sec (0.004s)
+CPU v0:             4196 samples/sec (0.002s)
+CPU v0 blas:       20372 samples/sec (0.000s)
+GPU naive:            83 samples/sec (0.121s)
+GPU v0:              174 samples/sec (0.057s)
+
+[2/108] N=64, B=50, S=8 | elapsed: 0.1min, ETA: 11.4min
+
+============================================================
+Benchmark: sweep_N64_B50_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU SPAMS:        228422 samples/sec (0.000s +/- 0.000s)
+GPU cr-sparse:       437 samples/sec (0.114s)
+CPU naive:         19574 samples/sec (0.003s)
+CPU v0:             8817 samples/sec (0.006s)
+CPU v0 blas:       78463 samples/sec (0.001s)
+GPU naive:          9240 samples/sec (0.005s)
+GPU v0:            13046 samples/sec (0.004s)
+
+[3/108] N=64, B=100, S=8 | elapsed: 0.2min, ETA: 10.5min
+
+============================================================
+Benchmark: sweep_N64_B100_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU SPAMS:          6070 samples/sec (0.016s +/- 0.010s)
+GPU cr-sparse:       708 samples/sec (0.141s)
+CPU naive:         29817 samples/sec (0.003s)
+CPU v0:            33496 samples/sec (0.003s)
+CPU v0 blas:      130130 samples/sec (0.001s)
+GPU naive:         12262 samples/sec (0.008s)
+GPU v0:            25762 samples/sec (0.004s)
+
+[4/108] N=64, B=500, S=8 | elapsed: 0.3min, ETA: 10.2min
+
+============================================================
+Benchmark: sweep_N64_B500_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU SPAMS:        477561 samples/sec (0.001s +/- 0.000s)
+GPU cr-sparse:      4475 samples/sec (0.112s)
+CPU naive:         12667 samples/sec (0.039s)
+CPU v0:            38256 samples/sec (0.013s)
+CPU v0 blas:      185317 samples/sec (0.003s)
+GPU naive:         87721 samples/sec (0.006s)
+GPU v0:           127608 samples/sec (0.004s)
+
+[5/108] N=64, B=1000, S=8 | elapsed: 0.4min, ETA: 10.0min
+
+============================================================
+Benchmark: sweep_N64_B1000_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU SPAMS:        211395 samples/sec (0.005s +/- 0.004s)
+GPU cr-sparse:      8733 samples/sec (0.115s)
+CPU naive:         13364 samples/sec (0.075s)
+CPU v0:            23507 samples/sec (0.043s)
+CPU v0 blas:       92934 samples/sec (0.011s)
+GPU naive:        168201 samples/sec (0.006s)
+GPU v0:           259764 samples/sec (0.004s)
+
+[6/108] N=64, B=5000, S=8 | elapsed: 0.5min, ETA: 9.8min
+
+============================================================
+Benchmark: sweep_N64_B5000_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU SPAMS:        416485 samples/sec (0.012s +/- 0.003s)
+GPU cr-sparse:     42807 samples/sec (0.117s)
+CPU naive:         19870 samples/sec (0.252s)
+CPU v0:            69668 samples/sec (0.072s)
+CPU v0 blas:       83713 samples/sec (0.060s)
+GPU naive:        579191 samples/sec (0.009s)
+GPU v0:          1281395 samples/sec (0.004s)
+
+[7/108] N=128, B=10, S=8 | elapsed: 0.6min, ETA: 9.9min
+
+============================================================
+Benchmark: sweep_N128_B10_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU SPAMS:         73309 samples/sec (0.000s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (32,).)
+CPU naive:          2661 samples/sec (0.004s)
+CPU v0:             1085 samples/sec (0.009s)
+CPU v0 blas:         875 samples/sec (0.011s)
+GPU naive:          1820 samples/sec (0.005s)
+GPU v0:             2705 samples/sec (0.004s)
+
+[8/108] N=128, B=50, S=8 | elapsed: 0.6min, ETA: 8.4min
+
+============================================================
+Benchmark: sweep_N128_B50_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU SPAMS:        219069 samples/sec (0.000s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (32,).)
+CPU naive:         17855 samples/sec (0.003s)
+CPU v0:            10273 samples/sec (0.005s)
+CPU v0 blas:        3860 samples/sec (0.013s)
+GPU naive:          5818 samples/sec (0.009s)
+GPU v0:            12902 samples/sec (0.004s)
+
+[9/108] N=128, B=100, S=8 | elapsed: 0.6min, ETA: 7.3min
+
+============================================================
+Benchmark: sweep_N128_B100_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU SPAMS:         15512 samples/sec (0.006s +/- 0.003s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (32,).)
+CPU naive:         26446 samples/sec (0.004s)
+CPU v0:            14053 samples/sec (0.007s)
+CPU v0 blas:       92263 samples/sec (0.001s)
+GPU naive:         16682 samples/sec (0.006s)
+GPU v0:            25810 samples/sec (0.004s)
+
+[10/108] N=128, B=500, S=8 | elapsed: 0.6min, ETA: 6.5min
+
+============================================================
+Benchmark: sweep_N128_B500_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU SPAMS:         26587 samples/sec (0.019s +/- 0.004s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (32,).)
+CPU naive:          5258 samples/sec (0.095s)
+CPU v0:             6359 samples/sec (0.079s)
+CPU v0 blas:       50175 samples/sec (0.010s)
+GPU naive:         32341 samples/sec (0.015s)
+GPU v0:            73420 samples/sec (0.007s)
+
+[11/108] N=128, B=1000, S=8 | elapsed: 0.6min, ETA: 5.8min
+
+============================================================
+Benchmark: sweep_N128_B1000_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU SPAMS:         75405 samples/sec (0.013s +/- 0.003s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (32,).)
+CPU naive:          8109 samples/sec (0.123s)
+CPU v0:             7337 samples/sec (0.136s)
+CPU v0 blas:       23782 samples/sec (0.042s)
+GPU naive:        151240 samples/sec (0.007s)
+GPU v0:           256727 samples/sec (0.004s)
+
+[12/108] N=128, B=5000, S=8 | elapsed: 0.6min, ETA: 5.3min
+
+============================================================
+Benchmark: sweep_N128_B5000_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU SPAMS:        474683 samples/sec (0.011s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (32,).)
+CPU naive:         16193 samples/sec (0.309s)
+CPU v0:            35056 samples/sec (0.143s)
+CPU v0 blas:       60994 samples/sec (0.082s)
+GPU naive:        494397 samples/sec (0.010s)
+GPU v0:           718053 samples/sec (0.007s)
+
+[13/108] N=256, B=10, S=8 | elapsed: 0.6min, ETA: 4.9min
+
+============================================================
+Benchmark: sweep_N256_B10_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU SPAMS:          1669 samples/sec (0.006s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (64,).)
+CPU naive:          3830 samples/sec (0.003s)
+CPU v0:             4432 samples/sec (0.002s)
+CPU v0 blas:         859 samples/sec (0.012s)
+GPU naive:           825 samples/sec (0.012s)
+GPU v0:             2565 samples/sec (0.004s)
+
+[14/108] N=256, B=50, S=8 | elapsed: 0.6min, ETA: 4.5min
+
+============================================================
+Benchmark: sweep_N256_B50_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU SPAMS:         56323 samples/sec (0.001s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (64,).)
+CPU naive:          1018 samples/sec (0.049s)
+CPU v0:            14673 samples/sec (0.003s)
+CPU v0 blas:        2397 samples/sec (0.021s)
+GPU naive:          8215 samples/sec (0.006s)
+GPU v0:            12959 samples/sec (0.004s)
+
+[15/108] N=256, B=100, S=8 | elapsed: 0.6min, ETA: 4.2min
+
+============================================================
+Benchmark: sweep_N256_B100_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU SPAMS:         87339 samples/sec (0.001s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (64,).)
+CPU naive:           623 samples/sec (0.161s)
+CPU v0:             3745 samples/sec (0.027s)
+CPU v0 blas:        5240 samples/sec (0.019s)
+GPU naive:          8919 samples/sec (0.011s)
+GPU v0:            24883 samples/sec (0.004s)
+
+[16/108] N=256, B=500, S=8 | elapsed: 0.6min, ETA: 3.9min
+
+============================================================
+Benchmark: sweep_N256_B500_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU SPAMS:        174835 samples/sec (0.003s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (64,).)
+CPU naive:          4618 samples/sec (0.108s)
+CPU v0:             4793 samples/sec (0.104s)
+CPU v0 blas:       18693 samples/sec (0.027s)
+GPU naive:         32879 samples/sec (0.015s)
+GPU v0:            71605 samples/sec (0.007s)
+
+[17/108] N=256, B=1000, S=8 | elapsed: 0.6min, ETA: 3.7min
+
+============================================================
+Benchmark: sweep_N256_B1000_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU SPAMS:        213534 samples/sec (0.005s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (64,).)
+CPU naive:          4615 samples/sec (0.217s)
+CPU v0:            11937 samples/sec (0.084s)
+CPU v0 blas:       23997 samples/sec (0.042s)
+GPU naive:        161409 samples/sec (0.006s)
+GPU v0:           260759 samples/sec (0.004s)
+
+[18/108] N=256, B=5000, S=8 | elapsed: 0.6min, ETA: 3.4min
+
+============================================================
+Benchmark: sweep_N256_B5000_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU SPAMS:        127785 samples/sec (0.039s +/- 0.003s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (64,).)
+CPU naive:         15383 samples/sec (0.325s)
+CPU v0:            24943 samples/sec (0.200s)
+CPU v0 blas:       31985 samples/sec (0.156s)
+GPU naive:        287068 samples/sec (0.017s)
+GPU v0:           808536 samples/sec (0.006s)
+
+[19/108] N=512, B=10, S=8 | elapsed: 0.7min, ETA: 3.3min
+
+============================================================
+Benchmark: sweep_N512_B10_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU SPAMS:          1669 samples/sec (0.006s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (128,).)
+CPU naive:          1237 samples/sec (0.008s)
+CPU v0:             1048 samples/sec (0.010s)
+CPU v0 blas:         436 samples/sec (0.023s)
+GPU naive:           564 samples/sec (0.018s)
+GPU v0:             1459 samples/sec (0.007s)
+
+[20/108] N=512, B=50, S=8 | elapsed: 0.7min, ETA: 3.1min
+
+============================================================
+Benchmark: sweep_N512_B50_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU SPAMS:         15650 samples/sec (0.003s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (128,).)
+CPU naive:           383 samples/sec (0.131s)
+CPU v0:             2710 samples/sec (0.018s)
+CPU v0 blas:        2185 samples/sec (0.023s)
+GPU naive:          4594 samples/sec (0.011s)
+GPU v0:             2940 samples/sec (0.017s)
+
+[21/108] N=512, B=100, S=8 | elapsed: 0.7min, ETA: 3.0min
+
+============================================================
+Benchmark: sweep_N512_B100_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU SPAMS:         32212 samples/sec (0.003s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (128,).)
+CPU naive:           690 samples/sec (0.145s)
+CPU v0:             1180 samples/sec (0.085s)
+CPU v0 blas:        4531 samples/sec (0.022s)
+GPU naive:         11881 samples/sec (0.008s)
+GPU v0:            10177 samples/sec (0.010s)
+
+[22/108] N=512, B=500, S=8 | elapsed: 0.7min, ETA: 2.8min
+
+============================================================
+Benchmark: sweep_N512_B500_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU SPAMS:         27004 samples/sec (0.019s +/- 0.009s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (128,).)
+CPU naive:          2517 samples/sec (0.199s)
+CPU v0:             5532 samples/sec (0.090s)
+CPU v0 blas:       15905 samples/sec (0.031s)
+GPU naive:         76092 samples/sec (0.007s)
+GPU v0:           127607 samples/sec (0.004s)
+
+[23/108] N=512, B=1000, S=8 | elapsed: 0.7min, ETA: 2.7min
+
+============================================================
+Benchmark: sweep_N512_B1000_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU SPAMS:         82493 samples/sec (0.012s +/- 0.002s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (128,).)
+CPU naive:          4231 samples/sec (0.236s)
+CPU v0:             8855 samples/sec (0.113s)
+CPU v0 blas:       14201 samples/sec (0.070s)
+GPU naive:         90269 samples/sec (0.011s)
+GPU v0:           255836 samples/sec (0.004s)
+
+[24/108] N=512, B=5000, S=8 | elapsed: 0.7min, ETA: 2.6min
+
+============================================================
+Benchmark: sweep_N512_B5000_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU SPAMS:         91260 samples/sec (0.055s +/- 0.005s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (128,).)
+CPU naive:         11985 samples/sec (0.417s)
+CPU v0:            16892 samples/sec (0.296s)
+CPU v0 blas:       18672 samples/sec (0.268s)
+GPU naive:        128643 samples/sec (0.039s)
+GPU v0:           314254 samples/sec (0.016s)
+
+[25/108] N=1024, B=10, S=8 | elapsed: 0.7min, ETA: 2.6min
+
+============================================================
+Benchmark: sweep_N1024_B10_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU SPAMS:           835 samples/sec (0.012s +/- 0.004s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (256,).)
+CPU naive:           192 samples/sec (0.052s)
+CPU v0:              572 samples/sec (0.017s)
+CPU v0 blas:         360 samples/sec (0.028s)
+GPU naive:           826 samples/sec (0.012s)
+GPU v0:             1707 samples/sec (0.006s)
+
+[26/108] N=1024, B=50, S=8 | elapsed: 0.7min, ETA: 2.4min
+
+============================================================
+Benchmark: sweep_N1024_B50_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU SPAMS:          3316 samples/sec (0.015s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (256,).)
+CPU naive:           425 samples/sec (0.118s)
+CPU v0:              638 samples/sec (0.078s)
+CPU v0 blas:        1616 samples/sec (0.031s)
+GPU naive:          3997 samples/sec (0.013s)
+GPU v0:            12578 samples/sec (0.004s)
+
+[27/108] N=1024, B=100, S=8 | elapsed: 0.7min, ETA: 2.4min
+
+============================================================
+Benchmark: sweep_N1024_B100_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU SPAMS:          5376 samples/sec (0.019s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (256,).)
+CPU naive:           559 samples/sec (0.179s)
+CPU v0:             1292 samples/sec (0.077s)
+CPU v0 blas:        2709 samples/sec (0.037s)
+GPU naive:         10075 samples/sec (0.010s)
+GPU v0:            15019 samples/sec (0.007s)
+
+[28/108] N=1024, B=500, S=8 | elapsed: 0.8min, ETA: 2.3min
+
+============================================================
+Benchmark: sweep_N1024_B500_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU SPAMS:         19938 samples/sec (0.025s +/- 0.004s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (256,).)
+CPU naive:          2626 samples/sec (0.190s)
+CPU v0:             3562 samples/sec (0.140s)
+CPU v0 blas:        7428 samples/sec (0.067s)
+GPU naive:         28578 samples/sec (0.017s)
+GPU v0:            84582 samples/sec (0.006s)
+
+[29/108] N=1024, B=1000, S=8 | elapsed: 0.8min, ETA: 2.2min
+
+============================================================
+Benchmark: sweep_N1024_B1000_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU SPAMS:         29110 samples/sec (0.034s +/- 0.002s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (256,).)
+CPU naive:          3707 samples/sec (0.270s)
+CPU v0:             7275 samples/sec (0.137s)
+CPU v0 blas:        7850 samples/sec (0.127s)
+GPU naive:         33134 samples/sec (0.030s)
+GPU v0:           108614 samples/sec (0.009s)
+
+[30/108] N=1024, B=5000, S=8 | elapsed: 0.8min, ETA: 2.1min
+
+============================================================
+Benchmark: sweep_N1024_B5000_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU SPAMS:         28838 samples/sec (0.173s +/- 0.004s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (256,).)
+CPU naive:          6069 samples/sec (0.824s)
+CPU v0:             8083 samples/sec (0.619s)
+CPU v0 blas:        6309 samples/sec (0.793s)
+GPU naive:         37960 samples/sec (0.132s)
+GPU v0:           119593 samples/sec (0.042s)
+
+[31/108] N=2048, B=10, S=8 | elapsed: 0.8min, ETA: 2.2min
+
+============================================================
+Benchmark: sweep_N2048_B10_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU SPAMS:           671 samples/sec (0.015s +/- 0.003s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (512,).)
+CPU naive:            23 samples/sec (0.442s)
+CPU v0:              130 samples/sec (0.077s)
+CPU v0 blas:         176 samples/sec (0.057s)
+GPU naive:           380 samples/sec (0.026s)
+GPU v0:              479 samples/sec (0.021s)
+
+[32/108] N=2048, B=50, S=8 | elapsed: 0.9min, ETA: 2.1min
+
+============================================================
+Benchmark: sweep_N2048_B50_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU SPAMS:           508 samples/sec (0.098s +/- 0.011s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (512,).)
+CPU naive:            67 samples/sec (0.742s)
+CPU v0:              593 samples/sec (0.084s)
+CPU v0 blas:         660 samples/sec (0.076s)
+GPU naive:          1570 samples/sec (0.032s)
+GPU v0:             1931 samples/sec (0.026s)
+
+[33/108] N=2048, B=100, S=8 | elapsed: 0.9min, ETA: 2.1min
+
+============================================================
+Benchmark: sweep_N2048_B100_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU SPAMS:          1339 samples/sec (0.075s +/- 0.003s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (512,).)
+CPU naive:           138 samples/sec (0.726s)
+CPU v0:             1630 samples/sec (0.061s)
+CPU v0 blas:        1494 samples/sec (0.067s)
+GPU naive:          2819 samples/sec (0.035s)
+GPU v0:             3777 samples/sec (0.026s)
+
+[34/108] N=2048, B=500, S=8 | elapsed: 0.9min, ETA: 2.1min
+
+============================================================
+Benchmark: sweep_N2048_B500_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU SPAMS:          4399 samples/sec (0.114s +/- 0.006s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (512,).)
+CPU naive:           431 samples/sec (1.161s)
+CPU v0:             2164 samples/sec (0.231s)
+CPU v0 blas:        2129 samples/sec (0.235s)
+GPU naive:          6784 samples/sec (0.074s)
+GPU v0:            14775 samples/sec (0.034s)
+
+[35/108] N=2048, B=1000, S=8 | elapsed: 1.0min, ETA: 2.1min
+
+============================================================
+Benchmark: sweep_N2048_B1000_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU SPAMS:          6112 samples/sec (0.164s +/- 0.032s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (512,).)
+CPU naive:           850 samples/sec (1.177s)
+CPU v0:             3591 samples/sec (0.279s)
+CPU v0 blas:        3403 samples/sec (0.294s)
+GPU naive:          8299 samples/sec (0.121s)
+GPU v0:            23051 samples/sec (0.043s)
+
+[36/108] N=2048, B=5000, S=8 | elapsed: 1.0min, ETA: 2.1min
+
+============================================================
+Benchmark: sweep_N2048_B5000_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU SPAMS:         10404 samples/sec (0.481s +/- 0.016s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (512,).)
+CPU naive:          2172 samples/sec (2.303s)
+CPU v0:             3836 samples/sec (1.303s)
+CPU v0 blas:        3238 samples/sec (1.544s)
+GPU naive:         11391 samples/sec (0.439s)
+GPU v0:            43091 samples/sec (0.116s)
+
+[37/108] N=4096, B=10, S=8 | elapsed: 1.2min, ETA: 2.3min
+
+============================================================
+Benchmark: sweep_N4096_B10_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU SPAMS:            99 samples/sec (0.101s +/- 0.012s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (1024,).)
+CPU naive:            10 samples/sec (0.966s)
+CPU v0:               33 samples/sec (0.308s)
+CPU v0 blas:          38 samples/sec (0.266s)
+GPU naive:            53 samples/sec (0.188s)
+GPU v0:               63 samples/sec (0.159s)
+
+[38/108] N=4096, B=50, S=8 | elapsed: 1.2min, ETA: 2.3min
+
+============================================================
+Benchmark: sweep_N4096_B50_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU SPAMS:            77 samples/sec (0.653s +/- 0.030s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (1024,).)
+CPU naive:            41 samples/sec (1.218s)
+CPU v0:              158 samples/sec (0.316s)
+CPU v0 blas:         131 samples/sec (0.381s)
+GPU naive:           240 samples/sec (0.208s)
+GPU v0:              316 samples/sec (0.158s)
+
+[39/108] N=4096, B=100, S=8 | elapsed: 1.3min, ETA: 2.4min
+
+============================================================
+Benchmark: sweep_N4096_B100_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU SPAMS:           156 samples/sec (0.641s +/- 0.013s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (1024,).)
+CPU naive:            79 samples/sec (1.272s)
+CPU v0:              299 samples/sec (0.335s)
+CPU v0 blas:         354 samples/sec (0.282s)
+GPU naive:           467 samples/sec (0.214s)
+GPU v0:              618 samples/sec (0.162s)
+
+[40/108] N=4096, B=500, S=8 | elapsed: 1.4min, ETA: 2.5min
+
+============================================================
+Benchmark: sweep_N4096_B500_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU SPAMS:           649 samples/sec (0.770s +/- 0.045s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (1024,).)
+CPU naive:           369 samples/sec (1.356s)
+CPU v0:              933 samples/sec (0.536s)
+CPU v0 blas:        1202 samples/sec (0.416s)
+GPU naive:          1481 samples/sec (0.338s)
+GPU v0:             2790 samples/sec (0.179s)
+
+[41/108] N=4096, B=1000, S=8 | elapsed: 1.6min, ETA: 2.6min
+
+============================================================
+Benchmark: sweep_N4096_B1000_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU SPAMS:          1080 samples/sec (0.926s +/- 0.006s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (1024,).)
+CPU naive:           531 samples/sec (1.885s)
+CPU v0:             1275 samples/sec (0.784s)
+CPU v0 blas:        1478 samples/sec (0.677s)
+GPU naive:          1992 samples/sec (0.502s)
+GPU v0:             4810 samples/sec (0.208s)
+
+[42/108] N=4096, B=5000, S=8 | elapsed: 1.7min, ETA: 2.8min
+
+============================================================
+Benchmark: sweep_N4096_B5000_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU SPAMS:          2016 samples/sec (2.481s +/- 0.025s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (1024,).)
+CPU naive:          1256 samples/sec (3.980s)
+CPU v0:             1411 samples/sec (3.543s)
+CPU v0 blas:        1551 samples/sec (3.224s)
+GPU naive:          2716 samples/sec (1.841s)
+GPU v0:            11135 samples/sec (0.449s)
+
+[43/108] N=128, B=10, S=32 | elapsed: 2.2min, ETA: 3.5min
+
+============================================================
+Benchmark: sweep_N128_B10_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU SPAMS:         32119 samples/sec (0.000s +/- 0.000s)
+GPU cr-sparse:        15 samples/sec (0.650s)
+CPU naive:          1277 samples/sec (0.008s)
+CPU v0:             1313 samples/sec (0.008s)
+CPU v0 blas:        6451 samples/sec (0.002s)
+GPU naive:           504 samples/sec (0.020s)
+GPU v0:              673 samples/sec (0.015s)
+
+[44/108] N=128, B=50, S=32 | elapsed: 2.6min, ETA: 3.9min
+
+============================================================
+Benchmark: sweep_N128_B50_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU SPAMS:         73509 samples/sec (0.001s +/- 0.000s)
+GPU cr-sparse:       110 samples/sec (0.454s)
+CPU naive:          1750 samples/sec (0.029s)
+CPU v0:             2164 samples/sec (0.023s)
+CPU v0 blas:        3653 samples/sec (0.014s)
+GPU naive:          2091 samples/sec (0.024s)
+GPU v0:             3560 samples/sec (0.014s)
+
+[45/108] N=128, B=100, S=32 | elapsed: 2.9min, ETA: 4.2min
+
+============================================================
+Benchmark: sweep_N128_B100_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU SPAMS:         91999 samples/sec (0.001s +/- 0.000s)
+GPU cr-sparse:       225 samples/sec (0.445s)
+CPU naive:          4849 samples/sec (0.021s)
+CPU v0:             4271 samples/sec (0.023s)
+CPU v0 blas:       15810 samples/sec (0.006s)
+GPU naive:          5225 samples/sec (0.019s)
+GPU v0:             6977 samples/sec (0.014s)
+
+[46/108] N=128, B=500, S=32 | elapsed: 3.2min, ETA: 4.5min
+
+============================================================
+Benchmark: sweep_N128_B500_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU SPAMS:        106469 samples/sec (0.005s +/- 0.000s)
+GPU cr-sparse:      1096 samples/sec (0.456s)
+CPU naive:           810 samples/sec (0.617s)
+CPU v0:             3320 samples/sec (0.151s)
+CPU v0 blas:        8438 samples/sec (0.059s)
+GPU naive:         20006 samples/sec (0.025s)
+GPU v0:            33115 samples/sec (0.015s)
+
+[47/108] N=128, B=1000, S=32 | elapsed: 3.6min, ETA: 4.8min
+
+============================================================
+Benchmark: sweep_N128_B1000_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU SPAMS:        105474 samples/sec (0.009s +/- 0.000s)
+GPU cr-sparse:      2141 samples/sec (0.467s)
+CPU naive:          1628 samples/sec (0.614s)
+CPU v0:             4531 samples/sec (0.221s)
+CPU v0 blas:       12115 samples/sec (0.083s)
+GPU naive:         33242 samples/sec (0.030s)
+GPU v0:            69447 samples/sec (0.014s)
+
+[48/108] N=128, B=5000, S=32 | elapsed: 3.9min, ETA: 5.1min
+
+============================================================
+Benchmark: sweep_N128_B5000_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU SPAMS:         84494 samples/sec (0.059s +/- 0.012s)
+GPU cr-sparse:     10780 samples/sec (0.464s)
+CPU naive:          2358 samples/sec (2.121s)
+CPU v0:             5262 samples/sec (0.950s)
+CPU v0 blas:       10510 samples/sec (0.476s)
+GPU naive:         56882 samples/sec (0.088s)
+GPU v0:           207727 samples/sec (0.024s)
+
+[49/108] N=256, B=10, S=32 | elapsed: 4.3min, ETA: 5.4min
+
+============================================================
+Benchmark: sweep_N256_B10_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU SPAMS:         16274 samples/sec (0.001s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (64,).)
+CPU naive:          1143 samples/sec (0.009s)
+CPU v0:             1189 samples/sec (0.008s)
+CPU v0 blas:        5354 samples/sec (0.002s)
+GPU naive:           505 samples/sec (0.020s)
+GPU v0:              693 samples/sec (0.014s)
+
+[50/108] N=256, B=50, S=32 | elapsed: 4.3min, ETA: 5.2min
+
+============================================================
+Benchmark: sweep_N256_B50_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU SPAMS:          8046 samples/sec (0.006s +/- 0.005s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (64,).)
+CPU naive:           159 samples/sec (0.315s)
+CPU v0:             1421 samples/sec (0.035s)
+CPU v0 blas:        2223 samples/sec (0.022s)
+GPU naive:          1497 samples/sec (0.033s)
+GPU v0:             3487 samples/sec (0.014s)
+
+[51/108] N=256, B=100, S=32 | elapsed: 4.3min, ETA: 5.0min
+
+============================================================
+Benchmark: sweep_N256_B100_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU SPAMS:         43562 samples/sec (0.002s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (64,).)
+CPU naive:           222 samples/sec (0.450s)
+CPU v0:             1340 samples/sec (0.075s)
+CPU v0 blas:        2857 samples/sec (0.035s)
+GPU naive:          5249 samples/sec (0.019s)
+GPU v0:             7045 samples/sec (0.014s)
+
+[52/108] N=256, B=500, S=32 | elapsed: 4.4min, ETA: 4.9min
+
+============================================================
+Benchmark: sweep_N256_B500_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU SPAMS:         40239 samples/sec (0.012s +/- 0.004s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (64,).)
+CPU naive:          1591 samples/sec (0.314s)
+CPU v0:             3300 samples/sec (0.152s)
+CPU v0 blas:        7071 samples/sec (0.071s)
+GPU naive:         21035 samples/sec (0.024s)
+GPU v0:            33054 samples/sec (0.015s)
+
+[53/108] N=256, B=1000, S=32 | elapsed: 4.4min, ETA: 4.7min
+
+============================================================
+Benchmark: sweep_N256_B1000_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU SPAMS:         47074 samples/sec (0.021s +/- 0.003s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (64,).)
+CPU naive:          1588 samples/sec (0.630s)
+CPU v0:             3319 samples/sec (0.301s)
+CPU v0 blas:        6869 samples/sec (0.146s)
+GPU naive:         33214 samples/sec (0.030s)
+GPU v0:            71230 samples/sec (0.014s)
+
+[54/108] N=256, B=5000, S=32 | elapsed: 4.4min, ETA: 4.6min
+
+============================================================
+Benchmark: sweep_N256_B5000_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU SPAMS:         56148 samples/sec (0.089s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (64,).)
+CPU naive:          2705 samples/sec (1.848s)
+CPU v0:             4600 samples/sec (1.087s)
+CPU v0 blas:        6020 samples/sec (0.831s)
+GPU naive:         43298 samples/sec (0.115s)
+GPU v0:           122464 samples/sec (0.041s)
+
+[55/108] N=512, B=10, S=32 | elapsed: 4.5min, ETA: 4.5min
+
+============================================================
+Benchmark: sweep_N512_B10_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU SPAMS:          1670 samples/sec (0.006s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (128,).)
+CPU naive:           287 samples/sec (0.035s)
+CPU v0:              476 samples/sec (0.021s)
+CPU v0 blas:        1385 samples/sec (0.007s)
+GPU naive:           484 samples/sec (0.021s)
+GPU v0:              682 samples/sec (0.015s)
+
+[56/108] N=512, B=50, S=32 | elapsed: 4.5min, ETA: 4.3min
+
+============================================================
+Benchmark: sweep_N512_B50_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU SPAMS:         14356 samples/sec (0.003s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (128,).)
+CPU naive:           112 samples/sec (0.447s)
+CPU v0:              799 samples/sec (0.063s)
+CPU v0 blas:        1626 samples/sec (0.031s)
+GPU naive:          1858 samples/sec (0.027s)
+GPU v0:             3505 samples/sec (0.014s)
+
+[57/108] N=512, B=100, S=32 | elapsed: 4.5min, ETA: 4.2min
+
+============================================================
+Benchmark: sweep_N512_B100_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU SPAMS:         20752 samples/sec (0.005s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (128,).)
+CPU naive:           244 samples/sec (0.410s)
+CPU v0:              978 samples/sec (0.102s)
+CPU v0 blas:        2259 samples/sec (0.044s)
+GPU naive:          5163 samples/sec (0.019s)
+GPU v0:             6957 samples/sec (0.014s)
+
+[58/108] N=512, B=500, S=32 | elapsed: 4.5min, ETA: 4.0min
+
+============================================================
+Benchmark: sweep_N512_B500_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU SPAMS:         28805 samples/sec (0.017s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (128,).)
+CPU naive:           547 samples/sec (0.914s)
+CPU v0:             1749 samples/sec (0.286s)
+CPU v0 blas:        3548 samples/sec (0.141s)
+GPU naive:         17809 samples/sec (0.028s)
+GPU v0:            36060 samples/sec (0.014s)
+
+[59/108] N=512, B=1000, S=32 | elapsed: 4.5min, ETA: 3.9min
+
+============================================================
+Benchmark: sweep_N512_B1000_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU SPAMS:         33068 samples/sec (0.030s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (128,).)
+CPU naive:          1080 samples/sec (0.926s)
+CPU v0:             2747 samples/sec (0.364s)
+CPU v0 blas:        3398 samples/sec (0.294s)
+GPU naive:         20789 samples/sec (0.048s)
+GPU v0:            58463 samples/sec (0.017s)
+
+[60/108] N=512, B=5000, S=32 | elapsed: 4.6min, ETA: 3.8min
+
+============================================================
+Benchmark: sweep_N512_B5000_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU SPAMS:         34074 samples/sec (0.147s +/- 0.005s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (128,).)
+CPU naive:          2071 samples/sec (2.414s)
+CPU v0:             3098 samples/sec (1.614s)
+CPU v0 blas:        3552 samples/sec (1.408s)
+GPU naive:         24186 samples/sec (0.207s)
+GPU v0:            60305 samples/sec (0.083s)
+
+[61/108] N=1024, B=10, S=32 | elapsed: 4.7min, ETA: 3.7min
+
+============================================================
+Benchmark: sweep_N1024_B10_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU SPAMS:           878 samples/sec (0.011s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (256,).)
+CPU naive:           171 samples/sec (0.058s)
+CPU v0:              110 samples/sec (0.091s)
+CPU v0 blas:         590 samples/sec (0.017s)
+GPU naive:           475 samples/sec (0.021s)
+GPU v0:              678 samples/sec (0.015s)
+
+[62/108] N=1024, B=50, S=32 | elapsed: 4.7min, ETA: 3.6min
+
+============================================================
+Benchmark: sweep_N1024_B50_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU SPAMS:          3721 samples/sec (0.013s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (256,).)
+CPU naive:           154 samples/sec (0.326s)
+CPU v0:              475 samples/sec (0.105s)
+CPU v0 blas:        1570 samples/sec (0.032s)
+GPU naive:          2211 samples/sec (0.023s)
+GPU v0:             3181 samples/sec (0.016s)
+
+[63/108] N=1024, B=100, S=32 | elapsed: 4.7min, ETA: 3.5min
+
+============================================================
+Benchmark: sweep_N1024_B100_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU SPAMS:          6187 samples/sec (0.016s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (256,).)
+CPU naive:           396 samples/sec (0.253s)
+CPU v0:              930 samples/sec (0.107s)
+CPU v0 blas:        1708 samples/sec (0.059s)
+GPU naive:          4584 samples/sec (0.022s)
+GPU v0:             6942 samples/sec (0.014s)
+
+[64/108] N=1024, B=500, S=32 | elapsed: 4.7min, ETA: 3.4min
+
+============================================================
+Benchmark: sweep_N1024_B500_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU SPAMS:         12830 samples/sec (0.039s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (256,).)
+CPU naive:           471 samples/sec (1.062s)
+CPU v0:             1875 samples/sec (0.267s)
+CPU v0 blas:        1967 samples/sec (0.254s)
+GPU naive:          7843 samples/sec (0.064s)
+GPU v0:            27447 samples/sec (0.018s)
+
+[65/108] N=1024, B=1000, S=32 | elapsed: 4.7min, ETA: 3.3min
+
+============================================================
+Benchmark: sweep_N1024_B1000_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU SPAMS:         15026 samples/sec (0.067s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (256,).)
+CPU naive:           737 samples/sec (1.356s)
+CPU v0:             2105 samples/sec (0.475s)
+CPU v0 blas:        1934 samples/sec (0.517s)
+GPU naive:          8572 samples/sec (0.117s)
+GPU v0:            30252 samples/sec (0.033s)
+
+[66/108] N=1024, B=5000, S=32 | elapsed: 4.8min, ETA: 3.2min
+
+============================================================
+Benchmark: sweep_N1024_B5000_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU SPAMS:         15294 samples/sec (0.327s +/- 0.003s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (256,).)
+CPU naive:          1795 samples/sec (2.786s)
+CPU v0:             2023 samples/sec (2.472s)
+CPU v0 blas:        1372 samples/sec (3.643s)
+GPU naive:         10092 samples/sec (0.495s)
+GPU v0:            28328 samples/sec (0.177s)
+
+[67/108] N=2048, B=10, S=32 | elapsed: 5.0min, ETA: 3.2min
+
+============================================================
+Benchmark: sweep_N2048_B10_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU SPAMS:           400 samples/sec (0.025s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (512,).)
+CPU naive:            10 samples/sec (0.994s)
+CPU v0:              216 samples/sec (0.046s)
+CPU v0 blas:         161 samples/sec (0.062s)
+GPU naive:           258 samples/sec (0.039s)
+GPU v0:              462 samples/sec (0.022s)
+
+[68/108] N=2048, B=50, S=32 | elapsed: 5.0min, ETA: 3.1min
+
+============================================================
+Benchmark: sweep_N2048_B50_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU SPAMS:           544 samples/sec (0.092s +/- 0.003s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (512,).)
+CPU naive:            35 samples/sec (1.410s)
+CPU v0:              728 samples/sec (0.069s)
+CPU v0 blas:         547 samples/sec (0.091s)
+GPU naive:           958 samples/sec (0.052s)
+GPU v0:             1805 samples/sec (0.028s)
+
+[69/108] N=2048, B=100, S=32 | elapsed: 5.0min, ETA: 3.0min
+
+============================================================
+Benchmark: sweep_N2048_B100_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU SPAMS:          1055 samples/sec (0.095s +/- 0.003s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (512,).)
+CPU naive:            46 samples/sec (2.196s)
+CPU v0:              798 samples/sec (0.125s)
+CPU v0 blas:         673 samples/sec (0.149s)
+GPU naive:          1453 samples/sec (0.069s)
+GPU v0:             3286 samples/sec (0.030s)
+
+[70/108] N=2048, B=500, S=32 | elapsed: 5.1min, ETA: 2.9min
+
+============================================================
+Benchmark: sweep_N2048_B500_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU SPAMS:          3326 samples/sec (0.150s +/- 0.003s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (512,).)
+CPU naive:           162 samples/sec (3.093s)
+CPU v0:             1331 samples/sec (0.376s)
+CPU v0 blas:         934 samples/sec (0.535s)
+GPU naive:          2433 samples/sec (0.205s)
+GPU v0:             9876 samples/sec (0.051s)
+
+[71/108] N=2048, B=1000, S=32 | elapsed: 5.2min, ETA: 2.8min
+
+============================================================
+Benchmark: sweep_N2048_B1000_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU SPAMS:          4551 samples/sec (0.220s +/- 0.007s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (512,).)
+CPU naive:           254 samples/sec (3.945s)
+CPU v0:             1469 samples/sec (0.681s)
+CPU v0 blas:         973 samples/sec (1.028s)
+GPU naive:          2775 samples/sec (0.360s)
+GPU v0:            11953 samples/sec (0.084s)
+
+[72/108] N=2048, B=5000, S=32 | elapsed: 5.3min, ETA: 2.8min
+
+============================================================
+Benchmark: sweep_N2048_B5000_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU SPAMS:          6140 samples/sec (0.814s +/- 0.007s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (512,).)
+CPU naive:           619 samples/sec (8.077s)
+CPU v0:             1338 samples/sec (3.737s)
+CPU v0 blas:         702 samples/sec (7.120s)
+GPU naive:          3082 samples/sec (1.622s)
+GPU v0:            11597 samples/sec (0.431s)
+
+[73/108] N=4096, B=10, S=32 | elapsed: 5.7min, ETA: 2.9min
+
+============================================================
+Benchmark: sweep_N4096_B10_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU SPAMS:            47 samples/sec (0.214s +/- 0.015s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (1024,).)
+CPU naive:             4 samples/sec (2.517s)
+CPU v0:               38 samples/sec (0.264s)
+CPU v0 blas:          34 samples/sec (0.290s)
+GPU naive:            48 samples/sec (0.208s)
+GPU v0:               61 samples/sec (0.164s)
+
+[74/108] N=4096, B=50, S=32 | elapsed: 5.8min, ETA: 2.8min
+
+============================================================
+Benchmark: sweep_N4096_B50_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU SPAMS:            93 samples/sec (0.539s +/- 0.011s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (1024,).)
+CPU naive:            22 samples/sec (2.271s)
+CPU v0:              169 samples/sec (0.296s)
+CPU v0 blas:         150 samples/sec (0.333s)
+GPU naive:           192 samples/sec (0.261s)
+GPU v0:              303 samples/sec (0.165s)
+
+[75/108] N=4096, B=100, S=32 | elapsed: 5.9min, ETA: 2.7min
+
+============================================================
+Benchmark: sweep_N4096_B100_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU SPAMS:           182 samples/sec (0.548s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (1024,).)
+CPU naive:            36 samples/sec (2.760s)
+CPU v0:              283 samples/sec (0.353s)
+CPU v0 blas:         218 samples/sec (0.458s)
+GPU naive:           336 samples/sec (0.297s)
+GPU v0:              591 samples/sec (0.169s)
+
+[76/108] N=4096, B=500, S=32 | elapsed: 6.1min, ETA: 2.7min
+
+============================================================
+Benchmark: sweep_N4096_B500_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU SPAMS:           651 samples/sec (0.768s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (1024,).)
+CPU naive:           117 samples/sec (4.282s)
+CPU v0:              594 samples/sec (0.841s)
+CPU v0 blas:         417 samples/sec (1.200s)
+GPU naive:           631 samples/sec (0.792s)
+GPU v0:             2186 samples/sec (0.229s)
+
+[77/108] N=4096, B=1000, S=32 | elapsed: 6.3min, ETA: 2.6min
+
+============================================================
+Benchmark: sweep_N4096_B1000_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU SPAMS:           867 samples/sec (1.154s +/- 0.020s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (1024,).)
+CPU naive:           171 samples/sec (5.847s)
+CPU v0:              598 samples/sec (1.671s)
+CPU v0 blas:         463 samples/sec (2.160s)
+GPU naive:           711 samples/sec (1.407s)
+GPU v0:             3168 samples/sec (0.316s)
+
+[78/108] N=4096, B=5000, S=32 | elapsed: 6.6min, ETA: 2.7min
+
+============================================================
+Benchmark: sweep_N4096_B5000_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU SPAMS:          1497 samples/sec (3.339s +/- 0.024s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (1024,).)
+CPU naive:           311 samples/sec (16.087s)
+CPU v0:              628 samples/sec (7.963s)
+CPU v0 blas:         351 samples/sec (14.236s)
+GPU naive:           728 samples/sec (6.872s)
+GPU v0:              OOM
+
+[79/108] N=256, B=10, S=64 | elapsed: 7.7min, ETA: 3.0min
+
+============================================================
+Benchmark: sweep_N256_B10_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU SPAMS:          8114 samples/sec (0.001s +/- 0.000s)
+GPU cr-sparse:        11 samples/sec (0.916s)
+CPU naive:           449 samples/sec (0.022s)
+CPU v0:              586 samples/sec (0.017s)
+CPU v0 blas:         421 samples/sec (0.024s)
+GPU naive:           265 samples/sec (0.038s)
+GPU v0:              354 samples/sec (0.028s)
+
+[80/108] N=256, B=50, S=64 | elapsed: 8.4min, ETA: 3.1min
+
+============================================================
+Benchmark: sweep_N256_B50_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU SPAMS:         16458 samples/sec (0.003s +/- 0.000s)
+GPU cr-sparse:        54 samples/sec (0.923s)
+CPU naive:            70 samples/sec (0.715s)
+CPU v0:              558 samples/sec (0.090s)
+CPU v0 blas:        1198 samples/sec (0.042s)
+GPU naive:          1240 samples/sec (0.040s)
+GPU v0:             1710 samples/sec (0.029s)
+
+[81/108] N=256, B=100, S=64 | elapsed: 9.0min, ETA: 3.2min
+
+============================================================
+Benchmark: sweep_N256_B100_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU SPAMS:         19407 samples/sec (0.005s +/- 0.000s)
+GPU cr-sparse:       107 samples/sec (0.933s)
+CPU naive:            86 samples/sec (1.157s)
+CPU v0:              736 samples/sec (0.136s)
+CPU v0 blas:        1613 samples/sec (0.062s)
+GPU naive:          2340 samples/sec (0.043s)
+GPU v0:             3497 samples/sec (0.029s)
+
+[82/108] N=256, B=500, S=64 | elapsed: 9.7min, ETA: 3.2min
+
+============================================================
+Benchmark: sweep_N256_B500_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU SPAMS:         22141 samples/sec (0.023s +/- 0.000s)
+GPU cr-sparse:       538 samples/sec (0.930s)
+CPU naive:           221 samples/sec (2.266s)
+CPU v0:             1408 samples/sec (0.355s)
+CPU v0 blas:        2020 samples/sec (0.248s)
+GPU naive:          7299 samples/sec (0.068s)
+GPU v0:            17207 samples/sec (0.029s)
+
+[83/108] N=256, B=1000, S=64 | elapsed: 10.3min, ETA: 3.3min
+
+============================================================
+Benchmark: sweep_N256_B1000_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU SPAMS:         21802 samples/sec (0.046s +/- 0.001s)
+GPU cr-sparse:      1090 samples/sec (0.918s)
+CPU naive:           278 samples/sec (3.599s)
+CPU v0:             1576 samples/sec (0.635s)
+CPU v0 blas:        1941 samples/sec (0.515s)
+GPU naive:          9532 samples/sec (0.105s)
+GPU v0:            29633 samples/sec (0.034s)
+
+[84/108] N=256, B=5000, S=64 | elapsed: 11.0min, ETA: 3.3min
+
+============================================================
+Benchmark: sweep_N256_B5000_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU SPAMS:         21179 samples/sec (0.236s +/- 0.006s)
+GPU cr-sparse:      5378 samples/sec (0.930s)
+CPU naive:           712 samples/sec (7.018s)
+CPU v0:             1155 samples/sec (4.328s)
+CPU v0 blas:        1935 samples/sec (2.584s)
+GPU naive:         11174 samples/sec (0.447s)
+GPU v0:            34885 samples/sec (0.143s)
+
+[85/108] N=512, B=10, S=64 | elapsed: 11.9min, ETA: 3.4min
+
+============================================================
+Benchmark: sweep_N512_B10_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU SPAMS:           961 samples/sec (0.010s +/- 0.002s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (128,).)
+CPU naive:           220 samples/sec (0.045s)
+CPU v0:              105 samples/sec (0.095s)
+CPU v0 blas:         403 samples/sec (0.025s)
+GPU naive:           235 samples/sec (0.043s)
+GPU v0:              358 samples/sec (0.028s)
+
+[86/108] N=512, B=50, S=64 | elapsed: 11.9min, ETA: 3.2min
+
+============================================================
+Benchmark: sweep_N512_B50_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU SPAMS:          8406 samples/sec (0.006s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (128,).)
+CPU naive:            47 samples/sec (1.067s)
+CPU v0:              480 samples/sec (0.104s)
+CPU v0 blas:        1039 samples/sec (0.048s)
+GPU naive:          1254 samples/sec (0.040s)
+GPU v0:             1776 samples/sec (0.028s)
+
+[87/108] N=512, B=100, S=64 | elapsed: 12.0min, ETA: 3.1min
+
+============================================================
+Benchmark: sweep_N512_B100_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU SPAMS:         10538 samples/sec (0.009s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (128,).)
+CPU naive:            73 samples/sec (1.373s)
+CPU v0:              607 samples/sec (0.165s)
+CPU v0 blas:        1300 samples/sec (0.077s)
+GPU naive:          2257 samples/sec (0.044s)
+GPU v0:             3541 samples/sec (0.028s)
+
+[88/108] N=512, B=500, S=64 | elapsed: 12.0min, ETA: 2.9min
+
+============================================================
+Benchmark: sweep_N512_B500_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU SPAMS:         12649 samples/sec (0.040s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (128,).)
+CPU naive:           168 samples/sec (2.983s)
+CPU v0:             1131 samples/sec (0.442s)
+CPU v0 blas:        1206 samples/sec (0.414s)
+GPU naive:          6258 samples/sec (0.080s)
+GPU v0:            15792 samples/sec (0.032s)
+
+[89/108] N=512, B=1000, S=64 | elapsed: 12.1min, ETA: 2.7min
+
+============================================================
+Benchmark: sweep_N512_B1000_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU SPAMS:         12796 samples/sec (0.078s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (128,).)
+CPU naive:           249 samples/sec (4.014s)
+CPU v0:              550 samples/sec (1.818s)
+CPU v0 blas:        1155 samples/sec (0.866s)
+GPU naive:          6510 samples/sec (0.154s)
+GPU v0:            19232 samples/sec (0.052s)
+
+[90/108] N=512, B=5000, S=64 | elapsed: 12.2min, ETA: 2.6min
+
+============================================================
+Benchmark: sweep_N512_B5000_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU SPAMS:          9661 samples/sec (0.518s +/- 0.080s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (128,).)
+CPU naive:           498 samples/sec (10.048s)
+CPU v0:              361 samples/sec (13.867s)
+CPU v0 blas:        1176 samples/sec (4.251s)
+GPU naive:          8027 samples/sec (0.623s)
+GPU v0:            18346 samples/sec (0.273s)
+
+[91/108] N=1024, B=10, S=64 | elapsed: 12.7min, ETA: 2.5min
+
+============================================================
+Benchmark: sweep_N1024_B10_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU SPAMS:           763 samples/sec (0.013s +/- 0.002s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (256,).)
+CPU naive:           145 samples/sec (0.069s)
+CPU v0:               77 samples/sec (0.131s)
+CPU v0 blas:         246 samples/sec (0.041s)
+GPU naive:           217 samples/sec (0.046s)
+GPU v0:              328 samples/sec (0.030s)
+
+[92/108] N=1024, B=50, S=64 | elapsed: 12.7min, ETA: 2.4min
+
+============================================================
+Benchmark: sweep_N1024_B50_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU SPAMS:          2623 samples/sec (0.019s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (256,).)
+CPU naive:            50 samples/sec (0.998s)
+CPU v0:              374 samples/sec (0.134s)
+CPU v0 blas:         686 samples/sec (0.073s)
+GPU naive:          1042 samples/sec (0.048s)
+GPU v0:             1755 samples/sec (0.028s)
+
+[93/108] N=1024, B=100, S=64 | elapsed: 12.8min, ETA: 2.2min
+
+============================================================
+Benchmark: sweep_N1024_B100_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU SPAMS:          3947 samples/sec (0.025s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (256,).)
+CPU naive:            43 samples/sec (2.343s)
+CPU v0:              509 samples/sec (0.196s)
+CPU v0 blas:         574 samples/sec (0.174s)
+GPU naive:          1913 samples/sec (0.052s)
+GPU v0:             3547 samples/sec (0.028s)
+
+[94/108] N=1024, B=500, S=64 | elapsed: 12.8min, ETA: 2.1min
+
+============================================================
+Benchmark: sweep_N1024_B500_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU SPAMS:          5697 samples/sec (0.088s +/- 0.003s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (256,).)
+CPU naive:           145 samples/sec (3.443s)
+CPU v0:              328 samples/sec (1.522s)
+CPU v0 blas:         619 samples/sec (0.808s)
+GPU naive:          3312 samples/sec (0.151s)
+GPU v0:             9815 samples/sec (0.051s)
+
+[95/108] N=1024, B=1000, S=64 | elapsed: 12.9min, ETA: 1.9min
+
+============================================================
+Benchmark: sweep_N1024_B1000_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU SPAMS:          4017 samples/sec (0.249s +/- 0.015s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (256,).)
+CPU naive:           165 samples/sec (6.054s)
+CPU v0:              477 samples/sec (2.095s)
+CPU v0 blas:         648 samples/sec (1.543s)
+GPU naive:          3423 samples/sec (0.292s)
+GPU v0:             9937 samples/sec (0.101s)
+
+[96/108] N=1024, B=5000, S=64 | elapsed: 13.1min, ETA: 1.8min
+
+============================================================
+Benchmark: sweep_N1024_B5000_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU SPAMS:          5096 samples/sec (0.981s +/- 0.049s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (256,).)
+CPU naive:           397 samples/sec (12.605s)
+CPU v0:              487 samples/sec (10.275s)
+CPU v0 blas:         511 samples/sec (9.790s)
+GPU naive:          3888 samples/sec (1.286s)
+GPU v0:             8760 samples/sec (0.571s)
+
+[97/108] N=2048, B=10, S=64 | elapsed: 13.8min, ETA: 1.7min
+
+============================================================
+Benchmark: sweep_N2048_B10_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU SPAMS:           207 samples/sec (0.048s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (512,).)
+CPU naive:             3 samples/sec (3.602s)
+CPU v0:              148 samples/sec (0.068s)
+CPU v0 blas:         126 samples/sec (0.079s)
+GPU naive:           163 samples/sec (0.061s)
+GPU v0:              315 samples/sec (0.032s)
+
+[98/108] N=2048, B=50, S=64 | elapsed: 13.9min, ETA: 1.6min
+
+============================================================
+Benchmark: sweep_N2048_B50_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU SPAMS:           599 samples/sec (0.084s +/- 0.002s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (512,).)
+CPU naive:            11 samples/sec (4.691s)
+CPU v0:              265 samples/sec (0.189s)
+CPU v0 blas:         240 samples/sec (0.208s)
+GPU naive:           568 samples/sec (0.088s)
+GPU v0:             1358 samples/sec (0.037s)
+
+[99/108] N=2048, B=100, S=64 | elapsed: 14.0min, ETA: 1.4min
+
+============================================================
+Benchmark: sweep_N2048_B100_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU SPAMS:           922 samples/sec (0.109s +/- 0.002s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (512,).)
+CPU naive:            19 samples/sec (5.315s)
+CPU v0:              430 samples/sec (0.232s)
+CPU v0 blas:         290 samples/sec (0.345s)
+GPU naive:           796 samples/sec (0.126s)
+GPU v0:             2251 samples/sec (0.044s)
+
+[100/108] N=2048, B=500, S=64 | elapsed: 14.1min, ETA: 1.3min
+
+============================================================
+Benchmark: sweep_N2048_B500_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU SPAMS:          2194 samples/sec (0.228s +/- 0.003s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (512,).)
+CPU naive:            63 samples/sec (7.913s)
+CPU v0:              450 samples/sec (1.112s)
+CPU v0 blas:         329 samples/sec (1.520s)
+GPU naive:          1166 samples/sec (0.429s)
+GPU v0:             4248 samples/sec (0.118s)
+
+[101/108] N=2048, B=1000, S=64 | elapsed: 14.3min, ETA: 1.1min
+
+============================================================
+Benchmark: sweep_N2048_B1000_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU SPAMS:          2381 samples/sec (0.420s +/- 0.027s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (512,).)
+CPU naive:            90 samples/sec (11.081s)
+CPU v0:              437 samples/sec (2.286s)
+CPU v0 blas:         337 samples/sec (2.969s)
+GPU naive:          1315 samples/sec (0.761s)
+GPU v0:             4448 samples/sec (0.225s)
+
+[102/108] N=2048, B=5000, S=64 | elapsed: 14.6min, ETA: 1.0min
+
+============================================================
+Benchmark: sweep_N2048_B5000_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU SPAMS:          2754 samples/sec (1.816s +/- 0.031s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (512,).)
+CPU naive:           231 samples/sec (21.623s)
+CPU v0:              427 samples/sec (11.697s)
+CPU v0 blas:         267 samples/sec (18.748s)
+GPU naive:          1373 samples/sec (3.643s)
+GPU v0:              OOM
+
+[103/108] N=4096, B=10, S=64 | elapsed: 15.7min, ETA: 0.9min
+
+============================================================
+Benchmark: sweep_N4096_B10_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU SPAMS:            27 samples/sec (0.365s +/- 0.007s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (1024,).)
+CPU naive:             2 samples/sec (5.464s)
+CPU v0:               34 samples/sec (0.296s)
+CPU v0 blas:          36 samples/sec (0.279s)
+GPU naive:            44 samples/sec (0.228s)
+GPU v0:               61 samples/sec (0.165s)
+
+[104/108] N=4096, B=50, S=64 | elapsed: 15.9min, ETA: 0.8min
+
+============================================================
+Benchmark: sweep_N4096_B50_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU SPAMS:            84 samples/sec (0.598s +/- 0.009s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (1024,).)
+CPU naive:             7 samples/sec (7.523s)
+CPU v0:              102 samples/sec (0.492s)
+CPU v0 blas:          95 samples/sec (0.526s)
+GPU naive:           154 samples/sec (0.324s)
+GPU v0:              275 samples/sec (0.182s)
+
+[105/108] N=4096, B=100, S=64 | elapsed: 16.1min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N4096_B100_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU SPAMS:           155 samples/sec (0.645s +/- 0.023s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (1024,).)
+CPU naive:            14 samples/sec (7.388s)
+CPU v0:              144 samples/sec (0.696s)
+CPU v0 blas:         123 samples/sec (0.813s)
+GPU naive:           217 samples/sec (0.461s)
+GPU v0:              488 samples/sec (0.205s)
+
+[106/108] N=4096, B=500, S=64 | elapsed: 16.3min, ETA: 0.5min
+
+============================================================
+Benchmark: sweep_N4096_B500_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU SPAMS:           408 samples/sec (1.224s +/- 0.085s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (1024,).)
+CPU naive:            48 samples/sec (10.406s)
+CPU v0:              230 samples/sec (2.175s)
+CPU v0 blas:         154 samples/sec (3.239s)
+GPU naive:           332 samples/sec (1.508s)
+GPU v0:             1350 samples/sec (0.370s)
+
+[107/108] N=4096, B=1000, S=64 | elapsed: 16.7min, ETA: 0.3min
+
+============================================================
+Benchmark: sweep_N4096_B1000_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU SPAMS:           604 samples/sec (1.655s +/- 0.047s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (1024,).)
+CPU naive:            75 samples/sec (13.352s)
+CPU v0:              227 samples/sec (4.411s)
+CPU v0 blas:         167 samples/sec (5.985s)
+GPU naive:           351 samples/sec (2.853s)
+GPU v0:             1647 samples/sec (0.607s)
+
+[108/108] N=4096, B=5000, S=64 | elapsed: 17.4min, ETA: 0.2min
+
+============================================================
+Benchmark: sweep_N4096_B5000_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU SPAMS:           852 samples/sec (5.867s +/- 0.160s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (1024,).)
+CPU naive:           124 samples/sec (40.254s)
+CPU v0:              250 samples/sec (19.974s)
+CPU v0 blas:         137 samples/sec (36.455s)
+GPU naive:           OOM
+GPU v0:              OOM
+
+============================================================
+Sweep complete: 108 cells in 19.6 minutes
+============================================================
+Sweep results saved to /home/ariel/prog/omp/orthogonal-matching-pursuit-parallel-gpu/benchmarks/results/sweep_20260325_103054.json
