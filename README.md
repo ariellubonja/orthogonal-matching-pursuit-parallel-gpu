@@ -2,20 +2,29 @@
 
 **Paper:** [Efficient Batched CPU/GPU Implementation of Orthogonal Matching Pursuit for Python](https://arxiv.org/abs/2407.06434)
 
-Batched implementation of Orthogonal Matching Pursuit (OMP) using BLAS (CPU) and PyTorch (GPU). Solves thousands of sparse coding problems simultaneously, achieving **up to 80x speedup over scikit-learn** on GPU and **3-8x on CPU**.
+Batched implementation of Orthogonal Matching Pursuit (OMP) using BLAS (CPU) and PyTorch (GPU). Solves thousands of sparse coding problems simultaneously, achieving **up to 37x speedup over scikit-learn** on GPU and **3-5x on CPU**. Drop-in sklearn replacement with native GPU support.
 
 
 ![Benchmark plot](benchmarks/results/benchmark_plot.png)
 
 ### Speedup vs scikit-learn
 
-| Config | Dimensions | Sparsity | Samples | v0 CPU | v0 GPU |
-|--------|-----------|----------|---------|--------|--------|
-| Image patches | 256 x 1024 | 32 | 5000 | 4.4x | **76x** |
-| Face recognition | 8064 x 1207 | 30 | 1207 | 1.9x | **15x** |
-| Audio | 512 x 2048 | 64 | 5000 | 4.0x | **42x** |
+| Config | Dimensions | Sparsity | Samples | Best CPU | v0 GPU | SPAMS (C++) |
+|--------|-----------|----------|---------|----------|--------|-------------|
+| Image patches | 256 x 1024 | 32 | 5000 | 4.4x | 37x | **43x** |
+| Face recognition | 8064 x 1207 | 30 | 1207 | 3.2x† | **9.1x** | 2.9x |
+| Audio | 512 x 2048 | 64 | 5000 | 5.5x | OOM | 54x |
+
+† v0_blas variant, best CPU method for large n_features. Standard v0 CPU gets 4.4x / 1.2x / 5.5x respectively.
 
 *Hardware: Intel Core Ultra 9 185H, NVIDIA RTX 4060 Laptop (8 GB)*
+
+### When to use batched-omp
+
+- **Have a GPU?** Use `v0` on CUDA — fastest pure-Python OMP available (beats SPAMS on face recognition by 3x)
+- **CPU only, want a sklearn drop-in?** Use `v0` or `v0_blas` — 3-5x faster, same API, no C dependencies
+- **CPU only, maximum speed?** [SPAMS](https://thoth.inrialpes.fr/people/mairal/spams/) is faster (C++ with OpenMP) but harder to install
+- **Few signals or small problems?** sklearn is fine — batching helps most with hundreds+ of signals
 
 ## Installation
 
@@ -101,18 +110,22 @@ benchmarks/
 ## Running Benchmarks
 
 ```bash
-# All configs (CPU + GPU)
+# Realistic configs (image patches, face recognition, audio)
 python benchmarks/benchmarks.py all
+
+# Parameter sweep: N x B x S heatmaps (takes ~20 min)
+python benchmarks/benchmarks.py sweep
+python benchmarks/plot_sweep.py
+
+# Ablation study: isolates contribution of batching, Gram precomputation, inverse Cholesky
+python benchmarks/benchmarks.py ablation
+python benchmarks/plot_ablation.py
 
 # CPU only
 python benchmarks/benchmarks.py image_patches --no-gpu
-
-# Paper figure configs only
-python benchmarks/benchmarks.py paper
-
-# Generate plots
-python benchmarks/plot_results.py
 ```
+
+Ablation results show that **batching is the dominant optimization** — processing all signals simultaneously provides 4-750x speedup over single-sample loops. Gram precomputation and inverse Cholesky contribute 1-2x each.
 
 ## Citation
 
