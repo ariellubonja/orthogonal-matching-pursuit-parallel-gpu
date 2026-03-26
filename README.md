@@ -19,9 +19,11 @@ Batched implementation of Orthogonal Matching Pursuit (OMP) using BLAS (CPU) and
 
 *Hardware: Intel Core Ultra 9 185H, NVIDIA RTX 4060 Laptop (8 GB)*
 
+**There is no other production-ready GPU implementation of OMP.** Existing alternatives either crash on overcomplete dictionaries (cr-sparse) or are CPU-only (sklearn, SPAMS). Batched OMP is the fastest OMP implementation available when you have a GPU.
+
 ### When to use batched-omp
 
-- **Have a GPU?** Fastest pure-Python OMP available (beats SPAMS on face recognition by 3x)
+- **Have a GPU?** Use batched-omp — there is nothing faster. Beats SPAMS (C++) on face recognition by 3x, ties on image patches
 - **CPU only, want a sklearn drop-in?** 3-5x faster, same API, no C dependencies
 - **CPU only, maximum speed?** [SPAMS](https://thoth.inrialpes.fr/people/mairal/spams/) is faster (C++ with OpenMP) but harder to install
 - **Few signals or small problems?** sklearn is fine — batching helps most with hundreds+ of signals

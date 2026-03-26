@@ -1,0 +1,2083 @@
+Date: 2026-03-26T12:11:06.919487
+CPU: Intel(R) Core(TM) Ultra 9 185H
+GPU: NVIDIA GeForce RTX 4060 Laptop GPU
+
+############################################################
+Parameter sweep: 108 cells
+  N (n_components): [64, 128, 256, 512, 1024, 2048, 4096]
+  B (n_samples):    [10, 50, 100, 500, 1000, 5000]
+  S (sparsity):     [8, 32, 64]
+  Fixed: M = N/4
+############################################################
+
+[1/108] N=64, B=10, S=8 | elapsed: 0.0min, ETA: --
+
+============================================================
+Benchmark: sweep_N64_B10_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU sklearn:        4106 samples/sec (0.002s)
+CPU SPAMS:        127209 samples/sec (0.000s +/- 0.000s)
+GPU cr-sparse:       161 samples/sec (0.062s)
+CPU v0:             3964 samples/sec (0.003s)
+CPU v0 blas:       34915 samples/sec (0.000s)
+GPU v0:             4978 samples/sec (0.002s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 31.0x
+  CR SPARSE: 0.0x
+  V0 CPU: 1.0x
+  V0 BLAS: 8.5x
+  V0 GPU: 1.2x
+
+[2/108] N=64, B=50, S=8 | elapsed: 0.1min, ETA: 7.2min
+
+============================================================
+Benchmark: sweep_N64_B50_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU sklearn:        6641 samples/sec (0.008s)
+CPU SPAMS:        186083 samples/sec (0.000s +/- 0.000s)
+GPU cr-sparse:       771 samples/sec (0.065s)
+CPU v0:             4815 samples/sec (0.010s)
+CPU v0 blas:      148700 samples/sec (0.000s)
+GPU v0:            20767 samples/sec (0.002s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 28.0x
+  CR SPARSE: 0.1x
+  V0 CPU: 0.7x
+  V0 BLAS: 22.4x
+  V0 GPU: 3.1x
+
+[3/108] N=64, B=100, S=8 | elapsed: 0.1min, ETA: 6.4min
+
+============================================================
+Benchmark: sweep_N64_B100_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU sklearn:        5491 samples/sec (0.018s)
+CPU SPAMS:          6671 samples/sec (0.015s +/- 0.000s)
+GPU cr-sparse:      1601 samples/sec (0.062s)
+CPU v0:            10314 samples/sec (0.010s)
+CPU v0 blas:      186080 samples/sec (0.001s)
+GPU v0:            43715 samples/sec (0.002s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 1.2x
+  CR SPARSE: 0.3x
+  V0 CPU: 1.9x
+  V0 BLAS: 33.9x
+  V0 GPU: 8.0x
+
+[4/108] N=64, B=500, S=8 | elapsed: 0.2min, ETA: 6.2min
+
+============================================================
+Benchmark: sweep_N64_B500_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU sklearn:        7018 samples/sec (0.071s)
+CPU SPAMS:         83366 samples/sec (0.006s +/- 0.000s)
+GPU cr-sparse:      7901 samples/sec (0.063s)
+CPU v0:            79561 samples/sec (0.006s)
+CPU v0 blas:      313866 samples/sec (0.002s)
+GPU v0:           218450 samples/sec (0.002s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 11.9x
+  CR SPARSE: 1.1x
+  V0 CPU: 11.3x
+  V0 BLAS: 44.7x
+  V0 GPU: 31.1x
+
+[5/108] N=64, B=1000, S=8 | elapsed: 0.2min, ETA: 6.1min
+
+============================================================
+Benchmark: sweep_N64_B1000_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU sklearn:        6608 samples/sec (0.151s)
+CPU SPAMS:        439889 samples/sec (0.002s +/- 0.000s)
+GPU cr-sparse:     16136 samples/sec (0.062s)
+CPU v0:           116631 samples/sec (0.009s)
+CPU v0 blas:      227987 samples/sec (0.004s)
+GPU v0:           418328 samples/sec (0.002s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 66.6x
+  CR SPARSE: 2.4x
+  V0 CPU: 17.6x
+  V0 BLAS: 34.5x
+  V0 GPU: 63.3x
+
+[6/108] N=64, B=5000, S=8 | elapsed: 0.3min, ETA: 6.0min
+
+============================================================
+Benchmark: sweep_N64_B5000_S8
+  n_features=16, n_components=64, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU sklearn:        6856 samples/sec (0.729s)
+CPU SPAMS:        455929 samples/sec (0.011s +/- 0.001s)
+GPU cr-sparse:     78373 samples/sec (0.064s)
+CPU v0:            11778 samples/sec (0.425s)
+CPU v0 blas:       82410 samples/sec (0.061s)
+GPU v0:          1307247 samples/sec (0.004s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 66.5x
+  CR SPARSE: 11.4x
+  V0 CPU: 1.7x
+  V0 BLAS: 12.0x
+  V0 GPU: 190.7x
+
+[7/108] N=128, B=10, S=8 | elapsed: 0.4min, ETA: 6.3min
+
+============================================================
+Benchmark: sweep_N128_B10_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU sklearn:        2943 samples/sec (0.003s)
+CPU SPAMS:        116225 samples/sec (0.000s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (32,).)
+CPU v0:             5237 samples/sec (0.002s)
+CPU v0 blas:       27338 samples/sec (0.000s)
+GPU v0:             3439 samples/sec (0.003s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 39.5x
+  V0 CPU: 1.8x
+  V0 BLAS: 9.3x
+  V0 GPU: 1.2x
+
+[8/108] N=128, B=50, S=8 | elapsed: 0.4min, ETA: 5.3min
+
+============================================================
+Benchmark: sweep_N128_B50_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU sklearn:        6381 samples/sec (0.008s)
+CPU SPAMS:        159315 samples/sec (0.000s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (32,).)
+CPU v0:            11631 samples/sec (0.004s)
+CPU v0 blas:       67629 samples/sec (0.001s)
+GPU v0:            15441 samples/sec (0.003s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 25.0x
+  V0 CPU: 1.8x
+  V0 BLAS: 10.6x
+  V0 GPU: 2.4x
+
+[9/108] N=128, B=100, S=8 | elapsed: 0.4min, ETA: 4.6min
+
+============================================================
+Benchmark: sweep_N128_B100_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU sklearn:        4986 samples/sec (0.020s)
+CPU SPAMS:         38490 samples/sec (0.003s +/- 0.002s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (32,).)
+CPU v0:            15078 samples/sec (0.007s)
+CPU v0 blas:      103061 samples/sec (0.001s)
+GPU v0:            34949 samples/sec (0.003s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 7.7x
+  V0 CPU: 3.0x
+  V0 BLAS: 20.7x
+  V0 GPU: 7.0x
+
+[10/108] N=128, B=500, S=8 | elapsed: 0.4min, ETA: 4.1min
+
+============================================================
+Benchmark: sweep_N128_B500_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU sklearn:        5657 samples/sec (0.088s)
+CPU SPAMS:        397447 samples/sec (0.001s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (32,).)
+CPU v0:            41529 samples/sec (0.012s)
+CPU v0 blas:      107234 samples/sec (0.005s)
+GPU v0:           140309 samples/sec (0.004s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 70.3x
+  V0 CPU: 7.3x
+  V0 BLAS: 19.0x
+  V0 GPU: 24.8x
+
+[11/108] N=128, B=1000, S=8 | elapsed: 0.4min, ETA: 3.7min
+
+============================================================
+Benchmark: sweep_N128_B1000_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU sklearn:        5171 samples/sec (0.193s)
+CPU SPAMS:        374422 samples/sec (0.003s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (32,).)
+CPU v0:            72807 samples/sec (0.014s)
+CPU v0 blas:      191758 samples/sec (0.005s)
+GPU v0:           391381 samples/sec (0.003s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 72.4x
+  V0 CPU: 14.1x
+  V0 BLAS: 37.1x
+  V0 GPU: 75.7x
+
+[12/108] N=128, B=5000, S=8 | elapsed: 0.4min, ETA: 3.4min
+
+============================================================
+Benchmark: sweep_N128_B5000_S8
+  n_features=32, n_components=128, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU sklearn:        6524 samples/sec (0.766s)
+CPU SPAMS:        441010 samples/sec (0.011s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (32,).)
+CPU v0:            15603 samples/sec (0.320s)
+CPU v0 blas:       44237 samples/sec (0.113s)
+GPU v0:          1790541 samples/sec (0.003s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 67.6x
+  V0 CPU: 2.4x
+  V0 BLAS: 6.8x
+  V0 GPU: 274.5x
+
+[13/108] N=256, B=10, S=8 | elapsed: 0.4min, ETA: 3.2min
+
+============================================================
+Benchmark: sweep_N256_B10_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU sklearn:        4871 samples/sec (0.002s)
+CPU SPAMS:         45066 samples/sec (0.000s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (64,).)
+CPU v0:             3045 samples/sec (0.003s)
+CPU v0 blas:         918 samples/sec (0.011s)
+GPU v0:             2669 samples/sec (0.004s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 9.3x
+  V0 CPU: 0.6x
+  V0 BLAS: 0.2x
+  V0 GPU: 0.5x
+
+[14/108] N=256, B=50, S=8 | elapsed: 0.4min, ETA: 3.0min
+
+============================================================
+Benchmark: sweep_N256_B50_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU sklearn:        3183 samples/sec (0.016s)
+CPU SPAMS:         74376 samples/sec (0.001s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (64,).)
+CPU v0:            13538 samples/sec (0.004s)
+CPU v0 blas:        4234 samples/sec (0.012s)
+GPU v0:            17913 samples/sec (0.003s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 23.4x
+  V0 CPU: 4.3x
+  V0 BLAS: 1.3x
+  V0 GPU: 5.6x
+
+[15/108] N=256, B=100, S=8 | elapsed: 0.4min, ETA: 2.7min
+
+============================================================
+Benchmark: sweep_N256_B100_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU sklearn:        3884 samples/sec (0.026s)
+CPU SPAMS:        114968 samples/sec (0.001s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (64,).)
+CPU v0:            30442 samples/sec (0.003s)
+CPU v0 blas:        7490 samples/sec (0.013s)
+GPU v0:            43189 samples/sec (0.002s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 29.6x
+  V0 CPU: 7.8x
+  V0 BLAS: 1.9x
+  V0 GPU: 11.1x
+
+[16/108] N=256, B=500, S=8 | elapsed: 0.4min, ETA: 2.5min
+
+============================================================
+Benchmark: sweep_N256_B500_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU sklearn:        5395 samples/sec (0.093s)
+CPU SPAMS:        166785 samples/sec (0.003s +/- 0.002s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (64,).)
+CPU v0:            18046 samples/sec (0.028s)
+CPU v0 blas:       15218 samples/sec (0.033s)
+GPU v0:           118080 samples/sec (0.004s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 30.9x
+  V0 CPU: 3.3x
+  V0 BLAS: 2.8x
+  V0 GPU: 21.9x
+
+[17/108] N=256, B=1000, S=8 | elapsed: 0.4min, ETA: 2.4min
+
+============================================================
+Benchmark: sweep_N256_B1000_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU sklearn:        4462 samples/sec (0.224s)
+CPU SPAMS:        254392 samples/sec (0.004s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (64,).)
+CPU v0:            32287 samples/sec (0.031s)
+CPU v0 blas:       56375 samples/sec (0.018s)
+GPU v0:           256717 samples/sec (0.004s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 57.0x
+  V0 CPU: 7.2x
+  V0 BLAS: 12.6x
+  V0 GPU: 57.5x
+
+[18/108] N=256, B=5000, S=8 | elapsed: 0.4min, ETA: 2.3min
+
+============================================================
+Benchmark: sweep_N256_B5000_S8
+  n_features=64, n_components=256, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU sklearn:        5881 samples/sec (0.850s)
+CPU SPAMS:        123373 samples/sec (0.041s +/- 0.012s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (64,).)
+CPU v0:            10954 samples/sec (0.456s)
+CPU v0 blas:       37509 samples/sec (0.133s)
+GPU v0:           887963 samples/sec (0.006s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 21.0x
+  V0 CPU: 1.9x
+  V0 BLAS: 6.4x
+  V0 GPU: 151.0x
+
+[19/108] N=512, B=10, S=8 | elapsed: 0.5min, ETA: 2.3min
+
+============================================================
+Benchmark: sweep_N512_B10_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU sklearn:        3543 samples/sec (0.003s)
+CPU SPAMS:          1668 samples/sec (0.006s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (128,).)
+CPU v0:             2830 samples/sec (0.004s)
+CPU v0 blas:         943 samples/sec (0.011s)
+GPU v0:             3663 samples/sec (0.003s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 0.5x
+  V0 CPU: 0.8x
+  V0 BLAS: 0.3x
+  V0 GPU: 1.0x
+
+[20/108] N=512, B=50, S=8 | elapsed: 0.5min, ETA: 2.1min
+
+============================================================
+Benchmark: sweep_N512_B50_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU sklearn:        2528 samples/sec (0.020s)
+CPU SPAMS:         18863 samples/sec (0.003s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (128,).)
+CPU v0:            14547 samples/sec (0.003s)
+CPU v0 blas:        2625 samples/sec (0.019s)
+GPU v0:            21071 samples/sec (0.002s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 7.5x
+  V0 CPU: 5.8x
+  V0 BLAS: 1.0x
+  V0 GPU: 8.3x
+
+[21/108] N=512, B=100, S=8 | elapsed: 0.5min, ETA: 2.0min
+
+============================================================
+Benchmark: sweep_N512_B100_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU sklearn:        3793 samples/sec (0.026s)
+CPU SPAMS:          4949 samples/sec (0.020s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (128,).)
+CPU v0:            14431 samples/sec (0.007s)
+CPU v0 blas:        3440 samples/sec (0.029s)
+GPU v0:            44347 samples/sec (0.002s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 1.3x
+  V0 CPU: 3.8x
+  V0 BLAS: 0.9x
+  V0 GPU: 11.7x
+
+[22/108] N=512, B=500, S=8 | elapsed: 0.5min, ETA: 1.9min
+
+============================================================
+Benchmark: sweep_N512_B500_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU sklearn:        4171 samples/sec (0.120s)
+CPU SPAMS:        100272 samples/sec (0.005s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (128,).)
+CPU v0:            16014 samples/sec (0.031s)
+CPU v0 blas:       13486 samples/sec (0.037s)
+GPU v0:           122994 samples/sec (0.004s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 24.0x
+  V0 CPU: 3.8x
+  V0 BLAS: 3.2x
+  V0 GPU: 29.5x
+
+[23/108] N=512, B=1000, S=8 | elapsed: 0.5min, ETA: 1.8min
+
+============================================================
+Benchmark: sweep_N512_B1000_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU sklearn:        3458 samples/sec (0.289s)
+CPU SPAMS:         34693 samples/sec (0.029s +/- 0.010s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (128,).)
+CPU v0:            19055 samples/sec (0.052s)
+CPU v0 blas:       16374 samples/sec (0.061s)
+GPU v0:           282795 samples/sec (0.004s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 10.0x
+  V0 CPU: 5.5x
+  V0 BLAS: 4.7x
+  V0 GPU: 81.8x
+
+[24/108] N=512, B=5000, S=8 | elapsed: 0.5min, ETA: 1.8min
+
+============================================================
+Benchmark: sweep_N512_B5000_S8
+  n_features=128, n_components=512, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU sklearn:        4675 samples/sec (1.070s)
+CPU SPAMS:        140568 samples/sec (0.036s +/- 0.009s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (128,).)
+CPU v0:            15184 samples/sec (0.329s)
+CPU v0 blas:       22966 samples/sec (0.218s)
+GPU v0:           350023 samples/sec (0.014s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 30.1x
+  V0 CPU: 3.2x
+  V0 BLAS: 4.9x
+  V0 GPU: 74.9x
+
+[25/108] N=1024, B=10, S=8 | elapsed: 0.5min, ETA: 1.8min
+
+============================================================
+Benchmark: sweep_N1024_B10_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU sklearn:        1117 samples/sec (0.009s)
+CPU SPAMS:          1111 samples/sec (0.009s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (256,).)
+CPU v0:             1339 samples/sec (0.007s)
+CPU v0 blas:         704 samples/sec (0.014s)
+GPU v0:             2901 samples/sec (0.003s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 1.0x
+  V0 CPU: 1.2x
+  V0 BLAS: 0.6x
+  V0 GPU: 2.6x
+
+[26/108] N=1024, B=50, S=8 | elapsed: 0.5min, ETA: 1.7min
+
+============================================================
+Benchmark: sweep_N1024_B50_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU sklearn:        1451 samples/sec (0.034s)
+CPU SPAMS:          1616 samples/sec (0.031s +/- 0.007s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (256,).)
+CPU v0:             4833 samples/sec (0.010s)
+CPU v0 blas:        1643 samples/sec (0.030s)
+GPU v0:            13594 samples/sec (0.004s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 1.1x
+  V0 CPU: 3.3x
+  V0 BLAS: 1.1x
+  V0 GPU: 9.4x
+
+[27/108] N=1024, B=100, S=8 | elapsed: 0.5min, ETA: 1.6min
+
+============================================================
+Benchmark: sweep_N1024_B100_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU sklearn:        1372 samples/sec (0.073s)
+CPU SPAMS:         13175 samples/sec (0.008s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (256,).)
+CPU v0:             7601 samples/sec (0.013s)
+CPU v0 blas:        3257 samples/sec (0.031s)
+GPU v0:            23385 samples/sec (0.004s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 9.6x
+  V0 CPU: 5.5x
+  V0 BLAS: 2.4x
+  V0 GPU: 17.0x
+
+[28/108] N=1024, B=500, S=8 | elapsed: 0.5min, ETA: 1.6min
+
+============================================================
+Benchmark: sweep_N1024_B500_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU sklearn:        1540 samples/sec (0.325s)
+CPU SPAMS:         32327 samples/sec (0.015s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (256,).)
+CPU v0:            13179 samples/sec (0.038s)
+CPU v0 blas:        4018 samples/sec (0.124s)
+GPU v0:            85643 samples/sec (0.006s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 21.0x
+  V0 CPU: 8.6x
+  V0 BLAS: 2.6x
+  V0 GPU: 55.6x
+
+[29/108] N=1024, B=1000, S=8 | elapsed: 0.5min, ETA: 1.5min
+
+============================================================
+Benchmark: sweep_N1024_B1000_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU sklearn:        1727 samples/sec (0.579s)
+CPU SPAMS:         50093 samples/sec (0.020s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (256,).)
+CPU v0:             9129 samples/sec (0.110s)
+CPU v0 blas:        6500 samples/sec (0.154s)
+GPU v0:           113195 samples/sec (0.009s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 29.0x
+  V0 CPU: 5.3x
+  V0 BLAS: 3.8x
+  V0 GPU: 65.6x
+
+[30/108] N=1024, B=5000, S=8 | elapsed: 0.6min, ETA: 1.5min
+
+============================================================
+Benchmark: sweep_N1024_B5000_S8
+  n_features=256, n_components=1024, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU sklearn:        1849 samples/sec (2.705s)
+CPU SPAMS:         41986 samples/sec (0.119s +/- 0.013s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (256,).)
+CPU v0:             7479 samples/sec (0.669s)
+CPU v0 blas:        9447 samples/sec (0.529s)
+GPU v0:           121489 samples/sec (0.041s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 22.7x
+  V0 CPU: 4.0x
+  V0 BLAS: 5.1x
+  V0 GPU: 65.7x
+
+[31/108] N=2048, B=10, S=8 | elapsed: 0.6min, ETA: 1.7min
+
+============================================================
+Benchmark: sweep_N2048_B10_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU sklearn:         683 samples/sec (0.015s)
+CPU SPAMS:          1185 samples/sec (0.008s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (512,).)
+CPU v0:              508 samples/sec (0.020s)
+CPU v0 blas:         233 samples/sec (0.043s)
+GPU v0:              492 samples/sec (0.020s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 1.7x
+  V0 CPU: 0.7x
+  V0 BLAS: 0.3x
+  V0 GPU: 0.7x
+
+[32/108] N=2048, B=50, S=8 | elapsed: 0.6min, ETA: 1.6min
+
+============================================================
+Benchmark: sweep_N2048_B50_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU sklearn:         628 samples/sec (0.080s)
+CPU SPAMS:           887 samples/sec (0.056s +/- 0.003s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (512,).)
+CPU v0:             1536 samples/sec (0.033s)
+CPU v0 blas:        1020 samples/sec (0.049s)
+GPU v0:             2346 samples/sec (0.021s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 1.4x
+  V0 CPU: 2.4x
+  V0 BLAS: 1.6x
+  V0 GPU: 3.7x
+
+[33/108] N=2048, B=100, S=8 | elapsed: 0.7min, ETA: 1.6min
+
+============================================================
+Benchmark: sweep_N2048_B100_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU sklearn:         487 samples/sec (0.205s)
+CPU SPAMS:          1685 samples/sec (0.059s +/- 0.005s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (512,).)
+CPU v0:             1060 samples/sec (0.094s)
+CPU v0 blas:        1633 samples/sec (0.061s)
+GPU v0:             4568 samples/sec (0.022s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 3.5x
+  V0 CPU: 2.2x
+  V0 BLAS: 3.4x
+  V0 GPU: 9.4x
+
+[34/108] N=2048, B=500, S=8 | elapsed: 0.7min, ETA: 1.5min
+
+============================================================
+Benchmark: sweep_N2048_B500_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU sklearn:         691 samples/sec (0.723s)
+CPU SPAMS:          5945 samples/sec (0.084s +/- 0.009s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (512,).)
+CPU v0:             4118 samples/sec (0.121s)
+CPU v0 blas:        3204 samples/sec (0.156s)
+GPU v0:            18087 samples/sec (0.028s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 8.6x
+  V0 CPU: 6.0x
+  V0 BLAS: 4.6x
+  V0 GPU: 26.2x
+
+[35/108] N=2048, B=1000, S=8 | elapsed: 0.7min, ETA: 1.5min
+
+============================================================
+Benchmark: sweep_N2048_B1000_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU sklearn:         604 samples/sec (1.655s)
+CPU SPAMS:          9951 samples/sec (0.100s +/- 0.006s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (512,).)
+CPU v0:             5341 samples/sec (0.187s)
+CPU v0 blas:        5158 samples/sec (0.194s)
+GPU v0:            24612 samples/sec (0.041s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 16.5x
+  V0 CPU: 8.8x
+  V0 BLAS: 8.5x
+  V0 GPU: 40.7x
+
+[36/108] N=2048, B=5000, S=8 | elapsed: 0.8min, ETA: 1.6min
+
+============================================================
+Benchmark: sweep_N2048_B5000_S8
+  n_features=512, n_components=2048, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU sklearn:         721 samples/sec (6.930s)
+CPU SPAMS:         15585 samples/sec (0.321s +/- 0.008s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (512,).)
+CPU v0:             5085 samples/sec (0.983s)
+CPU v0 blas:        4776 samples/sec (1.047s)
+GPU v0:            43301 samples/sec (0.115s +/- 0.002s)
+
+Speedups vs sklearn:
+  SPAMS: 21.6x
+  V0 CPU: 7.0x
+  V0 BLAS: 6.6x
+  V0 GPU: 60.0x
+
+[37/108] N=4096, B=10, S=8 | elapsed: 0.9min, ETA: 1.9min
+
+============================================================
+Benchmark: sweep_N4096_B10_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=10
+============================================================
+CPU sklearn:          31 samples/sec (0.318s)
+CPU SPAMS:           130 samples/sec (0.077s +/- 0.005s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (1024,).)
+CPU v0:               39 samples/sec (0.254s)
+CPU v0 blas:          52 samples/sec (0.194s)
+GPU v0:               65 samples/sec (0.155s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 4.1x
+  V0 CPU: 1.3x
+  V0 BLAS: 1.6x
+  V0 GPU: 2.1x
+
+[38/108] N=4096, B=50, S=8 | elapsed: 1.0min, ETA: 1.9min
+
+============================================================
+Benchmark: sweep_N4096_B50_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=50
+============================================================
+CPU sklearn:          39 samples/sec (1.275s)
+CPU SPAMS:           109 samples/sec (0.459s +/- 0.016s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (1024,).)
+CPU v0:              212 samples/sec (0.236s)
+CPU v0 blas:         181 samples/sec (0.276s)
+GPU v0:              308 samples/sec (0.162s +/- 0.005s)
+
+Speedups vs sklearn:
+  SPAMS: 2.8x
+  V0 CPU: 5.4x
+  V0 BLAS: 4.6x
+  V0 GPU: 7.9x
+
+[39/108] N=4096, B=100, S=8 | elapsed: 1.1min, ETA: 2.0min
+
+============================================================
+Benchmark: sweep_N4096_B100_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=100
+============================================================
+CPU sklearn:          37 samples/sec (2.684s)
+CPU SPAMS:           248 samples/sec (0.403s +/- 0.038s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (1024,).)
+CPU v0:              415 samples/sec (0.241s)
+CPU v0 blas:         368 samples/sec (0.272s)
+GPU v0:              619 samples/sec (0.162s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 6.7x
+  V0 CPU: 11.1x
+  V0 BLAS: 9.9x
+  V0 GPU: 16.6x
+
+[40/108] N=4096, B=500, S=8 | elapsed: 1.2min, ETA: 2.1min
+
+============================================================
+Benchmark: sweep_N4096_B500_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=500
+============================================================
+CPU sklearn:          36 samples/sec (14.003s)
+CPU SPAMS:           903 samples/sec (0.554s +/- 0.031s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (1024,).)
+CPU v0:             1041 samples/sec (0.480s)
+CPU v0 blas:        1355 samples/sec (0.369s)
+GPU v0:             2738 samples/sec (0.183s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 25.3x
+  V0 CPU: 29.1x
+  V0 BLAS: 37.9x
+  V0 GPU: 76.7x
+
+[41/108] N=4096, B=1000, S=8 | elapsed: 1.5min, ETA: 2.5min
+
+============================================================
+Benchmark: sweep_N4096_B1000_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=1000
+============================================================
+CPU sklearn:          49 samples/sec (20.514s)
+CPU SPAMS:          1500 samples/sec (0.667s +/- 0.014s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (1024,).)
+CPU v0:             1115 samples/sec (0.897s)
+CPU v0 blas:        1778 samples/sec (0.562s)
+GPU v0:             4665 samples/sec (0.214s +/- 0.002s)
+
+Speedups vs sklearn:
+  SPAMS: 30.8x
+  V0 CPU: 22.9x
+  V0 BLAS: 36.5x
+  V0 GPU: 95.7x
+
+[42/108] N=4096, B=5000, S=8 | elapsed: 1.9min, ETA: 3.2min
+
+============================================================
+Benchmark: sweep_N4096_B5000_S8
+  n_features=1024, n_components=4096, n_nonzero_coefs=8, n_samples=5000
+============================================================
+CPU sklearn:          51 samples/sec (97.827s)
+CPU SPAMS:          3575 samples/sec (1.399s +/- 0.069s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (16,) and (1024,).)
+CPU v0:             2087 samples/sec (2.396s)
+CPU v0 blas:        2324 samples/sec (2.151s)
+GPU v0:            11343 samples/sec (0.441s +/- 0.003s)
+
+Speedups vs sklearn:
+  SPAMS: 69.9x
+  V0 CPU: 40.8x
+  V0 BLAS: 45.5x
+  V0 GPU: 221.9x
+
+[43/108] N=128, B=10, S=32 | elapsed: 3.8min, ETA: 6.0min
+
+============================================================
+Benchmark: sweep_N128_B10_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU sklearn:        1744 samples/sec (0.006s)
+CPU SPAMS:          1669 samples/sec (0.006s +/- 0.000s)
+GPU cr-sparse:        24 samples/sec (0.409s)
+CPU v0:             1797 samples/sec (0.006s)
+CPU v0 blas:       12343 samples/sec (0.001s)
+GPU v0:             1172 samples/sec (0.009s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 1.0x
+  CR SPARSE: 0.0x
+  V0 CPU: 1.0x
+  V0 BLAS: 7.1x
+  V0 GPU: 0.7x
+
+[44/108] N=128, B=50, S=32 | elapsed: 4.0min, ETA: 6.1min
+
+============================================================
+Benchmark: sweep_N128_B50_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU sklearn:        1656 samples/sec (0.030s)
+CPU SPAMS:         18818 samples/sec (0.003s +/- 0.003s)
+GPU cr-sparse:       204 samples/sec (0.245s)
+CPU v0:             2789 samples/sec (0.018s)
+CPU v0 blas:       29704 samples/sec (0.002s)
+GPU v0:             6565 samples/sec (0.008s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 11.4x
+  CR SPARSE: 0.1x
+  V0 CPU: 1.7x
+  V0 BLAS: 17.9x
+  V0 GPU: 4.0x
+
+[45/108] N=128, B=100, S=32 | elapsed: 4.2min, ETA: 6.2min
+
+============================================================
+Benchmark: sweep_N128_B100_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU sklearn:        1734 samples/sec (0.058s)
+CPU SPAMS:         88618 samples/sec (0.001s +/- 0.000s)
+GPU cr-sparse:       396 samples/sec (0.253s)
+CPU v0:             3864 samples/sec (0.026s)
+CPU v0 blas:       28799 samples/sec (0.003s)
+GPU v0:            13040 samples/sec (0.008s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 51.1x
+  CR SPARSE: 0.2x
+  V0 CPU: 2.2x
+  V0 BLAS: 16.6x
+  V0 GPU: 7.5x
+
+[46/108] N=128, B=500, S=32 | elapsed: 4.4min, ETA: 6.2min
+
+============================================================
+Benchmark: sweep_N128_B500_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU sklearn:        1629 samples/sec (0.307s)
+CPU SPAMS:         15013 samples/sec (0.033s +/- 0.005s)
+GPU cr-sparse:      1961 samples/sec (0.255s)
+CPU v0:             6046 samples/sec (0.083s)
+CPU v0 blas:       11809 samples/sec (0.042s)
+GPU v0:            63003 samples/sec (0.008s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 9.2x
+  CR SPARSE: 1.2x
+  V0 CPU: 3.7x
+  V0 BLAS: 7.2x
+  V0 GPU: 38.7x
+
+[47/108] N=128, B=1000, S=32 | elapsed: 4.7min, ETA: 6.3min
+
+============================================================
+Benchmark: sweep_N128_B1000_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU sklearn:        1565 samples/sec (0.639s)
+CPU SPAMS:         92040 samples/sec (0.011s +/- 0.002s)
+GPU cr-sparse:      3855 samples/sec (0.259s)
+CPU v0:             6093 samples/sec (0.164s)
+CPU v0 blas:       10223 samples/sec (0.098s)
+GPU v0:           118253 samples/sec (0.008s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 58.8x
+  CR SPARSE: 2.5x
+  V0 CPU: 3.9x
+  V0 BLAS: 6.5x
+  V0 GPU: 75.6x
+
+[48/108] N=128, B=5000, S=32 | elapsed: 4.9min, ETA: 6.3min
+
+============================================================
+Benchmark: sweep_N128_B5000_S32
+  n_features=32, n_components=128, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU sklearn:        1591 samples/sec (3.143s)
+CPU SPAMS:        106647 samples/sec (0.047s +/- 0.004s)
+GPU cr-sparse:     19031 samples/sec (0.263s)
+CPU v0:             2685 samples/sec (1.862s)
+CPU v0 blas:       11753 samples/sec (0.425s)
+GPU v0:           212131 samples/sec (0.024s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 67.0x
+  CR SPARSE: 12.0x
+  V0 CPU: 1.7x
+  V0 BLAS: 7.4x
+  V0 GPU: 133.3x
+
+[49/108] N=256, B=10, S=32 | elapsed: 5.2min, ETA: 6.5min
+
+============================================================
+Benchmark: sweep_N256_B10_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU sklearn:        1363 samples/sec (0.007s)
+CPU SPAMS:         12241 samples/sec (0.001s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (64,).)
+CPU v0:              808 samples/sec (0.012s)
+CPU v0 blas:         721 samples/sec (0.014s)
+GPU v0:              705 samples/sec (0.014s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 9.0x
+  V0 CPU: 0.6x
+  V0 BLAS: 0.5x
+  V0 GPU: 0.5x
+
+[50/108] N=256, B=50, S=32 | elapsed: 5.2min, ETA: 6.3min
+
+============================================================
+Benchmark: sweep_N256_B50_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU sklearn:        1093 samples/sec (0.046s)
+CPU SPAMS:          1564 samples/sec (0.032s +/- 0.004s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (64,).)
+CPU v0:             2568 samples/sec (0.019s)
+CPU v0 blas:        3454 samples/sec (0.014s)
+GPU v0:             3691 samples/sec (0.014s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 1.4x
+  V0 CPU: 2.4x
+  V0 BLAS: 3.2x
+  V0 GPU: 3.4x
+
+[51/108] N=256, B=100, S=32 | elapsed: 5.2min, ETA: 6.0min
+
+============================================================
+Benchmark: sweep_N256_B100_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU sklearn:        1125 samples/sec (0.089s)
+CPU SPAMS:          4356 samples/sec (0.023s +/- 0.003s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (64,).)
+CPU v0:             2934 samples/sec (0.034s)
+CPU v0 blas:        4281 samples/sec (0.023s)
+GPU v0:             7162 samples/sec (0.014s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 3.9x
+  V0 CPU: 2.6x
+  V0 BLAS: 3.8x
+  V0 GPU: 6.4x
+
+[52/108] N=256, B=500, S=32 | elapsed: 5.2min, ETA: 5.8min
+
+============================================================
+Benchmark: sweep_N256_B500_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU sklearn:        1300 samples/sec (0.385s)
+CPU SPAMS:         67084 samples/sec (0.007s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (64,).)
+CPU v0:             3338 samples/sec (0.150s)
+CPU v0 blas:        6668 samples/sec (0.075s)
+GPU v0:            47369 samples/sec (0.011s +/- 0.002s)
+
+Speedups vs sklearn:
+  SPAMS: 51.6x
+  V0 CPU: 2.6x
+  V0 BLAS: 5.1x
+  V0 GPU: 36.4x
+
+[53/108] N=256, B=1000, S=32 | elapsed: 5.2min, ETA: 5.6min
+
+============================================================
+Benchmark: sweep_N256_B1000_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU sklearn:        1383 samples/sec (0.723s)
+CPU SPAMS:         72733 samples/sec (0.014s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (64,).)
+CPU v0:             5295 samples/sec (0.189s)
+CPU v0 blas:        6061 samples/sec (0.165s)
+GPU v0:           106740 samples/sec (0.009s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 52.6x
+  V0 CPU: 3.8x
+  V0 BLAS: 4.4x
+  V0 GPU: 77.2x
+
+[54/108] N=256, B=5000, S=32 | elapsed: 5.3min, ETA: 5.5min
+
+============================================================
+Benchmark: sweep_N256_B5000_S32
+  n_features=64, n_components=256, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU sklearn:        1561 samples/sec (3.203s)
+CPU SPAMS:         69717 samples/sec (0.072s +/- 0.007s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (64,).)
+CPU v0:             2240 samples/sec (2.232s)
+CPU v0 blas:        7327 samples/sec (0.682s)
+GPU v0:           118977 samples/sec (0.042s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 44.7x
+  V0 CPU: 1.4x
+  V0 BLAS: 4.7x
+  V0 GPU: 76.2x
+
+[55/108] N=512, B=10, S=32 | elapsed: 5.4min, ETA: 5.4min
+
+============================================================
+Benchmark: sweep_N512_B10_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU sklearn:        1148 samples/sec (0.009s)
+CPU SPAMS:          1664 samples/sec (0.006s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (128,).)
+CPU v0:              732 samples/sec (0.014s)
+CPU v0 blas:         670 samples/sec (0.015s)
+GPU v0:              744 samples/sec (0.013s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 1.4x
+  V0 CPU: 0.6x
+  V0 BLAS: 0.6x
+  V0 GPU: 0.6x
+
+[56/108] N=512, B=50, S=32 | elapsed: 5.4min, ETA: 5.2min
+
+============================================================
+Benchmark: sweep_N512_B50_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU sklearn:         652 samples/sec (0.077s)
+CPU SPAMS:          1409 samples/sec (0.035s +/- 0.006s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (128,).)
+CPU v0:             2843 samples/sec (0.018s)
+CPU v0 blas:        1747 samples/sec (0.029s)
+GPU v0:             3666 samples/sec (0.014s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 2.2x
+  V0 CPU: 4.4x
+  V0 BLAS: 2.7x
+  V0 GPU: 5.6x
+
+[57/108] N=512, B=100, S=32 | elapsed: 5.4min, ETA: 5.0min
+
+============================================================
+Benchmark: sweep_N512_B100_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU sklearn:         712 samples/sec (0.141s)
+CPU SPAMS:         29033 samples/sec (0.003s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (128,).)
+CPU v0:             2734 samples/sec (0.037s)
+CPU v0 blas:        2565 samples/sec (0.039s)
+GPU v0:             8376 samples/sec (0.012s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 40.8x
+  V0 CPU: 3.8x
+  V0 BLAS: 3.6x
+  V0 GPU: 11.8x
+
+[58/108] N=512, B=500, S=32 | elapsed: 5.4min, ETA: 4.8min
+
+============================================================
+Benchmark: sweep_N512_B500_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU sklearn:        1125 samples/sec (0.445s)
+CPU SPAMS:         44837 samples/sec (0.011s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (128,).)
+CPU v0:             1919 samples/sec (0.261s)
+CPU v0 blas:        3385 samples/sec (0.148s)
+GPU v0:            53724 samples/sec (0.009s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 39.9x
+  V0 CPU: 1.7x
+  V0 BLAS: 3.0x
+  V0 GPU: 47.8x
+
+[59/108] N=512, B=1000, S=32 | elapsed: 5.4min, ETA: 4.7min
+
+============================================================
+Benchmark: sweep_N512_B1000_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU sklearn:        1166 samples/sec (0.857s)
+CPU SPAMS:         47768 samples/sec (0.021s +/- 0.003s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (128,).)
+CPU v0:             1338 samples/sec (0.747s)
+CPU v0 blas:        4525 samples/sec (0.221s)
+GPU v0:            62966 samples/sec (0.016s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 41.0x
+  V0 CPU: 1.1x
+  V0 BLAS: 3.9x
+  V0 GPU: 54.0x
+
+[60/108] N=512, B=5000, S=32 | elapsed: 5.4min, ETA: 4.5min
+
+============================================================
+Benchmark: sweep_N512_B5000_S32
+  n_features=128, n_components=512, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU sklearn:        1198 samples/sec (4.173s)
+CPU SPAMS:         50188 samples/sec (0.100s +/- 0.005s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (128,).)
+CPU v0:             2000 samples/sec (2.500s)
+CPU v0 blas:        4311 samples/sec (1.160s)
+GPU v0:            58242 samples/sec (0.086s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 41.9x
+  V0 CPU: 1.7x
+  V0 BLAS: 3.6x
+  V0 GPU: 48.6x
+
+[61/108] N=1024, B=10, S=32 | elapsed: 5.6min, ETA: 4.5min
+
+============================================================
+Benchmark: sweep_N1024_B10_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU sklearn:         407 samples/sec (0.025s)
+CPU SPAMS:           712 samples/sec (0.014s +/- 0.005s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (256,).)
+CPU v0:              692 samples/sec (0.014s)
+CPU v0 blas:         383 samples/sec (0.026s)
+GPU v0:              744 samples/sec (0.013s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 1.7x
+  V0 CPU: 1.7x
+  V0 BLAS: 0.9x
+  V0 GPU: 1.8x
+
+[62/108] N=1024, B=50, S=32 | elapsed: 5.6min, ETA: 4.3min
+
+============================================================
+Benchmark: sweep_N1024_B50_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU sklearn:         384 samples/sec (0.130s)
+CPU SPAMS:          4549 samples/sec (0.011s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (256,).)
+CPU v0:               97 samples/sec (0.518s)
+CPU v0 blas:        1380 samples/sec (0.036s)
+GPU v0:             3656 samples/sec (0.014s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 11.9x
+  V0 CPU: 0.3x
+  V0 BLAS: 3.6x
+  V0 GPU: 9.5x
+
+[63/108] N=1024, B=100, S=32 | elapsed: 5.6min, ETA: 4.2min
+
+============================================================
+Benchmark: sweep_N1024_B100_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU sklearn:         440 samples/sec (0.227s)
+CPU SPAMS:          3389 samples/sec (0.030s +/- 0.005s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (256,).)
+CPU v0:              807 samples/sec (0.124s)
+CPU v0 blas:        1511 samples/sec (0.066s)
+GPU v0:             7881 samples/sec (0.013s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 7.7x
+  V0 CPU: 1.8x
+  V0 BLAS: 3.4x
+  V0 GPU: 17.9x
+
+[64/108] N=1024, B=500, S=32 | elapsed: 5.6min, ETA: 4.0min
+
+============================================================
+Benchmark: sweep_N1024_B500_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU sklearn:         511 samples/sec (0.979s)
+CPU SPAMS:         20638 samples/sec (0.024s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (256,).)
+CPU v0:              915 samples/sec (0.547s)
+CPU v0 blas:        1857 samples/sec (0.269s)
+GPU v0:            26283 samples/sec (0.019s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 40.4x
+  V0 CPU: 1.8x
+  V0 BLAS: 3.6x
+  V0 GPU: 51.4x
+
+[65/108] N=1024, B=1000, S=32 | elapsed: 5.6min, ETA: 3.9min
+
+============================================================
+Benchmark: sweep_N1024_B1000_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU sklearn:         538 samples/sec (1.858s)
+CPU SPAMS:         18176 samples/sec (0.055s +/- 0.007s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (256,).)
+CPU v0:             1850 samples/sec (0.541s)
+CPU v0 blas:        2557 samples/sec (0.391s)
+GPU v0:            29999 samples/sec (0.033s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 33.8x
+  V0 CPU: 3.4x
+  V0 BLAS: 4.8x
+  V0 GPU: 55.7x
+
+[66/108] N=1024, B=5000, S=32 | elapsed: 5.7min, ETA: 3.8min
+
+============================================================
+Benchmark: sweep_N1024_B5000_S32
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU sklearn:         536 samples/sec (9.330s)
+CPU SPAMS:         25980 samples/sec (0.192s +/- 0.007s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (256,).)
+CPU v0:             1673 samples/sec (2.989s)
+CPU v0 blas:        1967 samples/sec (2.542s)
+GPU v0:            27406 samples/sec (0.182s +/- 0.002s)
+
+Speedups vs sklearn:
+  SPAMS: 48.5x
+  V0 CPU: 3.1x
+  V0 BLAS: 3.7x
+  V0 GPU: 51.1x
+
+[67/108] N=2048, B=10, S=32 | elapsed: 6.0min, ETA: 3.8min
+
+============================================================
+Benchmark: sweep_N2048_B10_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU sklearn:         318 samples/sec (0.031s)
+CPU SPAMS:           395 samples/sec (0.025s +/- 0.004s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (512,).)
+CPU v0:              319 samples/sec (0.031s)
+CPU v0 blas:         287 samples/sec (0.035s)
+GPU v0:              462 samples/sec (0.022s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 1.2x
+  V0 CPU: 1.0x
+  V0 BLAS: 0.9x
+  V0 GPU: 1.5x
+
+[68/108] N=2048, B=50, S=32 | elapsed: 6.0min, ETA: 3.7min
+
+============================================================
+Benchmark: sweep_N2048_B50_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU sklearn:         163 samples/sec (0.306s)
+CPU SPAMS:           730 samples/sec (0.069s +/- 0.003s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (512,).)
+CPU v0:              254 samples/sec (0.197s)
+CPU v0 blas:         462 samples/sec (0.108s)
+GPU v0:             2135 samples/sec (0.023s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 4.5x
+  V0 CPU: 1.6x
+  V0 BLAS: 2.8x
+  V0 GPU: 13.1x
+
+[69/108] N=2048, B=100, S=32 | elapsed: 6.0min, ETA: 3.5min
+
+============================================================
+Benchmark: sweep_N2048_B100_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU sklearn:         281 samples/sec (0.356s)
+CPU SPAMS:          1286 samples/sec (0.078s +/- 0.005s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (512,).)
+CPU v0:              565 samples/sec (0.177s)
+CPU v0 blas:         744 samples/sec (0.134s)
+GPU v0:             3852 samples/sec (0.026s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 4.6x
+  V0 CPU: 2.0x
+  V0 BLAS: 2.6x
+  V0 GPU: 13.7x
+
+[70/108] N=2048, B=500, S=32 | elapsed: 6.0min, ETA: 3.4min
+
+============================================================
+Benchmark: sweep_N2048_B500_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU sklearn:         333 samples/sec (1.501s)
+CPU SPAMS:          4603 samples/sec (0.109s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (512,).)
+CPU v0:              816 samples/sec (0.612s)
+CPU v0 blas:        1167 samples/sec (0.428s)
+GPU v0:             8833 samples/sec (0.057s +/- 0.002s)
+
+Speedups vs sklearn:
+  SPAMS: 13.8x
+  V0 CPU: 2.5x
+  V0 BLAS: 3.5x
+  V0 GPU: 26.5x
+
+[71/108] N=2048, B=1000, S=32 | elapsed: 6.1min, ETA: 3.3min
+
+============================================================
+Benchmark: sweep_N2048_B1000_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU sklearn:         326 samples/sec (3.072s)
+CPU SPAMS:          6842 samples/sec (0.146s +/- 0.009s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (512,).)
+CPU v0:             1064 samples/sec (0.940s)
+CPU v0 blas:        1279 samples/sec (0.782s)
+GPU v0:            11261 samples/sec (0.089s +/- 0.003s)
+
+Speedups vs sklearn:
+  SPAMS: 21.0x
+  V0 CPU: 3.3x
+  V0 BLAS: 3.9x
+  V0 GPU: 34.6x
+
+[72/108] N=2048, B=5000, S=32 | elapsed: 6.2min, ETA: 3.2min
+
+============================================================
+Benchmark: sweep_N2048_B5000_S32
+  n_features=512, n_components=2048, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU sklearn:         306 samples/sec (16.338s)
+CPU SPAMS:          9948 samples/sec (0.503s +/- 0.002s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (512,).)
+CPU v0:             1278 samples/sec (3.912s)
+CPU v0 blas:        1041 samples/sec (4.803s)
+GPU v0:            12532 samples/sec (0.399s +/- 0.002s)
+
+Speedups vs sklearn:
+  SPAMS: 32.5x
+  V0 CPU: 4.2x
+  V0 BLAS: 3.4x
+  V0 GPU: 41.0x
+
+[73/108] N=4096, B=10, S=32 | elapsed: 6.7min, ETA: 3.3min
+
+============================================================
+Benchmark: sweep_N4096_B10_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=10
+============================================================
+CPU sklearn:          25 samples/sec (0.394s)
+CPU SPAMS:            93 samples/sec (0.107s +/- 0.008s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (1024,).)
+CPU v0:               33 samples/sec (0.306s)
+CPU v0 blas:          43 samples/sec (0.232s)
+GPU v0:               63 samples/sec (0.158s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 3.7x
+  V0 CPU: 1.3x
+  V0 BLAS: 1.7x
+  V0 GPU: 2.5x
+
+[74/108] N=4096, B=50, S=32 | elapsed: 6.7min, ETA: 3.2min
+
+============================================================
+Benchmark: sweep_N4096_B50_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=50
+============================================================
+CPU sklearn:          27 samples/sec (1.833s)
+CPU SPAMS:           119 samples/sec (0.419s +/- 0.018s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (1024,).)
+CPU v0:              132 samples/sec (0.380s)
+CPU v0 blas:         223 samples/sec (0.225s)
+GPU v0:              298 samples/sec (0.168s +/- 0.004s)
+
+Speedups vs sklearn:
+  SPAMS: 4.4x
+  V0 CPU: 4.8x
+  V0 BLAS: 8.2x
+  V0 GPU: 10.9x
+
+[75/108] N=4096, B=100, S=32 | elapsed: 6.8min, ETA: 3.1min
+
+============================================================
+Benchmark: sweep_N4096_B100_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=100
+============================================================
+CPU sklearn:          28 samples/sec (3.567s)
+CPU SPAMS:           271 samples/sec (0.369s +/- 0.020s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (1024,).)
+CPU v0:              202 samples/sec (0.494s)
+CPU v0 blas:         320 samples/sec (0.313s)
+GPU v0:              584 samples/sec (0.171s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 9.7x
+  V0 CPU: 7.2x
+  V0 BLAS: 11.4x
+  V0 GPU: 20.8x
+
+[76/108] N=4096, B=500, S=32 | elapsed: 7.0min, ETA: 3.1min
+
+============================================================
+Benchmark: sweep_N4096_B500_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=500
+============================================================
+CPU sklearn:          38 samples/sec (13.005s)
+CPU SPAMS:           927 samples/sec (0.540s +/- 0.038s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (1024,).)
+CPU v0:              656 samples/sec (0.763s)
+CPU v0 blas:         552 samples/sec (0.905s)
+GPU v0:             2194 samples/sec (0.228s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 24.1x
+  V0 CPU: 17.1x
+  V0 BLAS: 14.4x
+  V0 GPU: 57.1x
+
+[77/108] N=4096, B=1000, S=32 | elapsed: 7.3min, ETA: 3.1min
+
+============================================================
+Benchmark: sweep_N4096_B1000_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=1000
+============================================================
+CPU sklearn:          37 samples/sec (26.777s)
+CPU SPAMS:          1264 samples/sec (0.791s +/- 0.019s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (1024,).)
+CPU v0:              728 samples/sec (1.373s)
+CPU v0 blas:         608 samples/sec (1.645s)
+GPU v0:             3155 samples/sec (0.317s +/- 0.003s)
+
+Speedups vs sklearn:
+  SPAMS: 33.8x
+  V0 CPU: 19.5x
+  V0 BLAS: 16.3x
+  V0 GPU: 84.5x
+
+[78/108] N=4096, B=5000, S=32 | elapsed: 7.9min, ETA: 3.2min
+
+============================================================
+Benchmark: sweep_N4096_B5000_S32
+  n_features=1024, n_components=4096, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU sklearn:          35 samples/sec (141.447s)
+CPU SPAMS:          2553 samples/sec (1.958s +/- 0.075s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (32,) and (1024,).)
+CPU v0:              661 samples/sec (7.561s)
+CPU v0 blas:         535 samples/sec (9.351s)
+GPU v0:              OOM
+
+Speedups vs sklearn:
+  SPAMS: 72.2x
+  V0 CPU: 18.7x
+  V0 BLAS: 15.1x
+
+[79/108] N=256, B=10, S=64 | elapsed: 10.7min, ETA: 4.1min
+
+============================================================
+Benchmark: sweep_N256_B10_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU sklearn:         719 samples/sec (0.014s)
+CPU SPAMS:          1157 samples/sec (0.009s +/- 0.004s)
+GPU cr-sparse:        20 samples/sec (0.490s)
+CPU v0:              476 samples/sec (0.021s)
+CPU v0 blas:         616 samples/sec (0.016s)
+GPU v0:              430 samples/sec (0.023s +/- 0.005s)
+
+Speedups vs sklearn:
+  SPAMS: 1.6x
+  CR SPARSE: 0.0x
+  V0 CPU: 0.7x
+  V0 BLAS: 0.9x
+  V0 GPU: 0.6x
+
+[80/108] N=256, B=50, S=64 | elapsed: 11.1min, ETA: 4.1min
+
+============================================================
+Benchmark: sweep_N256_B50_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU sklearn:         628 samples/sec (0.080s)
+CPU SPAMS:         24977 samples/sec (0.002s +/- 0.000s)
+GPU cr-sparse:       102 samples/sec (0.493s)
+CPU v0:             1154 samples/sec (0.043s)
+CPU v0 blas:        2147 samples/sec (0.023s)
+GPU v0:             2875 samples/sec (0.017s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 39.8x
+  CR SPARSE: 0.2x
+  V0 CPU: 1.8x
+  V0 BLAS: 3.4x
+  V0 GPU: 4.6x
+
+[81/108] N=256, B=100, S=64 | elapsed: 11.5min, ETA: 4.0min
+
+============================================================
+Benchmark: sweep_N256_B100_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU sklearn:         699 samples/sec (0.143s)
+CPU SPAMS:         11186 samples/sec (0.009s +/- 0.004s)
+GPU cr-sparse:       205 samples/sec (0.487s)
+CPU v0:             1709 samples/sec (0.059s)
+CPU v0 blas:        1890 samples/sec (0.053s)
+GPU v0:             5402 samples/sec (0.019s +/- 0.004s)
+
+Speedups vs sklearn:
+  SPAMS: 16.0x
+  CR SPARSE: 0.3x
+  V0 CPU: 2.4x
+  V0 BLAS: 2.7x
+  V0 GPU: 7.7x
+
+[82/108] N=256, B=500, S=64 | elapsed: 11.9min, ETA: 4.0min
+
+============================================================
+Benchmark: sweep_N256_B500_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU sklearn:         686 samples/sec (0.729s)
+CPU SPAMS:         29974 samples/sec (0.017s +/- 0.003s)
+GPU cr-sparse:       998 samples/sec (0.501s)
+CPU v0:             1673 samples/sec (0.299s)
+CPU v0 blas:        2154 samples/sec (0.232s)
+GPU v0:            27650 samples/sec (0.018s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 43.7x
+  CR SPARSE: 1.5x
+  V0 CPU: 2.4x
+  V0 BLAS: 3.1x
+  V0 GPU: 40.3x
+
+[83/108] N=256, B=1000, S=64 | elapsed: 12.3min, ETA: 3.9min
+
+============================================================
+Benchmark: sweep_N256_B1000_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU sklearn:         709 samples/sec (1.411s)
+CPU SPAMS:         21334 samples/sec (0.047s +/- 0.010s)
+GPU cr-sparse:      1992 samples/sec (0.502s)
+CPU v0:             1578 samples/sec (0.634s)
+CPU v0 blas:        2337 samples/sec (0.428s)
+GPU v0:            33424 samples/sec (0.030s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 30.1x
+  CR SPARSE: 2.8x
+  V0 CPU: 2.2x
+  V0 BLAS: 3.3x
+  V0 GPU: 47.2x
+
+[84/108] N=256, B=5000, S=64 | elapsed: 12.7min, ETA: 3.8min
+
+============================================================
+Benchmark: sweep_N256_B5000_S64
+  n_features=64, n_components=256, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU sklearn:         718 samples/sec (6.965s)
+CPU SPAMS:         32791 samples/sec (0.152s +/- 0.011s)
+GPU cr-sparse:      9444 samples/sec (0.529s)
+CPU v0:             1046 samples/sec (4.781s)
+CPU v0 blas:        2606 samples/sec (1.919s)
+GPU v0:            34918 samples/sec (0.143s +/- 0.002s)
+
+Speedups vs sklearn:
+  SPAMS: 45.7x
+  CR SPARSE: 13.2x
+  V0 CPU: 1.5x
+  V0 BLAS: 3.6x
+  V0 GPU: 48.6x
+
+[85/108] N=512, B=10, S=64 | elapsed: 13.3min, ETA: 3.8min
+
+============================================================
+Benchmark: sweep_N512_B10_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU sklearn:         563 samples/sec (0.018s)
+CPU SPAMS:          1998 samples/sec (0.005s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (128,).)
+CPU v0:              575 samples/sec (0.017s)
+CPU v0 blas:         714 samples/sec (0.014s)
+GPU v0:              664 samples/sec (0.015s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 3.5x
+  V0 CPU: 1.0x
+  V0 BLAS: 1.3x
+  V0 GPU: 1.2x
+
+[86/108] N=512, B=50, S=64 | elapsed: 13.3min, ETA: 3.6min
+
+============================================================
+Benchmark: sweep_N512_B50_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU sklearn:         587 samples/sec (0.085s)
+CPU SPAMS:          1508 samples/sec (0.033s +/- 0.004s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (128,).)
+CPU v0:             1031 samples/sec (0.048s)
+CPU v0 blas:        1312 samples/sec (0.038s)
+GPU v0:             2554 samples/sec (0.020s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 2.6x
+  V0 CPU: 1.8x
+  V0 BLAS: 2.2x
+  V0 GPU: 4.4x
+
+[87/108] N=512, B=100, S=64 | elapsed: 13.3min, ETA: 3.4min
+
+============================================================
+Benchmark: sweep_N512_B100_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU sklearn:         461 samples/sec (0.217s)
+CPU SPAMS:         16925 samples/sec (0.006s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (128,).)
+CPU v0:              591 samples/sec (0.169s)
+CPU v0 blas:        1014 samples/sec (0.099s)
+GPU v0:             6260 samples/sec (0.016s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 36.8x
+  V0 CPU: 1.3x
+  V0 BLAS: 2.2x
+  V0 GPU: 13.6x
+
+[88/108] N=512, B=500, S=64 | elapsed: 13.3min, ETA: 3.2min
+
+============================================================
+Benchmark: sweep_N512_B500_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU sklearn:         547 samples/sec (0.913s)
+CPU SPAMS:         22574 samples/sec (0.022s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (128,).)
+CPU v0:             1276 samples/sec (0.392s)
+CPU v0 blas:        1561 samples/sec (0.320s)
+GPU v0:            18752 samples/sec (0.027s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 41.2x
+  V0 CPU: 2.3x
+  V0 BLAS: 2.9x
+  V0 GPU: 34.3x
+
+[89/108] N=512, B=1000, S=64 | elapsed: 13.4min, ETA: 3.0min
+
+============================================================
+Benchmark: sweep_N512_B1000_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU sklearn:         570 samples/sec (1.756s)
+CPU SPAMS:         17767 samples/sec (0.056s +/- 0.007s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (128,).)
+CPU v0:             1328 samples/sec (0.753s)
+CPU v0 blas:        1663 samples/sec (0.601s)
+GPU v0:            19973 samples/sec (0.050s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 31.2x
+  V0 CPU: 2.3x
+  V0 BLAS: 2.9x
+  V0 GPU: 35.1x
+
+[90/108] N=512, B=5000, S=64 | elapsed: 13.4min, ETA: 2.9min
+
+============================================================
+Benchmark: sweep_N512_B5000_S64
+  n_features=128, n_components=512, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU sklearn:         618 samples/sec (8.094s)
+CPU SPAMS:         24198 samples/sec (0.207s +/- 0.003s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (128,).)
+CPU v0:              950 samples/sec (5.264s)
+CPU v0 blas:        1640 samples/sec (3.050s)
+GPU v0:            18566 samples/sec (0.269s +/- 0.002s)
+
+Speedups vs sklearn:
+  SPAMS: 39.2x
+  V0 CPU: 1.5x
+  V0 BLAS: 2.7x
+  V0 GPU: 30.1x
+
+[91/108] N=1024, B=10, S=64 | elapsed: 13.7min, ETA: 2.7min
+
+============================================================
+Benchmark: sweep_N1024_B10_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU sklearn:         194 samples/sec (0.052s)
+CPU SPAMS:           793 samples/sec (0.013s +/- 0.001s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (256,).)
+CPU v0:              326 samples/sec (0.031s)
+CPU v0 blas:         415 samples/sec (0.024s)
+GPU v0:              505 samples/sec (0.020s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 4.1x
+  V0 CPU: 1.7x
+  V0 BLAS: 2.1x
+  V0 GPU: 2.6x
+
+[92/108] N=1024, B=50, S=64 | elapsed: 13.7min, ETA: 2.6min
+
+============================================================
+Benchmark: sweep_N1024_B50_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU sklearn:         213 samples/sec (0.235s)
+CPU SPAMS:          4478 samples/sec (0.011s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (256,).)
+CPU v0:              278 samples/sec (0.180s)
+CPU v0 blas:         369 samples/sec (0.135s)
+GPU v0:             3155 samples/sec (0.016s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 21.0x
+  V0 CPU: 1.3x
+  V0 BLAS: 1.7x
+  V0 GPU: 14.8x
+
+[93/108] N=1024, B=100, S=64 | elapsed: 13.8min, ETA: 2.4min
+
+============================================================
+Benchmark: sweep_N1024_B100_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU sklearn:         238 samples/sec (0.421s)
+CPU SPAMS:          6512 samples/sec (0.015s +/- 0.000s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (256,).)
+CPU v0:              526 samples/sec (0.190s)
+CPU v0 blas:         768 samples/sec (0.130s)
+GPU v0:             6429 samples/sec (0.016s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 27.4x
+  V0 CPU: 2.2x
+  V0 BLAS: 3.2x
+  V0 GPU: 27.1x
+
+[94/108] N=1024, B=500, S=64 | elapsed: 13.8min, ETA: 2.2min
+
+============================================================
+Benchmark: sweep_N1024_B500_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU sklearn:         261 samples/sec (1.919s)
+CPU SPAMS:          7435 samples/sec (0.067s +/- 0.008s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (256,).)
+CPU v0:              879 samples/sec (0.569s)
+CPU v0 blas:         923 samples/sec (0.541s)
+GPU v0:            10023 samples/sec (0.050s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 28.5x
+  V0 CPU: 3.4x
+  V0 BLAS: 3.5x
+  V0 GPU: 38.5x
+
+[95/108] N=1024, B=1000, S=64 | elapsed: 13.8min, ETA: 2.1min
+
+============================================================
+Benchmark: sweep_N1024_B1000_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU sklearn:         282 samples/sec (3.548s)
+CPU SPAMS:          9772 samples/sec (0.102s +/- 0.006s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (256,).)
+CPU v0:              825 samples/sec (1.212s)
+CPU v0 blas:         903 samples/sec (1.108s)
+GPU v0:             9228 samples/sec (0.108s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 34.7x
+  V0 CPU: 2.9x
+  V0 BLAS: 3.2x
+  V0 GPU: 32.7x
+
+[96/108] N=1024, B=5000, S=64 | elapsed: 14.0min, ETA: 1.9min
+
+============================================================
+Benchmark: sweep_N1024_B5000_S64
+  n_features=256, n_components=1024, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU sklearn:         283 samples/sec (17.655s)
+CPU SPAMS:         13034 samples/sec (0.384s +/- 0.010s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (256,).)
+CPU v0:              692 samples/sec (7.223s)
+CPU v0 blas:         769 samples/sec (6.505s)
+GPU v0:             9126 samples/sec (0.548s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 46.0x
+  V0 CPU: 2.4x
+  V0 BLAS: 2.7x
+  V0 GPU: 32.2x
+
+[97/108] N=2048, B=10, S=64 | elapsed: 14.6min, ETA: 1.8min
+
+============================================================
+Benchmark: sweep_N2048_B10_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU sklearn:         180 samples/sec (0.055s)
+CPU SPAMS:           218 samples/sec (0.046s +/- 0.006s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (512,).)
+CPU v0:              221 samples/sec (0.045s)
+CPU v0 blas:         201 samples/sec (0.050s)
+GPU v0:              398 samples/sec (0.025s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 1.2x
+  V0 CPU: 1.2x
+  V0 BLAS: 1.1x
+  V0 GPU: 2.2x
+
+[98/108] N=2048, B=50, S=64 | elapsed: 14.6min, ETA: 1.7min
+
+============================================================
+Benchmark: sweep_N2048_B50_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU sklearn:         185 samples/sec (0.270s)
+CPU SPAMS:           613 samples/sec (0.082s +/- 0.002s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (512,).)
+CPU v0:              237 samples/sec (0.211s)
+CPU v0 blas:         213 samples/sec (0.235s)
+GPU v0:             1408 samples/sec (0.036s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 3.3x
+  V0 CPU: 1.3x
+  V0 BLAS: 1.1x
+  V0 GPU: 7.6x
+
+[99/108] N=2048, B=100, S=64 | elapsed: 14.6min, ETA: 1.5min
+
+============================================================
+Benchmark: sweep_N2048_B100_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU sklearn:         164 samples/sec (0.611s)
+CPU SPAMS:          1247 samples/sec (0.080s +/- 0.005s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (512,).)
+CPU v0:              324 samples/sec (0.309s)
+CPU v0 blas:         343 samples/sec (0.291s)
+GPU v0:             2297 samples/sec (0.044s +/- 0.001s)
+
+Speedups vs sklearn:
+  SPAMS: 7.6x
+  V0 CPU: 2.0x
+  V0 BLAS: 2.1x
+  V0 GPU: 14.0x
+
+[100/108] N=2048, B=500, S=64 | elapsed: 14.6min, ETA: 1.3min
+
+============================================================
+Benchmark: sweep_N2048_B500_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU sklearn:         184 samples/sec (2.719s)
+CPU SPAMS:          2975 samples/sec (0.168s +/- 0.006s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (512,).)
+CPU v0:              546 samples/sec (0.915s)
+CPU v0 blas:         461 samples/sec (1.085s)
+GPU v0:             4178 samples/sec (0.120s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 16.2x
+  V0 CPU: 3.0x
+  V0 BLAS: 2.5x
+  V0 GPU: 22.7x
+
+[101/108] N=2048, B=1000, S=64 | elapsed: 14.7min, ETA: 1.2min
+
+============================================================
+Benchmark: sweep_N2048_B1000_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU sklearn:         230 samples/sec (4.344s)
+CPU SPAMS:          3598 samples/sec (0.278s +/- 0.003s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (512,).)
+CPU v0:              401 samples/sec (2.496s)
+CPU v0 blas:         489 samples/sec (2.046s)
+GPU v0:             4737 samples/sec (0.211s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 15.6x
+  V0 CPU: 1.7x
+  V0 BLAS: 2.1x
+  V0 GPU: 20.6x
+
+[102/108] N=2048, B=5000, S=64 | elapsed: 14.9min, ETA: 1.0min
+
+============================================================
+Benchmark: sweep_N2048_B5000_S64
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU sklearn:         216 samples/sec (23.154s)
+CPU SPAMS:          4741 samples/sec (1.055s +/- 0.010s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (512,).)
+CPU v0:              542 samples/sec (9.226s)
+CPU v0 blas:         406 samples/sec (12.301s)
+GPU v0:              OOM
+
+Speedups vs sklearn:
+  SPAMS: 22.0x
+  V0 CPU: 2.5x
+  V0 BLAS: 1.9x
+
+[103/108] N=4096, B=10, S=64 | elapsed: 15.8min, ETA: 0.9min
+
+============================================================
+Benchmark: sweep_N4096_B10_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=10
+============================================================
+CPU sklearn:          21 samples/sec (0.482s)
+CPU SPAMS:            43 samples/sec (0.234s +/- 0.019s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (1024,).)
+CPU v0:               45 samples/sec (0.224s)
+CPU v0 blas:          42 samples/sec (0.240s)
+GPU v0:               63 samples/sec (0.160s +/- 0.002s)
+
+Speedups vs sklearn:
+  SPAMS: 2.1x
+  V0 CPU: 2.2x
+  V0 BLAS: 2.0x
+  V0 GPU: 3.0x
+
+[104/108] N=4096, B=50, S=64 | elapsed: 15.8min, ETA: 0.8min
+
+============================================================
+Benchmark: sweep_N4096_B50_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=50
+============================================================
+CPU sklearn:          26 samples/sec (1.952s)
+CPU SPAMS:           109 samples/sec (0.461s +/- 0.014s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (1024,).)
+CPU v0:               97 samples/sec (0.517s)
+CPU v0 blas:         139 samples/sec (0.359s)
+GPU v0:              285 samples/sec (0.175s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 4.2x
+  V0 CPU: 3.8x
+  V0 BLAS: 5.4x
+  V0 GPU: 11.1x
+
+[105/108] N=4096, B=100, S=64 | elapsed: 15.9min, ETA: 0.6min
+
+============================================================
+Benchmark: sweep_N4096_B100_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=100
+============================================================
+CPU sklearn:          28 samples/sec (3.566s)
+CPU SPAMS:           212 samples/sec (0.471s +/- 0.022s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (1024,).)
+CPU v0:              202 samples/sec (0.494s)
+CPU v0 blas:         159 samples/sec (0.627s)
+GPU v0:              509 samples/sec (0.196s +/- 0.003s)
+
+Speedups vs sklearn:
+  SPAMS: 7.6x
+  V0 CPU: 7.2x
+  V0 BLAS: 5.7x
+  V0 GPU: 18.2x
+
+[106/108] N=4096, B=500, S=64 | elapsed: 16.1min, ETA: 0.5min
+
+============================================================
+Benchmark: sweep_N4096_B500_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=500
+============================================================
+CPU sklearn:          44 samples/sec (11.298s)
+CPU SPAMS:           748 samples/sec (0.669s +/- 0.028s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (1024,).)
+CPU v0:              321 samples/sec (1.556s)
+CPU v0 blas:         223 samples/sec (2.240s)
+GPU v0:             1419 samples/sec (0.352s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 16.9x
+  V0 CPU: 7.3x
+  V0 BLAS: 5.0x
+  V0 GPU: 32.1x
+
+[107/108] N=4096, B=1000, S=64 | elapsed: 16.4min, ETA: 0.3min
+
+============================================================
+Benchmark: sweep_N4096_B1000_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=1000
+============================================================
+CPU sklearn:          29 samples/sec (35.011s)
+CPU SPAMS:           996 samples/sec (1.004s +/- 0.023s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (1024,).)
+CPU v0:              343 samples/sec (2.918s)
+CPU v0 blas:         241 samples/sec (4.146s)
+GPU v0:             1723 samples/sec (0.581s +/- 0.000s)
+
+Speedups vs sklearn:
+  SPAMS: 34.9x
+  V0 CPU: 12.0x
+  V0 BLAS: 8.4x
+  V0 GPU: 60.3x
+
+[108/108] N=4096, B=5000, S=64 | elapsed: 17.3min, ETA: 0.2min
+
+============================================================
+Benchmark: sweep_N4096_B5000_S64
+  n_features=1024, n_components=4096, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU sklearn:          27 samples/sec (185.557s)
+CPU SPAMS:          1362 samples/sec (3.671s +/- 0.139s)
+GPU cr-sparse:       FAIL (dot_general requires contracting dimensions to have the same shape, got (64,) and (1024,).)
+CPU v0:              311 samples/sec (16.101s)
+CPU v0 blas:         197 samples/sec (25.404s)
+GPU v0:              OOM
+
+Speedups vs sklearn:
+  SPAMS: 50.6x
+  V0 CPU: 11.5x
+  V0 BLAS: 7.3x
+
+============================================================
+Sweep complete: 108 cells in 21.4 minutes
+============================================================
+Sweep results saved to /home/ariel/prog/omp/orthogonal-matching-pursuit-parallel-gpu/benchmarks/results/sweep_20260326_123232.json

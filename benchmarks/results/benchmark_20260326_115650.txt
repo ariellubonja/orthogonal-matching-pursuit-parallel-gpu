@@ -1,0 +1,97 @@
+Date: 2026-03-26T11:56:50.689698
+CPU: Intel(R) Core(TM) Ultra 9 185H
+GPU: NVIDIA GeForce RTX 4060 Laptop GPU
+
+============================================================
+Benchmark: image_patches
+  n_features=256, n_components=1024, n_nonzero_coefs=32, n_samples=5000
+============================================================
+CPU sklearn:         533 samples/sec (9.382s)
+CPU SPAMS:         23106 samples/sec (0.216s +/- 0.004s)
+GPU cr-sparse:     17168 samples/sec (0.291s)
+CPU naive:          1289 samples/sec (3.880s)
+CPU v0:             2227 samples/sec (2.245s)
+CPU v0 blas:        1823 samples/sec (2.743s)
+GPU naive:          8355 samples/sec (0.598s)
+GPU v0:            22633 samples/sec (0.221s)
+
+Speedups vs sklearn:
+  SPAMS: 43.4x
+  CR SPARSE: 32.2x
+  NAIVE CPU: 2.4x
+  V0 CPU: 4.2x
+  V0 BLAS: 3.4x
+  NAIVE GPU: 15.7x
+  V0 GPU: 42.5x
+
+Correctness:
+  CPU naive vs v0 support: agree on all 5000 samples
+  SPAMS vs v0 CPU support: agree on all 5000 samples
+  v0 CPU vs GPU support: agree on all 5000 samples
+  v0 CPU vs v0 BLAS support: agree on all 5000 samples
+  Max orthogonality violation (spams): 5.63e-15
+  Max orthogonality violation (cr sparse): 1.79e+00
+  Max orthogonality violation (v0 cpu): 5.84e-15
+  Max orthogonality violation (v0 blas): 6.73e-15
+  Max orthogonality violation (v0 gpu): 5.33e-15
+
+============================================================
+Benchmark: face_recognition
+  n_features=8064, n_components=1207, n_nonzero_coefs=30, n_samples=1207
+============================================================
+CPU sklearn:         482 samples/sec (2.505s)
+CPU SPAMS:          1274 samples/sec (0.948s +/- 0.018s)
+GPU cr-sparse:       FAIL (RESOURCE_EXHAUSTED: Out of memory while trying to allocate 817592832 bytes.)
+CPU naive:            92 samples/sec (13.153s)
+CPU v0:              594 samples/sec (2.032s)
+CPU v0 blas:        1470 samples/sec (0.821s)
+GPU naive:           257 samples/sec (4.703s)
+GPU v0:             4285 samples/sec (0.282s)
+
+Speedups vs sklearn:
+  SPAMS: 2.6x
+  NAIVE CPU: 0.2x
+  V0 CPU: 1.2x
+  V0 BLAS: 3.1x
+  NAIVE GPU: 0.5x
+  V0 GPU: 8.9x
+
+Correctness:
+  CPU naive vs v0 support: agree on all 1207 samples
+  SPAMS vs v0 CPU support: agree on all 1207 samples
+  v0 CPU vs GPU support: agree on all 1207 samples
+  v0 CPU vs v0 BLAS support: agree on all 1207 samples
+  Max orthogonality violation (spams): 2.23e-14
+  Max orthogonality violation (v0 cpu): 2.15e-14
+  Max orthogonality violation (v0 blas): 2.20e-14
+  Max orthogonality violation (v0 gpu): 2.55e-14
+
+============================================================
+Benchmark: audio
+  n_features=512, n_components=2048, n_nonzero_coefs=64, n_samples=5000
+============================================================
+CPU sklearn:         103 samples/sec (48.503s)
+CPU SPAMS:          4490 samples/sec (1.114s +/- 0.021s)
+GPU cr-sparse:      4111 samples/sec (1.216s)
+CPU naive:           364 samples/sec (13.727s)
+CPU v0:              504 samples/sec (9.930s)
+CPU v0 blas:         378 samples/sec (13.210s)
+GPU naive:          1374 samples/sec (3.640s)
+GPU v0:              OOM
+
+Speedups vs sklearn:
+  SPAMS: 43.6x
+  CR SPARSE: 39.9x
+  NAIVE CPU: 3.5x
+  V0 CPU: 4.9x
+  V0 BLAS: 3.7x
+  NAIVE GPU: 13.3x
+
+Correctness:
+  CPU naive vs v0 support: agree on all 5000 samples
+  SPAMS vs v0 CPU support: 1/5000 samples disagree (expected — different tie-breaking)
+  v0 CPU vs v0 BLAS support: agree on all 5000 samples
+  Max orthogonality violation (spams): 1.19e-14
+  Max orthogonality violation (cr sparse): 3.59e+00
+  Max orthogonality violation (v0 cpu): 8.39e-15
+  Max orthogonality violation (v0 blas): 8.69e-15

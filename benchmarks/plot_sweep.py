@@ -157,16 +157,13 @@ def draw_best_algorithm_heatmap(ax, data, S, algs):
 
 def plot_sweep_heatmaps(data, output_dir, baseline='sklearn'):
     # All algorithms present in data (for best-algorithm panel)
-    every_alg = ['sklearn', 'spams', 'cr_sparse', 'naive_cpu', 'v0_cpu', 'v0_blas', 'naive_gpu', 'v0_gpu']
+    candidate_algs = ['sklearn', 'spams', 'cr_sparse', 'naive_cpu', 'v0_cpu', 'v0_blas', 'naive_gpu', 'v0_gpu']
 
-    # Check which algorithms actually have data
-    has_gpu = any(
-        isinstance(cell.get('v0_gpu'), dict)
-        for cell in data['cells'].values()
-        if isinstance(cell, dict)
-    )
-    if not has_gpu:
-        every_alg = [a for a in every_alg if 'gpu' not in a]
+    # Auto-detect: only include algorithms that have data in at least one cell
+    every_alg = []
+    for alg in candidate_algs:
+        if any(isinstance(cell.get(alg), dict) for cell in data['cells'].values() if isinstance(cell, dict)):
+            every_alg.append(alg)
 
     has_spams = any(
         isinstance(cell.get('spams'), dict)
