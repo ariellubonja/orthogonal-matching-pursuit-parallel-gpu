@@ -243,7 +243,9 @@ def plot_sweep_heatmaps(data, output_dir, baseline='sklearn'):
 
         plt.tight_layout(rect=[0, 0, 0.90, 0.96])
         suffix = f'_vs_{baseline}' if baseline != 'sklearn' else ''
-        out_path = os.path.join(output_dir, f'sweep_heatmap_S{S}{suffix}.png')
+        heatmap_dir = os.path.join(output_dir, 'heatmaps')
+        os.makedirs(heatmap_dir, exist_ok=True)
+        out_path = os.path.join(heatmap_dir, f'sweep_heatmap_S{S}{suffix}.png')
         plt.savefig(out_path, dpi=150, bbox_inches='tight')
         print(f"Saved {out_path}")
         plt.close(fig)

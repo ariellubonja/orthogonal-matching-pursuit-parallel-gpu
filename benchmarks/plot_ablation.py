@@ -101,7 +101,9 @@ def plot_ablation_bars(data, output_dir):
         ax.grid(axis='y', alpha=0.3)
 
     plt.tight_layout()
-    out_path = os.path.join(output_dir, 'ablation_bars.png')
+    heatmap_dir = os.path.join(output_dir, 'heatmaps')
+    os.makedirs(heatmap_dir, exist_ok=True)
+    out_path = os.path.join(heatmap_dir, 'ablation_bars.png')
     plt.savefig(out_path, dpi=150, bbox_inches='tight')
     print(f"Saved {out_path}")
     plt.close(fig)
@@ -150,7 +152,9 @@ def plot_ablation_times(data, output_dir):
             ax.grid(axis='y', alpha=0.3)
 
     plt.tight_layout()
-    out_path = os.path.join(output_dir, 'ablation_times.png')
+    heatmap_dir = os.path.join(output_dir, 'heatmaps')
+    os.makedirs(heatmap_dir, exist_ok=True)
+    out_path = os.path.join(heatmap_dir, 'ablation_times.png')
     plt.savefig(out_path, dpi=150, bbox_inches='tight')
     print(f"Saved {out_path}")
     plt.close(fig)
