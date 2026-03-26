@@ -2,7 +2,7 @@
 
 **Paper:** [Efficient Batched CPU/GPU Implementation of Orthogonal Matching Pursuit for Python](https://arxiv.org/abs/2407.06434)
 
-Batched implementation of Orthogonal Matching Pursuit (OMP) using BLAS (CPU) and PyTorch (GPU). Solves thousands of sparse coding problems simultaneously, achieving **up to 37x speedup over scikit-learn** on GPU and **3-5x on CPU**. **Drop-in sklearn replacement** with native GPU support.
+Batched implementation of Orthogonal Matching Pursuit (OMP) using BLAS (CPU) and PyTorch (GPU). **The fastest GPU implementation of OMP** — matches or beats SPAMS (C++) while being pure Python/PyTorch. **3-5x faster than scikit-learn** on CPU, **up to 42x on GPU**.
 
 
 ![Benchmark plot](benchmarks/results/benchmark_plot.png)
@@ -10,12 +10,12 @@ Batched implementation of Orthogonal Matching Pursuit (OMP) using BLAS (CPU) and
 ### Speedup vs scikit-learn
 
 | Config | Best CPU | GPU | SPAMS (C++) |
-|--------|----------|--------|-------------|
-| Image patches (256×1024, S=32, B=5K) | 4.4x | 37x | **43x** |
-| Face recognition (8064×1207, S=30, B=1.2K) | 3.2x† | **9.1x** | 2.9x |
-| Audio (512×2048, S=64, B=5K) | 5.5x | OOM | 54x |
+|--------|----------|-----|-------------|
+| Image patches (256×1024, S=32, B=5K) | 4.2x | **42x** | **43x** |
+| Face recognition (8064×1207, S=30, B=1.2K) | 3.1x† | **8.9x** | 2.6x |
+| Audio (512×2048, S=64, B=5K) | 4.9x | OOM | **44x** |
 
-† v0_blas variant (inverse Cholesky + Cython BLAS), best CPU method for large n_features.
+† v0_blas (inverse Cholesky + Cython BLAS). Image patches: GPU and SPAMS are tied (22.6K vs 23.1K samples/sec). Face recognition: GPU is 3.4x faster than SPAMS.
 
 *Hardware: Intel Core Ultra 9 185H, NVIDIA RTX 4060 Laptop (8 GB)*
 
@@ -23,7 +23,7 @@ Batched implementation of Orthogonal Matching Pursuit (OMP) using BLAS (CPU) and
 
 ### When to use batched-omp
 
-- **Have a GPU?** Use batched-omp — there is nothing faster. Beats SPAMS (C++) on face recognition by 3x, ties on image patches
+- **Have a GPU?** Use batched-omp — there is nothing faster. Beats SPAMS (C++) on face recognition by 3.4x, ties on image patches
 - **CPU only, want a sklearn drop-in?** 3-5x faster, same API, no C dependencies
 - **CPU only, maximum speed?** [SPAMS](https://thoth.inrialpes.fr/people/mairal/spams/) is faster (C++ with OpenMP) but harder to install
 - **Few signals or small problems?** sklearn is fine — batching helps most with hundreds+ of signals
