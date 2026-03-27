@@ -1,0 +1,16 @@
+# batched-omp
+
+> GPU-accelerated Batched Orthogonal Matching Pursuit (OMP) for Python.
+> Up to 310x faster than scikit-learn, 26x faster than SPAMS (C++).
+> Drop-in replacement for sklearn.linear_model.OrthogonalMatchingPursuit.
+> Paper: https://arxiv.org/abs/2407.06434
+
+## Links
+
+- [Quick Start](https://github.com/ariellubonja/orthogonal-matching-pursuit-parallel-gpu#quick-start): Usage examples with PyTorch tensors, CUDA GPU, and NumPy arrays
+- [sklearn Drop-in Replacement](https://github.com/ariellubonja/orthogonal-matching-pursuit-parallel-gpu#drop-in-sklearn-replacement): One-import swap for Pipeline, GridSearchCV, cross_val_score
+- [API Reference](https://github.com/ariellubonja/orthogonal-matching-pursuit-parallel-gpu#api): run_omp() signature and parameter descriptions
+- [Algorithms](https://github.com/ariellubonja/orthogonal-matching-pursuit-parallel-gpu#algorithms): v0 (inverse Cholesky) and v0_blas (Cython BLAS) algorithm details
+- [Benchmarks](https://github.com/ariellubonja/orthogonal-matching-pursuit-parallel-gpu#speedup-vs-scikit-learn): Speedup tables vs sklearn and SPAMS on AWS g7e.8xlarge
+- [Installation](https://github.com/ariellubonja/orthogonal-matching-pursuit-parallel-gpu#installation): Python 3.10+, pip install, GPU setup
+- [Full Documentation](https://github.com/ariellubonja/orthogonal-matching-pursuit-parallel-gpu/blob/main/llms-full.txt): Complete API docs, examples, and benchmarks in one file

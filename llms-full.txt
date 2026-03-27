@@ -1,0 +1,174 @@
+# batched-omp
+
+GPU-accelerated Batched Orthogonal Matching Pursuit (OMP) for Python.
+
+- **Version**: 0.1.0
+- **License**: BSD-3-Clause
+- **Python**: 3.10+
+- **Authors**: Ariel Lubonja, Sebastian Kazmarek Praesius, Trac Duy Tran
+- **Paper**: https://arxiv.org/abs/2407.06434
+- **Repository**: https://github.com/ariellubonja/orthogonal-matching-pursuit-parallel-gpu
+
+## What it does
+
+Batched OMP solves sparse coding problems: given a dictionary matrix X and a batch of signals y, find sparse coefficient vectors such that y ~ X @ coefs. It processes all signals in parallel using batched matrix operations instead of looping over samples.
+
+This is the fastest GPU implementation of OMP available. There is no other production-ready GPU OMP — cr-sparse (JAX) crashes on overcomplete dictionaries, and sklearn/SPAMS are CPU-only.
+
+## Performance
+
+Benchmarked on AWS g7e.8xlarge (Intel Xeon 8559C, NVIDIA RTX PRO 6000 Blackwell 102 GB):
+
+| Config | sklearn (sps) | SPAMS (sps) | Best CPU (sps) | GPU (sps) | GPU vs sklearn | GPU vs SPAMS |
+|--------|--------------|-------------|----------------|-----------|----------------|--------------|
+| Image patches (256x1024, S=32, B=5K) | 594 | 7,139 | 3,257 | 183,904 | 310x | 25.8x |
+| Face recognition (8064x1207, S=30, B=1.2K) | 352 | 1,717 | 1,731 | 25,158 | 71x | 14.6x |
+| Audio (512x2048, S=64, B=5K) | 207 | 2,359 | 926 | 28,336 | 137x | 12.0x |
+
+sps = signals per second. GPU wins 108/108 sweep cells vs SPAMS.
+
+## Installation
+
+```bash
+pip install batched-omp            # CPU only (numpy + scipy + Cython BLAS)
+pip install batched-omp[gpu]       # With PyTorch for GPU support
+```
+
+For development:
+```bash
+pip install -e ".[dev]"
+```
+
+Requires a C compiler for Cython BLAS extensions. For GPU, install PyTorch with CUDA first: https://pytorch.org/get-started/locally/
+
+## API 1: run_omp() function
+
+The low-level function for direct use with tensors or arrays.
+
+```python
+run_omp(X, y, n_nonzero_coefs, precompute=True, tol=0.0,
+        normalize=True, fit_intercept=True, alg='v0')
+```
+
+### Parameters
+
+- `X`: Dictionary matrix, shape (n_features, n_components). Tensor or ndarray.
+- `y`: Signal matrix, shape (n_samples, n_features). Tensor or ndarray.
+- `n_nonzero_coefs`: Maximum number of non-zero coefficients per sample.
+- `precompute` (default True): Precompute Gram matrix X.T @ X.
+- `tol` (default 0.0): Residual norm threshold for early stopping. 0 disables.
+- `normalize` (default True): Column-normalize X before solving, denormalize on output.
+- `fit_intercept` (default True): Center X and y before solving.
+- `alg` (default 'v0'): Algorithm variant. 'v0' (inverse Cholesky, fastest) or 'v0_blas' (CPU Cython BLAS).
+
+### Returns
+
+Tensor of shape (n_samples, n_components) — dense sparse coefficient matrix.
+
+### Examples
+
+```python
+from batched_omp import run_omp
+import torch
+
+# CPU with tensors
+X = torch.randn(256, 1024, dtype=torch.float64)
+X /= X.norm(dim=0)
+y = torch.randn(5000, 256, dtype=torch.float64)
+coefs = run_omp(X, y, n_nonzero_coefs=32, normalize=False, fit_intercept=False)
+
+# GPU — just move tensors to CUDA
+coefs_gpu = run_omp(X.cuda(), y.cuda(), n_nonzero_coefs=32,
+                    normalize=False, fit_intercept=False)
+
+# NumPy arrays work too (auto-converted to tensors)
+coefs = run_omp(X_numpy, y_numpy, n_nonzero_coefs=32)
+```
+
+## API 2: BatchedOrthogonalMatchingPursuit (sklearn-compatible)
+
+Drop-in replacement for sklearn.linear_model.OrthogonalMatchingPursuit. Works with Pipeline, GridSearchCV, cross_val_score.
+
+```python
+from batched_omp import BatchedOrthogonalMatchingPursuit
+
+omp = BatchedOrthogonalMatchingPursuit(
+    n_nonzero_coefs=None,   # Default: max(int(0.1 * n_features), 1)
+    tol=None,               # Overrides n_nonzero_coefs if set
+    fit_intercept=True,
+    precompute=True,
+    normalize=True,          # Column-normalize dictionary (recommended for OMP)
+    device="auto",           # "auto" detects CUDA, also "cpu" or "cuda"
+    algorithm="v0",          # "v0" (fastest) or "v0_blas" (CPU Cython BLAS)
+)
+```
+
+### Attributes (after fit)
+
+- `coef_`: shape (n_features,) or (n_targets, n_features)
+- `intercept_`: float or shape (n_targets,)
+- `n_iter_`: int or list — number of active features per target
+- `n_nonzero_coefs_`: resolved value used during fitting
+- `n_features_in_`: number of features seen during fit
+
+### Example: drop-in replacement
+
+```python
+# Before (sklearn, CPU only):
+from sklearn.linear_model import OrthogonalMatchingPursuit
+omp = OrthogonalMatchingPursuit(n_nonzero_coefs=10)
+
+# After (batched-omp, automatic GPU):
+from batched_omp import BatchedOrthogonalMatchingPursuit
+omp = BatchedOrthogonalMatchingPursuit(n_nonzero_coefs=10)
+
+# Same API
+omp.fit(X_train, y_train)
+predictions = omp.predict(X_test)
+coef = omp.coef_
+intercept = omp.intercept_
+```
+
+### Example: sklearn pipeline
+
+```python
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+pipe = Pipeline([
+    ("scaler", StandardScaler()),
+    ("omp", BatchedOrthogonalMatchingPursuit(n_nonzero_coefs=10, normalize=False)),
+])
+pipe.fit(X_train, y_train)
+predictions = pipe.predict(X_test)
+```
+
+## Algorithms
+
+Both algorithms are batched — they solve B sparse coding problems simultaneously.
+
+### v0 (inverse Cholesky) — default
+
+Updates the Cholesky inverse iteratively, avoiding a linear solve each iteration. Based on Zhu et al. 2020. Uses torch.baddbmm, torch.bmm, torch.gather. Fastest on GPU (any size) and CPU (small-medium n_features).
+
+### v0_blas (Cython BLAS)
+
+NumPy + Cython BLAS variant of v0. Calls dgemv/daxpy/idamax directly via scipy's cython_blas. Fastest on CPU when n_features is very large (e.g. 8064).
+
+## When to use batched-omp
+
+- Have a GPU? Use batched-omp. 12-26x faster than SPAMS (C++) across all configs.
+- CPU only, want sklearn compatibility? 4-5x faster, same API, no C dependencies.
+- CPU only, maximum speed? SPAMS is faster (C++ with OpenMP) but harder to install and requires Python <=3.11.
+- Few signals or small problems? sklearn is fine — batching helps most with hundreds+ of signals.
+
+## Citation
+
+```bibtex
+@article{lubonja2024efficient,
+  title={Efficient batched CPU/GPU implementation of orthogonal matching pursuit for Python},
+  author={Lubonja, Ariel and Pr{\"a}sius, Sebastian Kazmarek and Tran, Trac Duy},
+  journal={arXiv preprint arXiv:2407.06434},
+  year={2024}
+}
+```
