@@ -5,24 +5,54 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "batched-omp"
 version = "0.1.0"
-description = "Batched Orthogonal Matching Pursuit for CPU and GPU"
+description = "GPU-accelerated Batched Orthogonal Matching Pursuit — up to 310x faster than scikit-learn"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
 authors = [
     {name = "Ariel Lubonja", email = "ariel@cs.jhu.edu"},
-    {name = "Sebastian Praesius"},
+    {name = "Sebastian Kazmarek Praesius"},
+    {name = "Trac Duy Tran"},
 ]
-requires-python = ">=3.10"
+keywords = [
+    "gpu", "cuda", "pytorch", "orthogonal-matching-pursuit", "sparse-coding",
+    "compressed-sensing", "signal-processing", "batch-processing", "omp",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: GPU",
+    "Environment :: GPU :: NVIDIA CUDA",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Cython",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+]
 dependencies = [
-    "torch>=2.0",
     "numpy>=1.21",
     "scipy>=1.7",
 ]
 
 [project.optional-dependencies]
-dev = [
-    "scikit-learn>=1.0",
-    "matplotlib>=3.5",
-    "Cython>=3.0",
-]
+gpu = ["torch>=2.0"]
+dev = ["pytest>=7.0", "scikit-learn>=1.0", "matplotlib>=3.5", "Cython>=3.0"]
+benchmark = ["scikit-learn>=1.0", "matplotlib>=3.5"]
+
+[project.urls]
+Homepage = "https://github.com/ariellubonja/orthogonal-matching-pursuit-parallel-gpu"
+Repository = "https://github.com/ariellubonja/orthogonal-matching-pursuit-parallel-gpu"
+Issues = "https://github.com/ariellubonja/orthogonal-matching-pursuit-parallel-gpu/issues"
+Paper = "https://arxiv.org/abs/2407.06434"
 
 [tool.setuptools.packages.find]
 where = ["src"]

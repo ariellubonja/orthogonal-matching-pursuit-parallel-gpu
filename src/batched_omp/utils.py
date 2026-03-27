@@ -1,7 +1,11 @@
 import numpy as np
-import torch
 from contextlib import contextmanager
 from timeit import default_timer
+
+try:
+    import torch
+except ImportError:
+    torch = None
 
 
 @contextmanager

@@ -1,11 +1,25 @@
 import numpy as np
-import torch
+
+try:
+    import torch
+except ImportError:
+    torch = None
 
 from .utils import batch_mm, innerp, cholesky_solve
 from .blas_kernels import argmax_blast, ppsv, update_projections_blast, update_D_mybest_blast
 
 
+def _require_torch():
+    if torch is None:
+        raise ImportError(
+            "PyTorch is required but not installed. "
+            "Install it with: pip install batched-omp[gpu]  "
+            "or: pip install torch"
+        )
+
+
 def run_omp(X, y, n_nonzero_coefs, precompute=True, tol=0.0, normalize=True, fit_intercept=True, alg='v0'):
+    _require_torch()
     if not isinstance(X, torch.Tensor):
         X = torch.as_tensor(X)
         y = torch.as_tensor(y)

@@ -6,7 +6,9 @@ from sklearn.datasets import make_sparse_coded_signal
 from sklearn.linear_model import OrthogonalMatchingPursuit
 from datetime import datetime
 
-from batched_omp import run_omp, omp_v0, omp_naive, omp_v0_blas, elapsed_timer
+from batched_omp import run_omp, omp_v0, omp_v0_blas
+from batched_omp.omp import omp_naive
+from batched_omp.utils import elapsed_timer
 
 try:
     import spams
