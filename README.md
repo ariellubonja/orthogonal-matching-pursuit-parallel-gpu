@@ -67,6 +67,28 @@ coefs_gpu = run_omp(X.cuda(), y.cuda(), n_nonzero_coefs=32,
 coefs = run_omp(X_numpy, y_numpy, n_nonzero_coefs=32)
 ```
 
+### Drop-in sklearn Replacement
+
+Swap one import and get automatic GPU acceleration — works with `Pipeline`, `GridSearchCV`, `cross_val_score`:
+
+```python
+# Before (sklearn, CPU only):
+from sklearn.linear_model import OrthogonalMatchingPursuit
+omp = OrthogonalMatchingPursuit(n_nonzero_coefs=10)
+
+# After (batched-omp, automatic GPU):
+from batched_omp import BatchedOrthogonalMatchingPursuit
+omp = BatchedOrthogonalMatchingPursuit(n_nonzero_coefs=10)
+
+# Same API
+omp.fit(X_train, y_train)
+predictions = omp.predict(X_test)
+coef = omp.coef_          # (n_features,) or (n_targets, n_features)
+intercept = omp.intercept_ # float or (n_targets,)
+```
+
+Extra parameters beyond sklearn's API: `device` (`"auto"`, `"cpu"`, `"cuda"`), `algorithm` (`"v0"`, `"v0_blas"`), `normalize` (default `True`).
+
 ### API
 
 ```python
