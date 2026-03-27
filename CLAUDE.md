@@ -70,7 +70,7 @@ python benchmarks/plot_results.py
 ### What benchmarks run
 
 - **Realistic configs**: image_patches (256×1024), face_recognition (8064×1207), audio (512×2048)
-- **Sweep**: N=[64..4096], B=[10..5000], S=[8,32,64], M=N/4. Algorithms: sklearn, SPAMS, v0 CPU, v0 BLAS, v0 GPU. GPU runs 3 times for variance estimation.
+- **Sweep**: N=[64..8192], B=[10..10000], S=[8,32,64], M=N/4, 147 valid cells. Algorithms: sklearn, SPAMS, v0 CPU, v0 BLAS, v0 GPU. GPU runs 3 times for variance estimation.
 - **Ablation**: 4 configs × 3 axes (batching, Gram precompute, inverse Cholesky) on CPU and GPU.
 - **Naive algorithm was removed from benchmarks** — it's strictly slower than v0 on all configs.
 
@@ -80,17 +80,17 @@ python benchmarks/plot_results.py
 - **SPAMS**: C++ with OpenMP (`pip install spams`). Fastest CPU implementation. 3 warmup + 3 timed runs.
 - **cr-sparse**: JAX GPU. Crashes on overcomplete dictionaries (our sweep is 4x overcomplete). Has numerical issues (orthogonality violations up to 3.6 vs our 1e-15). Not a serious competitor.
 
-### Current results (laptop, CPU E-features ENABLED = real-world config)
+### Current results (AWS g7e.8xlarge)
 
-Hardware: Intel Core Ultra 9 185H (6P+8E cores), NVIDIA RTX 4060 Laptop (8 GB VRAM)
+Hardware: Intel Xeon Platinum 8559C, NVIDIA RTX PRO 6000 Blackwell (102 GB VRAM)
 
 | Config | sklearn | SPAMS | Best CPU | GPU | GPU vs SPAMS |
 |--------|---------|-------|----------|-----|-------------|
-| Image patches | 533 sps | 23,106 | 2,227 (v0) | 22,633 | tied |
-| Face recognition | 482 sps | 1,274 | 1,470 (BLAS) | 4,285 | **3.4x faster** |
-| Audio | 103 sps | 4,490 | 504 (v0) | OOM | — |
+| Image patches | 594 sps | 7,139 | 3,257 (v0) | 183,904 | **25.8x faster** |
+| Face recognition | 352 sps | 1,717 | 1,731 (BLAS) | 25,158 | **14.6x faster** |
+| Audio | 207 sps | 2,359 | 926 (v0) | 28,336 | **12.0x faster** |
 
-Sweep: GPU wins 67/108 cells (62%) vs SPAMS. Wins 89% when N >= 2048.
+Sweep: GPU wins 108/108 cells (100%) vs SPAMS. No OOM on any config.
 
 ## Next task: AWS GPU benchmarks
 

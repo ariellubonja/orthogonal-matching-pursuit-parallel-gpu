@@ -2,30 +2,30 @@
 
 **Paper:** [Efficient Batched CPU/GPU Implementation of Orthogonal Matching Pursuit for Python](https://arxiv.org/abs/2407.06434)
 
-Batched implementation of Orthogonal Matching Pursuit (OMP) using BLAS (CPU) and PyTorch (GPU). **The fastest GPU implementation of OMP** — matches or beats SPAMS (C++) while being pure Python/PyTorch. **3-5x faster than scikit-learn** on CPU, **up to 42x on GPU**.
+Batched implementation of Orthogonal Matching Pursuit (OMP) using BLAS (CPU) and PyTorch (GPU). **The fastest GPU implementation of OMP** — up to **26x faster than SPAMS** (C++) while being pure Python/PyTorch. **Up to 310x faster than scikit-learn** on GPU.
 
 
 ![Benchmark plot](benchmarks/results/benchmark_plot.png)
 
 ### Speedup vs scikit-learn
 
-| Config | Best CPU | GPU | SPAMS (C++) |
-|--------|----------|-----|-------------|
-| Image patches (256×1024, S=32, B=5K) | 4.2x | **42x** | **43x** |
-| Face recognition (8064×1207, S=30, B=1.2K) | 3.1x† | **8.9x** | 2.6x |
-| Audio (512×2048, S=64, B=5K) | 4.9x | OOM | **44x** |
+| Config | Best CPU | GPU | SPAMS (C++) | GPU vs SPAMS |
+|--------|----------|-----|-------------|-------------|
+| Image patches (256×1024, S=32, B=5K) | 5.5x | **310x** | 12.0x | **25.8x faster** |
+| Face recognition (8064×1207, S=30, B=1.2K) | 4.9x† | **71x** | 4.9x | **14.6x faster** |
+| Audio (512×2048, S=64, B=5K) | 4.5x | **137x** | 11.4x | **12.0x faster** |
 
-† v0_blas (inverse Cholesky + Cython BLAS). Image patches: GPU and SPAMS are tied (22.6K vs 23.1K samples/sec). Face recognition: GPU is 3.4x faster than SPAMS.
+† v0_blas (inverse Cholesky + Cython BLAS) wins on CPU for face recognition due to large n_features (8064).
 
-*Hardware: Intel Core Ultra 9 185H, NVIDIA RTX 4060 Laptop (8 GB)*
+*Hardware: Intel Xeon 8559C, NVIDIA RTX PRO 6000 Blackwell 102 GB (AWS g7e.8xlarge)*
 
 **There is no other production-ready GPU implementation of OMP.** Existing alternatives either crash on overcomplete dictionaries (cr-sparse) or are CPU-only (sklearn, SPAMS). Batched OMP is the fastest OMP implementation available when you have a GPU.
 
 ### When to use batched-omp
 
-- **Have a GPU?** Use batched-omp — there is nothing faster. Beats SPAMS (C++) on face recognition by 3.4x, ties on image patches
-- **CPU only, want a sklearn drop-in?** 3-5x faster, same API, no C dependencies
-- **CPU only, maximum speed?** [SPAMS](https://thoth.inrialpes.fr/people/mairal/spams/) is faster (C++ with OpenMP) but harder to install
+- **Have a GPU?** Use batched-omp — there is nothing faster. **12-26x faster than SPAMS** (C++) across all realistic configs
+- **CPU only, want a sklearn drop-in?** 4-5x faster, same API, no C dependencies
+- **CPU only, maximum speed?** [SPAMS](https://thoth.inrialpes.fr/people/mairal/spams/) is faster (C++ with OpenMP) but harder to install and requires Python ≤3.11 (depends on deprecated `numpy.distutils`)
 - **Few signals or small problems?** sklearn is fine — batching helps most with hundreds+ of signals
 
 ## Installation

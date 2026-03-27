@@ -292,25 +292,25 @@ def run_paper_benchmarks(run_gpu=True):
     print(f"\n{'='*60}")
     print("Paper Fig 1 Summary (time in seconds)")
     print(f"{'='*60}")
-    header = f"{'M':>6} | {'sklearn':>8} | {'SPAMS':>8} | {'naive':>8} | {'v0 CPU':>8}"
+    header = f"{'M':>6} | {'sklearn':>8} | {'SPAMS':>8} | {'v0 CPU':>8} | {'v0 BLAS':>8}"
     if run_gpu and HAS_CUDA:
-        header += f" | {'naive GPU':>9} | {'v0 GPU':>8}"
+        header += f" | {'v0 GPU':>8}"
     print(header)
     print("-" * len(header))
     for M, res in all_results.items():
         spams_col = f"{res['spams']['time']:>8.3f}" if 'spams' in res else "     N/A"
-        row = f"{M:>6} | {res['sklearn']['time']:>8.3f} | {spams_col} | {res['naive_cpu']['time']:>8.3f} | {res['v0_cpu']['time']:>8.3f}"
+        v0_blas_col = f"{res['v0_blas']['time']:>8.3f}" if 'v0_blas' in res else "     N/A"
+        row = f"{M:>6} | {res['sklearn']['time']:>8.3f} | {spams_col} | {res['v0_cpu']['time']:>8.3f} | {v0_blas_col}"
         if run_gpu and HAS_CUDA:
-            naive_gpu = f"{res['naive_gpu']['time']:>9.3f}" if 'naive_gpu' in res else "      OOM"
             v0_gpu = f"{res['v0_gpu']['time']:>8.3f}" if 'v0_gpu' in res else "     OOM"
-            row += f" | {naive_gpu} | {v0_gpu}"
+            row += f" | {v0_gpu}"
         print(row)
 
     return all_results
 
 
-SWEEP_N_VALUES = [64, 128, 256, 512, 1024, 2048, 4096]
-SWEEP_B_VALUES = [10, 50, 100, 500, 1000, 5000]
+SWEEP_N_VALUES = [64, 128, 256, 512, 1024, 2048, 4096, 8192]
+SWEEP_B_VALUES = [10, 50, 100, 500, 1000, 5000, 10000]
 SWEEP_S_VALUES = [8, 32, 64]
 
 

@@ -17,13 +17,13 @@ if not sweep_files:
 with open(sweep_files[-1]) as f:
     sweep = json.load(f)
 
-# ── Data for panel 3: realistic benchmarks (from benchmark_20260326_115650.txt, E-features enabled) ──
+# ── Data for panel 3: realistic benchmarks (AWS g7e.8xlarge — Xeon 8559C + RTX PRO 6000 Blackwell 102GB) ──
 
 # (label, sklearn_sps, spams_sps, v0_cpu_sps, v0_blas_sps, v0_gpu_sps)
 realistic = [
-    ('Image patches\n256×1024, S=32',  533, 23106, 2227, 1823, 22633),
-    ('Face recog.\n8064×1207, S=30',   482,  1274,  594, 1470,  4285),
-    ('Audio\n512×2048, S=64',          103,  4490,  504,  378,  None),  # GPU OOM
+    ('Image patches\n256×1024, S=32',  594,  7139, 3257, 1811, 183904),
+    ('Face recog.\n8064×1207, S=30',   352,  1717, 1408, 1731,  25158),
+    ('Audio\n512×2048, S=64',          207,  2359,  926,  295,  28336),
 ]
 
 COLORS = {
@@ -42,7 +42,7 @@ LABELS = {
 }
 
 fig, axes = plt.subplots(1, 3, figsize=(16, 5))
-fig.suptitle('OMP Benchmark Results — Intel Core Ultra 9 185H + RTX 4060 Laptop',
+fig.suptitle('OMP Benchmark Results — Xeon 8559C + RTX PRO 6000 Blackwell (AWS g7e.8xlarge)',
              fontsize=13, fontweight='bold', y=1.01)
 
 # ── Panel 1: GPU vs SPAMS speedup heatmap (S=32, from sweep) ────────────────
