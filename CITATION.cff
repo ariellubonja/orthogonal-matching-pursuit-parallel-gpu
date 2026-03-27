@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite our paper."
+title: "batched-omp"
+type: software
+license: BSD-3-Clause
+url: "https://github.com/ariellubonja/orthogonal-matching-pursuit-parallel-gpu"
+authors:
+  - family-names: Lubonja
+    given-names: Ariel
+    email: ariel@cs.jhu.edu
+  - family-names: Praesius
+    given-names: Sebastian Kazmarek
+  - family-names: Tran
+    given-names: Trac Duy
+preferred-citation:
+  type: article
+  title: "Efficient Batched CPU/GPU Implementation of Orthogonal Matching Pursuit for Python"
+  authors:
+    - family-names: Lubonja
+      given-names: Ariel
+    - family-names: Praesius
+      given-names: Sebastian Kazmarek
+    - family-names: Tran
+      given-names: Trac Duy
+  journal: "arXiv preprint arXiv:2407.06434"
+  year: 2024
+  url: "https://arxiv.org/abs/2407.06434"
