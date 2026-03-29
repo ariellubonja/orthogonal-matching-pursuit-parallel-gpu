@@ -40,10 +40,10 @@ classifiers = [
 dependencies = [
     "numpy>=1.21",
     "scipy>=1.7",
+    "torch>=2.0",
 ]
 
 [project.optional-dependencies]
-gpu = ["torch>=2.0"]
 dev = ["pytest>=7.0", "scikit-learn>=1.0", "matplotlib>=3.5", "Cython>=3.0"]
 benchmark = ["scikit-learn>=1.0", "matplotlib>=3.5"]
 

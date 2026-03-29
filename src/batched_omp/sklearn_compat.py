@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.base import BaseEstimator, MultiOutputMixin, RegressorMixin
 from sklearn.utils.validation import check_is_fitted, validate_data
 
-from .omp import _require_torch, run_omp
+from .omp import run_omp
 
 
 class BatchedOrthogonalMatchingPursuit(MultiOutputMixin, RegressorMixin, BaseEstimator):
@@ -74,7 +74,6 @@ class BatchedOrthogonalMatchingPursuit(MultiOutputMixin, RegressorMixin, BaseEst
         return torch.device(self.device)
 
     def fit(self, X, y):
-        _require_torch()
         import torch
 
         X, y = validate_data(
