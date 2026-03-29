@@ -5,7 +5,7 @@
 Batched implementation of Orthogonal Matching Pursuit (OMP) using BLAS (CPU) and PyTorch (GPU). **The fastest GPU implementation of OMP** — up to **26x faster than SPAMS** (C++) while being pure Python/PyTorch. **Up to 310x faster than scikit-learn** on GPU.
 
 
-![Benchmark plot](benchmarks/results/benchmark_plot.png)
+![Benchmark plot](https://raw.githubusercontent.com/ariellubonja/orthogonal-matching-pursuit-gpu/main/benchmarks/results/benchmark_plot.png)
 
 ### Speedup vs scikit-learn
 
