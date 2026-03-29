@@ -7,7 +7,7 @@ GPU-accelerated Batched Orthogonal Matching Pursuit (OMP) for Python.
 - **Python**: 3.10+
 - **Authors**: Ariel Lubonja, Sebastian Kazmarek Praesius, Trac Duy Tran
 - **Paper**: https://arxiv.org/abs/2407.06434
-- **Repository**: https://github.com/ariellubonja/orthogonal-matching-pursuit-parallel-gpu
+- **Repository**: https://github.com/ariellubonja/orthogonal-matching-pursuit-gpu
 
 ## What it does
 

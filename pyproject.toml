@@ -11,9 +11,12 @@ requires-python = ">=3.10"
 license = "BSD-3-Clause"
 license-files = ["LICENSE"]
 authors = [
-    {name = "Ariel Lubonja", email = "ariel@cs.jhu.edu"},
+    {name = "Ariel Lubonja"},
     {name = "Sebastian Kazmarek Praesius"},
     {name = "Trac Duy Tran"},
+]
+maintainers = [
+    {name = "Ariel Lubonja", email = "ariel@cs.jhu.edu"},
 ]
 keywords = [
     "gpu", "cuda", "pytorch", "orthogonal-matching-pursuit", "sparse-coding",
@@ -48,9 +51,9 @@ dev = ["pytest>=7.0", "scikit-learn>=1.0", "matplotlib>=3.5", "Cython>=3.0"]
 benchmark = ["scikit-learn>=1.0", "matplotlib>=3.5"]
 
 [project.urls]
-Homepage = "https://github.com/ariellubonja/orthogonal-matching-pursuit-parallel-gpu"
-Repository = "https://github.com/ariellubonja/orthogonal-matching-pursuit-parallel-gpu"
-Issues = "https://github.com/ariellubonja/orthogonal-matching-pursuit-parallel-gpu/issues"
+Homepage = "https://github.com/ariellubonja/orthogonal-matching-pursuit-gpu"
+Repository = "https://github.com/ariellubonja/orthogonal-matching-pursuit-gpu"
+Issues = "https://github.com/ariellubonja/orthogonal-matching-pursuit-gpu/issues"
 Paper = "https://arxiv.org/abs/2407.06434"
 
 [tool.setuptools.packages.find]

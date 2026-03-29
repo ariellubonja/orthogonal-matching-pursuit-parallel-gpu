@@ -3,7 +3,7 @@ message: "If you use this software, please cite our paper."
 title: "batched-omp"
 type: software
 license: BSD-3-Clause
-url: "https://github.com/ariellubonja/orthogonal-matching-pursuit-parallel-gpu"
+url: "https://github.com/ariellubonja/orthogonal-matching-pursuit-gpu"
 authors:
   - family-names: Lubonja
     given-names: Ariel
