@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "batched-omp"
-version = "0.1.0"
+version = "0.1.1"
 description = "GPU-accelerated Batched Orthogonal Matching Pursuit — up to 310x faster than scikit-learn"
 readme = "README.md"
 requires-python = ">=3.10"
