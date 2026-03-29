@@ -30,13 +30,18 @@ Batched implementation of Orthogonal Matching Pursuit (OMP) using BLAS (CPU) and
 
 ## Installation
 
-Requires Python 3.10+ and a C compiler (for Cython BLAS extensions).
+```bash
+pip install batched-omp
+```
 
+Requires Python 3.10+ and a C compiler (for Cython BLAS extensions). Installs PyTorch automatically.
+
+For GPU support, install [PyTorch with CUDA](https://pytorch.org/get-started/locally/) **before** installing batched-omp, or it will default to CPU-only PyTorch.
+
+For development:
 ```bash
 pip install -e ".[dev]"
 ```
-
-For GPU support, install [PyTorch with CUDA](https://pytorch.org/get-started/locally/) first.
 
 ## Quick Start
 

@@ -30,9 +30,10 @@ sps = signals per second. GPU wins 108/108 sweep cells vs SPAMS.
 ## Installation
 
 ```bash
-pip install batched-omp            # CPU only (numpy + scipy + Cython BLAS)
-pip install batched-omp[gpu]       # With PyTorch for GPU support
+pip install batched-omp
 ```
+
+Installs PyTorch automatically. For GPU support, install PyTorch with CUDA first.
 
 For development:
 ```bash
