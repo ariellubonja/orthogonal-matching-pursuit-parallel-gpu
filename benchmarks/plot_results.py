@@ -1,5 +1,7 @@
 import matplotlib
 matplotlib.use('Agg')
+matplotlib.rcParams['font.family'] = 'serif'
+matplotlib.rcParams['font.serif'] = ['Times New Roman', 'Times', 'DejaVu Serif']
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
@@ -10,7 +12,8 @@ import glob
 # ── Load sweep data for panels 1-2 ──────────────────────────────────────────
 
 results_dir = os.path.join(os.path.dirname(__file__), 'results')
-sweep_files = sorted(glob.glob(os.path.join(results_dir, 'sweep_*.json')))
+sweep_files = sorted(glob.glob(os.path.join(results_dir, '*sweep_*.json')),
+                     key=os.path.getmtime)
 if not sweep_files:
     print("No sweep JSON found. Run: python benchmarks/benchmarks.py sweep")
     exit(1)

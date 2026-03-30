@@ -1,5 +1,7 @@
 import matplotlib
 matplotlib.use('Agg')
+matplotlib.rcParams['font.family'] = 'serif'
+matplotlib.rcParams['font.serif'] = ['Times New Roman', 'Times', 'DejaVu Serif']
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 import numpy as np
@@ -188,9 +190,6 @@ def plot_sweep_heatmaps(data, output_dir, baseline='sklearn'):
 
     baseline_label = LABELS.get(baseline, baseline)
     n_algs = len(all_algs)
-    # Layout: n_algs + 1 (best) subplots per sparsity level
-    ncols = min(n_algs + 1, 4)
-    nrows = (n_algs + 1 + ncols - 1) // ncols
 
     for S in data['meta']['S_values']:
         # Compute global vmin/vmax across all algorithms for this S
@@ -207,35 +206,19 @@ def plot_sweep_heatmaps(data, output_dir, baseline='sklearn'):
         vmin = max(min(all_vals) * 0.8, 0.05)
         vmax = max(all_vals) * 1.2
 
-        fig, axes = plt.subplots(nrows, ncols, figsize=(5 * ncols, 4.5 * nrows))
-        if nrows == 1 and ncols == 1:
-            axes = np.array([[axes]])
-        elif nrows == 1:
-            axes = axes[None, :]
-        elif ncols == 1:
-            axes = axes[:, None]
+        fig, axes = plt.subplots(1, n_algs, figsize=(5 * n_algs, 4.5))
+        if n_algs == 1:
+            axes = [axes]
 
         fig.suptitle(f'Speedup vs {baseline_label} — S={S}',
                      fontsize=13, fontweight='bold', y=1.02)
 
         for idx, alg in enumerate(all_algs):
-            row, col = idx // ncols, idx % ncols
-            ax = axes[row][col]
+            ax = axes[idx]
             mat = build_speedup_matrix(data, alg, S, baseline=baseline)
             im = draw_heatmap(ax, mat, data['meta']['N_values'],
                               data['meta']['B_values'],
                               LABELS.get(alg, alg), vmin=vmin, vmax=vmax)
-
-        # Best-algorithm heatmap in next slot
-        best_idx = n_algs
-        row, col = best_idx // ncols, best_idx % ncols
-        ax = axes[row][col]
-        draw_best_algorithm_heatmap(ax, data, S, every_alg)
-
-        # Hide unused subplots
-        for idx in range(best_idx + 1, nrows * ncols):
-            row, col = idx // ncols, idx % ncols
-            axes[row][col].set_visible(False)
 
         # Shared colorbar
         cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])
@@ -245,9 +228,10 @@ def plot_sweep_heatmaps(data, output_dir, baseline='sklearn'):
         suffix = f'_vs_{baseline}' if baseline != 'sklearn' else ''
         heatmap_dir = os.path.join(output_dir, 'heatmaps')
         os.makedirs(heatmap_dir, exist_ok=True)
-        out_path = os.path.join(heatmap_dir, f'sweep_heatmap_S{S}{suffix}.png')
-        plt.savefig(out_path, dpi=150, bbox_inches='tight')
-        print(f"Saved {out_path}")
+        for ext in ['png', 'pdf']:
+            out_path = os.path.join(heatmap_dir, f'sweep_heatmap_S{S}{suffix}.{ext}')
+            plt.savefig(out_path, dpi=150, bbox_inches='tight')
+            print(f"Saved {out_path}")
         plt.close(fig)
 
 
@@ -265,7 +249,8 @@ if __name__ == '__main__':
     if json_path is None:
         # Find most recent sweep JSON
         results_dir = os.path.join(os.path.dirname(__file__), 'results')
-        sweep_files = sorted(glob.glob(os.path.join(results_dir, 'sweep_*.json')))
+        sweep_files = sorted(glob.glob(os.path.join(results_dir, '*sweep_*.json')),
+                             key=os.path.getmtime)
         if not sweep_files:
             print("No sweep JSON files found. Run: python benchmarks/benchmarks.py sweep")
             sys.exit(1)

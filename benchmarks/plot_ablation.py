@@ -1,5 +1,7 @@
 import matplotlib
 matplotlib.use('Agg')
+matplotlib.rcParams['font.family'] = 'serif'
+matplotlib.rcParams['font.serif'] = ['Times New Roman', 'Times', 'DejaVu Serif']
 import matplotlib.pyplot as plt
 import numpy as np
 import json
