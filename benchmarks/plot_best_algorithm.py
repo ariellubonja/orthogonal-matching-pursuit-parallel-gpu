@@ -52,13 +52,13 @@ ALG_INDEX = {alg: i for i, alg in enumerate(ALGS)}
 
 # ── One heatmap per S value ──────────────────────────────────────
 
-fig, axes = plt.subplots(1, len(S_values), figsize=(6 * len(S_values), 5))
-if len(S_values) == 1:
-    axes = [axes]
+S = 8
+
+fig, ax = plt.subplots(1, 1, figsize=(6, 5))
 
 hw = sweep['meta'].get('gpu', 'Unknown GPU')
 cpu = sweep['meta'].get('cpu', 'Unknown CPU')
-fig.suptitle(f'Fastest Algorithm per Config — {cpu} + {hw}',
+fig.suptitle(f'Fastest Algorithm per Config (S={S})',
              fontsize=12, fontweight='bold', y=1.02)
 
 # Build a colormap from the algorithm colors
@@ -67,61 +67,49 @@ cmap = ListedColormap([ALG_COLORS[a] for a in ALGS])
 bounds = np.arange(len(ALGS) + 1) - 0.5
 norm = BoundaryNorm(bounds, cmap.N)
 
-for s_idx, S in enumerate(S_values):
-    ax = axes[s_idx]
+mat = np.full((len(N_values), len(B_values)), np.nan)
+best_names = [['' for _ in B_values] for _ in N_values]
 
-    mat = np.full((len(N_values), len(B_values)), np.nan)
-    sps_mat = np.full((len(N_values), len(B_values)), np.nan)
+for i, N in enumerate(N_values):
+    for j, B in enumerate(B_values):
+        cell = sweep['cells'].get(f"{S}_{N}_{B}")
+        if cell is None or cell == 'skip':
+            continue
 
-    for i, N in enumerate(N_values):
-        for j, B in enumerate(B_values):
-            cell = sweep['cells'].get(f"{S}_{N}_{B}")
-            if cell is None or cell == 'skip':
-                continue
+        best_alg = None
+        best_sps = -1
+        for alg in ALGS:
+            entry = cell.get(alg)
+            if isinstance(entry, dict) and entry.get('sps', 0) > best_sps:
+                best_sps = entry['sps']
+                best_alg = alg
 
-            best_alg = None
-            best_sps = -1
-            for alg in ALGS:
-                entry = cell.get(alg)
-                if isinstance(entry, dict) and entry.get('sps', 0) > best_sps:
-                    best_sps = entry['sps']
-                    best_alg = alg
+        if best_alg is not None:
+            mat[i, j] = ALG_INDEX[best_alg]
+            best_names[i][j] = ALG_LABELS[best_alg]
 
-            if best_alg is not None:
-                mat[i, j] = ALG_INDEX[best_alg]
-                sps_mat[i, j] = best_sps
+ax.imshow(mat, cmap=cmap, norm=norm, aspect='auto', origin='lower',
+          interpolation='nearest')
 
-    ax.imshow(mat, cmap=cmap, norm=norm, aspect='auto', origin='lower',
-              interpolation='nearest')
+ax.set_xticks(range(len(B_values)))
+ax.set_xticklabels(B_values, fontsize=8)
+ax.set_yticks(range(len(N_values)))
+ax.set_yticklabels(N_values, fontsize=8)
+ax.set_xlabel('B (n_samples)', fontsize=10)
+ax.set_ylabel('N (n_components)', fontsize=10)
 
-    ax.set_xticks(range(len(B_values)))
-    ax.set_xticklabels(B_values, fontsize=8)
-    ax.set_yticks(range(len(N_values)))
-    ax.set_yticklabels(N_values, fontsize=8)
-    ax.set_xlabel('B (n_samples)', fontsize=10)
-    if s_idx == 0:
-        ax.set_ylabel('N (n_components)', fontsize=10)
-    ax.set_title(f'S = {S}', fontsize=11, fontweight='bold')
-
-    # Annotate cells with sps
-    for i in range(len(N_values)):
-        for j in range(len(B_values)):
-            val = mat[i, j]
-            sps = sps_mat[i, j]
-            if np.isnan(val):
-                ax.text(j, i, 'skip', ha='center', va='center',
-                        fontsize=5.5, color='#999999')
-            else:
-                alg_name = ALGS[int(val)]
-                if sps >= 1e6:
-                    label = f'{sps/1e6:.1f}M'
-                elif sps >= 1e3:
-                    label = f'{sps/1e3:.1f}K'
-                else:
-                    label = f'{sps:.0f}'
-                text_color = 'white' if alg_name in ('v0_gpu', 'spams', 'v0_blas') else 'black'
-                ax.text(j, i, label, ha='center', va='center',
-                        fontsize=6, fontweight='bold', color=text_color)
+# Annotate cells with algorithm name
+for i in range(len(N_values)):
+    for j in range(len(B_values)):
+        val = mat[i, j]
+        if np.isnan(val):
+            ax.text(j, i, 'skip', ha='center', va='center',
+                    fontsize=5.5, color='#999999')
+        else:
+            alg_name = ALGS[int(val)]
+            text_color = 'white' if alg_name in ('v0_gpu', 'spams', 'v0_blas') else 'black'
+            ax.text(j, i, best_names[i][j], ha='center', va='center',
+                    fontsize=7, fontweight='bold', color=text_color)
 
 # Legend
 patches = [mpatches.Patch(color=ALG_COLORS[a], label=ALG_LABELS[a]) for a in ALGS]
