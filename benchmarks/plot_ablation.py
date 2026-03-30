@@ -21,10 +21,9 @@ ABLATION_COLORS = {
 }
 
 CONFIG_LABELS = {
-    'small': 'Small\n(32×128, S=8, B=500)',
-    'medium': 'Medium\n(128×512, S=32, B=1K)',
-    'large': 'Large\n(512×2048, S=64, B=5K)',
-    'face': 'Face\n(8064×1207, S=30, B=1.2K)',
+    'image_patches': 'Image patches\n(256×1024, S=32, B=5K)',
+    'face_recognition': 'Face recog.\n(8064×1207, S=30, B=1.2K)',
+    'audio': 'Audio\n(512×2048, S=64, B=5K)',
 }
 
 
@@ -103,9 +102,10 @@ def plot_ablation_bars(data, output_dir):
     plt.tight_layout()
     heatmap_dir = os.path.join(output_dir, 'heatmaps')
     os.makedirs(heatmap_dir, exist_ok=True)
-    out_path = os.path.join(heatmap_dir, 'ablation_bars.png')
-    plt.savefig(out_path, dpi=150, bbox_inches='tight')
-    print(f"Saved {out_path}")
+    for ext in ['png', 'pdf']:
+        out_path = os.path.join(heatmap_dir, f'ablation_bars.{ext}')
+        plt.savefig(out_path, dpi=150, bbox_inches='tight')
+        print(f"Saved {out_path}")
     plt.close(fig)
 
 
@@ -154,9 +154,10 @@ def plot_ablation_times(data, output_dir):
     plt.tight_layout()
     heatmap_dir = os.path.join(output_dir, 'heatmaps')
     os.makedirs(heatmap_dir, exist_ok=True)
-    out_path = os.path.join(heatmap_dir, 'ablation_times.png')
-    plt.savefig(out_path, dpi=150, bbox_inches='tight')
-    print(f"Saved {out_path}")
+    for ext in ['png', 'pdf']:
+        out_path = os.path.join(heatmap_dir, f'ablation_times.{ext}')
+        plt.savefig(out_path, dpi=150, bbox_inches='tight')
+        print(f"Saved {out_path}")
     plt.close(fig)
 
 

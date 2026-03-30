@@ -167,6 +167,7 @@ ax.legend(fontsize=8.5)
 ax.grid(True, axis='y', alpha=0.3)
 
 plt.tight_layout()
-out_path = os.path.join(results_dir, 'benchmark_plot.png')
-plt.savefig(out_path, dpi=150, bbox_inches='tight')
-print(f"Saved to {out_path}")
+for ext in ['png', 'pdf']:
+    out_path = os.path.join(results_dir, f'benchmark_plot.{ext}')
+    plt.savefig(out_path, dpi=150, bbox_inches='tight')
+    print(f"Saved to {out_path}")

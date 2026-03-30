@@ -425,10 +425,9 @@ def run_sweep(run_gpu=True):
 # ── Ablation study ──────────────────────────────────────────────
 
 ABLATION_CONFIGS = {
-    'small':  {'n_features': 32,   'n_components': 128,  'n_nonzero_coefs': 8,  'n_samples': 500},
-    'medium': {'n_features': 128,  'n_components': 512,  'n_nonzero_coefs': 32, 'n_samples': 1000},
-    'large':  {'n_features': 512,  'n_components': 2048, 'n_nonzero_coefs': 64, 'n_samples': 5000},
-    'face':   {'n_features': 8064, 'n_components': 1207, 'n_nonzero_coefs': 30, 'n_samples': 1207},
+    'image_patches':    {'n_features': 256,  'n_components': 1024, 'n_nonzero_coefs': 32, 'n_samples': 5000},
+    'face_recognition': {'n_features': 8064, 'n_components': 1207, 'n_nonzero_coefs': 30, 'n_samples': 1207},
+    'audio':            {'n_features': 512,  'n_components': 2048, 'n_nonzero_coefs': 64, 'n_samples': 5000},
 }
 
 
