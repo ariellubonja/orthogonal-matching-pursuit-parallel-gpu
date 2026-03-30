@@ -1,0 +1,108 @@
+Date: 2026-03-30T23:23:33.485480
+CPU: Intel(R) Xeon(R) Platinum 8559C
+GPU: NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+============================================================
+Ablation: image_patches  (M=256, N=1024, S=32, B=5000)
+============================================================
+  sklearn (reference):       9.315s
+
+  --- A1: Batching (CPU) ---
+  v0 batched CPU:           1.662s
+  v0 loop (B=1) CPU:        17.357s  (10.4x slower)
+
+  --- A2: Gram precomputation (CPU) ---
+  naive + precompute CPU:    3.824s
+  naive no precomp CPU:      3.955s  (1.0x slower)
+
+  --- A3: Inverse Cholesky (CPU) ---
+  v0 inv Cholesky CPU:      1.609s
+  v0 std Cholesky CPU:      1.559s  (1.0x slower)
+
+  --- A1: Batching (GPU) ---
+  v0 batched GPU:           0.031s
+  v0 loop (B=1) GPU:        32.475s  (1061.0x slower)
+
+  --- A2: Gram precomputation (GPU) ---
+  naive + precompute GPU:    0.173s
+  naive no precomp GPU:      0.081s  (0.5x slower)
+
+  --- A3: Inverse Cholesky (GPU) ---
+  v0 inv Cholesky GPU:      0.027s
+  v0 std Cholesky GPU:      0.029s  (1.1x slower)
+
+============================================================
+Ablation: face_recognition  (M=8064, N=1207, S=30, B=1207)
+============================================================
+  sklearn (reference):       3.819s
+
+  --- A1: Batching (CPU) ---
+  v0 batched CPU:           0.808s
+  v0 loop (B=1) CPU:        4.526s  (5.6x slower)
+
+  --- A2: Gram precomputation (CPU) ---
+  naive + precompute CPU:    6.524s
+  naive no precomp CPU:      7.406s  (1.1x slower)
+
+  --- A3: Inverse Cholesky (CPU) ---
+  v0 inv Cholesky CPU:      0.769s
+  v0 std Cholesky CPU:      1.039s  (1.4x slower)
+
+  --- A1: Batching (GPU) ---
+  v0 batched GPU:           0.032s
+  v0 loop (B=1) GPU:        7.427s  (232.2x slower)
+
+  --- A2: Gram precomputation (GPU) ---
+  naive + precompute GPU:    1.813s
+  naive no precomp GPU:      1.832s  (1.0x slower)
+
+  --- A3: Inverse Cholesky (GPU) ---
+  v0 inv Cholesky GPU:      0.033s
+  v0 std Cholesky GPU:      0.052s  (1.6x slower)
+
+============================================================
+Ablation: audio  (M=512, N=2048, S=64, B=5000)
+============================================================
+  sklearn (reference):       26.842s
+
+  --- A1: Batching (CPU) ---
+  v0 batched CPU:           5.169s
+  v0 loop (B=1) CPU:        34.844s  (6.7x slower)
+
+  --- A2: Gram precomputation (CPU) ---
+  naive + precompute CPU:    13.428s
+  naive no precomp CPU:      14.004s  (1.0x slower)
+
+  --- A3: Inverse Cholesky (CPU) ---
+  v0 inv Cholesky CPU:      5.259s
+  v0 std Cholesky CPU:      4.764s  (0.9x slower)
+
+  --- A1: Batching (GPU) ---
+  v0 batched GPU:           0.174s
+  v0 loop (B=1) GPU:        65.336s  (375.3x slower)
+
+  --- A2: Gram precomputation (GPU) ---
+  naive + precompute GPU:    0.538s
+  naive no precomp GPU:      0.565s  (1.1x slower)
+
+  --- A3: Inverse Cholesky (GPU) ---
+  v0 inv Cholesky GPU:      0.174s
+  v0 std Cholesky GPU:      0.185s  (1.1x slower)
+
+############################################################
+Ablation Summary — Speedup from each optimization (CPU)
+############################################################
+  Config     |   A1 Batch |    A2 Gram | A3 InvChol
+  -----------+------------+------------+-----------
+  image_patches |      10.4x |       1.0x |       1.0x
+  face_recognition |       5.6x |       1.1x |       1.4x
+  audio      |       6.7x |       1.0x |       0.9x
+
+Ablation Summary — Speedup from each optimization (GPU)
+  Config     |   A1 Batch |    A2 Gram | A3 InvChol
+  -----------+------------+------------+-----------
+  image_patches |    1061.0x |       0.5x |       1.1x
+  face_recognition |     232.2x |       1.0x |       1.6x
+  audio      |     375.3x |       1.1x |       1.1x
+
+Ablation results saved to /home/ubuntu/orthogonal-matching-pursuit-gpu/benchmarks/results/ablation_20260330_232814.json

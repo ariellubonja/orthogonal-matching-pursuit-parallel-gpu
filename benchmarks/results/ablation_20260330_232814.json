@@ -1,0 +1,74 @@
+{
+  "meta": {
+    "timestamp": "2026-03-30T23:28:14.834716",
+    "cpu": "Intel(R) Xeon(R) Platinum 8559C",
+    "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "configs": {
+      "image_patches": {
+        "n_features": 256,
+        "n_components": 1024,
+        "n_nonzero_coefs": 32,
+        "n_samples": 5000
+      },
+      "face_recognition": {
+        "n_features": 8064,
+        "n_components": 1207,
+        "n_nonzero_coefs": 30,
+        "n_samples": 1207
+      },
+      "audio": {
+        "n_features": 512,
+        "n_components": 2048,
+        "n_nonzero_coefs": 64,
+        "n_samples": 5000
+      }
+    }
+  },
+  "results": {
+    "image_patches": {
+      "sklearn": 9.314776895000023,
+      "a1_batched_cpu": 1.6624539270000014,
+      "a1_loop_cpu": 17.35718918799995,
+      "a2_precompute_cpu": 3.823859915000014,
+      "a2_no_precompute_cpu": 3.954710531000046,
+      "a3_inv_chol_cpu": 1.6087866169999643,
+      "a3_std_chol_cpu": 1.5586016350000023,
+      "a1_batched_gpu": 0.030607646999953886,
+      "a1_loop_gpu": 32.475358297000014,
+      "a2_precompute_gpu": 0.17325443499998983,
+      "a2_no_precompute_gpu": 0.081389688999991,
+      "a3_inv_chol_gpu": 0.026641944999994394,
+      "a3_std_chol_gpu": 0.028596542999991925
+    },
+    "face_recognition": {
+      "sklearn": 3.8191864890000033,
+      "a1_batched_cpu": 0.8082602810000026,
+      "a1_loop_cpu": 4.5260818799999925,
+      "a2_precompute_cpu": 6.524461733999999,
+      "a2_no_precompute_cpu": 7.406445405999989,
+      "a3_inv_chol_cpu": 0.7688117769999963,
+      "a3_std_chol_cpu": 1.0388264730000287,
+      "a1_batched_gpu": 0.03198340099999086,
+      "a1_loop_gpu": 7.4267802819999815,
+      "a2_precompute_gpu": 1.8132487049999781,
+      "a2_no_precompute_gpu": 1.8321921570000086,
+      "a3_inv_chol_gpu": 0.03313923299998578,
+      "a3_std_chol_gpu": 0.0519843989999913
+    },
+    "audio": {
+      "sklearn": 26.84187199600001,
+      "a1_batched_cpu": 5.168504100000064,
+      "a1_loop_cpu": 34.84407766300001,
+      "a2_precompute_cpu": 13.428181214999995,
+      "a2_no_precompute_cpu": 14.004412730000013,
+      "a3_inv_chol_cpu": 5.258600821000073,
+      "a3_std_chol_cpu": 4.764257975000078,
+      "a1_batched_gpu": 0.17406922199995734,
+      "a1_loop_gpu": 65.33630464099997,
+      "a2_precompute_gpu": 0.537641979,
+      "a2_no_precompute_gpu": 0.5648826980000194,
+      "a3_inv_chol_gpu": 0.17419973100004427,
+      "a3_std_chol_gpu": 0.18536617000006572
+    }
+  }
+}
