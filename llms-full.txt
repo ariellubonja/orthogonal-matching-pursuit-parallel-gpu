@@ -25,7 +25,7 @@ Benchmarked on AWS g7e.8xlarge (Intel Xeon 8559C, NVIDIA RTX PRO 6000 Blackwell 
 | Face recognition (8064x1207, S=30, B=1.2K) | 352 | 1,717 | 1,731 | 25,158 | 71x | 14.6x |
 | Audio (512x2048, S=64, B=5K) | 207 | 2,359 | 926 | 28,336 | 137x | 12.0x |
 
-sps = signals per second. GPU wins 108/108 sweep cells vs SPAMS.
+sps = signals per second. GPU wins 142/147 sweep cells (96.6%) vs SPAMS. The 5 losses are at the smallest configs (N<=128, B<=100) where GPU launch overhead dominates.
 
 ## Installation
 

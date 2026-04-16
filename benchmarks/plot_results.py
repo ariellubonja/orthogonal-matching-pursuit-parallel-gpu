@@ -51,9 +51,11 @@ fig.suptitle('OMP Benchmark Results — Xeon 8559C + RTX PRO 6000 Blackwell (AWS
 
 # ── Panel 1: GPU vs SPAMS speedup heatmap (S=32, from sweep) ────────────────
 ax = axes[0]
-N_values = sweep['meta']['N_values']
+N_values_all = sweep['meta']['N_values']
 B_values = sweep['meta']['B_values']
 S = 32
+# Skip N=64: S=32 > M=N/4=16 makes the problem infeasible
+N_values = [n for n in N_values_all if n >= 4 * S]
 
 mat = np.full((len(N_values), len(B_values)), np.nan)
 for i, N in enumerate(N_values):
@@ -129,7 +131,6 @@ ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: str(int(x))))
 ax.set_xticks(N_values)
 ax.tick_params(labelsize=12)
 ax.legend(fontsize=12.5)
-ax.grid(True, which='both', alpha=0.3)
 
 # ── Panel 3: Speedup bar chart — realistic benchmarks ───────────────────────
 ax = axes[2]
@@ -171,10 +172,145 @@ ax.set_ylabel('Speedup vs sklearn (log scale)', fontsize=14)
 ax.set_title('Speedup — realistic benchmarks', fontsize=15, fontweight='bold')
 ax.tick_params(labelsize=12)
 ax.legend(fontsize=12.5)
-ax.grid(True, axis='y', alpha=0.3)
 
 plt.tight_layout()
 for ext in ['png', 'pdf']:
     out_path = os.path.join(results_dir, f'benchmark_plot.{ext}')
     plt.savefig(out_path, dpi=150, bbox_inches='tight')
+    print(f"Saved to {out_path}")
+
+# ── Paper figure: 2-panel (sweep lines + realistic bars), no titles ──────────
+
+fig2, (ax_left, ax_right) = plt.subplots(1, 2, figsize=(12, 5))
+
+# Left: speedup vs N (same as panel 2 above)
+for alg in algs_to_plot:
+    ns, medians = [], []
+    for N in N_values:
+        speedups = []
+        for B in B_values:
+            cell = sweep['cells'].get(f"{S}_{N}_{B}")
+            if cell is None or cell == 'skip':
+                continue
+            sk = cell.get('sklearn')
+            al = cell.get(alg)
+            if isinstance(sk, dict) and isinstance(al, dict):
+                speedups.append(al['sps'] / sk['sps'])
+        if speedups:
+            ns.append(N)
+            medians.append(np.median(speedups))
+    ax_left.plot(ns, medians, color=COLORS[alg], marker=markers[alg],
+                 label=LABELS[alg], linewidth=2, markersize=8)
+
+ax_left.axhline(1.0, color=COLORS['sklearn'], linestyle='--', linewidth=1, label='sklearn (1x)')
+ax_left.set_xscale('log', base=2)
+ax_left.set_yscale('log')
+ax_left.set_xlabel('N (n_components)', fontsize=14)
+ax_left.set_ylabel('Speedup vs sklearn', fontsize=14)
+ax_left.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: str(int(x))))
+ax_left.set_xticks(N_values)
+ax_left.tick_params(labelsize=12)
+ax_left.legend(fontsize=12.5)
+ax_left.text(-0.12, 1.05, '(a)', transform=ax_left.transAxes, fontsize=16, fontweight='bold')
+
+# Right: realistic bar chart (same as panel 3 above)
+bench_labels = [r[0] for r in realistic]
+n = len(realistic)
+x = np.arange(n)
+bar_w = 0.2
+
+for j, (key, col, idx) in enumerate(bar_algs):
+    speedups = []
+    for r in realistic:
+        sps = r[idx]
+        if sps is not None:
+            speedups.append(sps / r[1])
+        else:
+            speedups.append(0)
+    bars = ax_right.bar(x + (j - 1) * bar_w, speedups,
+                        bar_w, label=LABELS[key], color=col, alpha=0.85)
+    for bar, sp in zip(bars, speedups):
+        if sp > 0:
+            ax_right.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.3,
+                          f'{sp:.1f}x', ha='center', va='bottom', fontsize=11.5, fontweight='bold')
+
+ax_right.axhline(1.0, color='black', linestyle='--', linewidth=1, alpha=0.5)
+ax_right.set_yscale('log')
+ax_right.set_xticks(x)
+ax_right.set_xticklabels(bench_labels, fontsize=13)
+ax_right.tick_params(labelsize=12)
+ax_right.legend(fontsize=12.5)
+ax_right.text(-0.05, 1.05, '(b)', transform=ax_right.transAxes, fontsize=16, fontweight='bold')
+
+plt.tight_layout()
+plt.close(fig2)
+
+# Save each panel as its own PDF
+# ── Panel (a): sweep lines ────────────────────────────────────────────────────
+fig_a, ax_a = plt.subplots(1, 1, figsize=(6, 5))
+for alg in algs_to_plot:
+    ns, medians = [], []
+    for N in N_values:
+        speedups = []
+        for B in B_values:
+            cell = sweep['cells'].get(f"{S}_{N}_{B}")
+            if cell is None or cell == 'skip':
+                continue
+            sk = cell.get('sklearn')
+            al = cell.get(alg)
+            if isinstance(sk, dict) and isinstance(al, dict):
+                speedups.append(al['sps'] / sk['sps'])
+        if speedups:
+            ns.append(N)
+            medians.append(np.median(speedups))
+    ax_a.plot(ns, medians, color=COLORS[alg], marker=markers[alg],
+              label=LABELS[alg], linewidth=2, markersize=8)
+
+ax_a.axhline(1.0, color=COLORS['sklearn'], linestyle='--', linewidth=1, label='sklearn (1x)')
+ax_a.set_xscale('log', base=2)
+ax_a.set_yscale('log')
+ax_a.set_xlabel('N (n_components)', fontsize=14)
+ax_a.set_ylabel('Speedup vs sklearn', fontsize=14)
+ax_a.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: str(int(x))))
+ax_a.set_xticks(N_values)
+ax_a.tick_params(labelsize=12)
+ax_a.legend(fontsize=12.5)
+fig_a.tight_layout()
+for ext in ['png', 'pdf']:
+    out_path = os.path.join(results_dir, f'benchmark_paper_sweep.{ext}')
+    fig_a.savefig(out_path, dpi=150, bbox_inches='tight')
+    print(f"Saved to {out_path}")
+
+# ── Panel (b): realistic bars ─────────────────────────────────────────────────
+fig_b, ax_b = plt.subplots(1, 1, figsize=(6, 5))
+bench_labels = [r[0] for r in realistic]
+n = len(realistic)
+x = np.arange(n)
+bar_w = 0.2
+
+for j, (key, col, idx) in enumerate(bar_algs):
+    speedups = []
+    for r in realistic:
+        sps = r[idx]
+        if sps is not None:
+            speedups.append(sps / r[1])
+        else:
+            speedups.append(0)
+    bars = ax_b.bar(x + (j - 1) * bar_w, speedups,
+                    bar_w, label=LABELS[key], color=col, alpha=0.85)
+    for bar, sp in zip(bars, speedups):
+        if sp > 0:
+            ax_b.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.3,
+                      f'{sp:.1f}x', ha='center', va='bottom', fontsize=11.5, fontweight='bold')
+
+ax_b.axhline(1.0, color='black', linestyle='--', linewidth=1, alpha=0.5)
+ax_b.set_yscale('log')
+ax_b.set_xticks(x)
+ax_b.set_xticklabels(bench_labels, fontsize=13)
+ax_b.yaxis.set_visible(False)
+ax_b.tick_params(labelsize=12)
+fig_b.tight_layout()
+for ext in ['png', 'pdf']:
+    out_path = os.path.join(results_dir, f'benchmark_paper_realistic.{ext}')
+    fig_b.savefig(out_path, dpi=150, bbox_inches='tight')
     print(f"Saved to {out_path}")

@@ -92,4 +92,4 @@ Hardware: Intel Xeon Platinum 8559C, NVIDIA RTX PRO 6000 Blackwell (102 GB VRAM)
 | Face recognition | 352 sps | 1,717 | 1,731 (BLAS) | 25,158 | 14.6x faster |
 | Audio | 207 sps | 2,359 | 926 (v0) | 28,336 | 12.0x faster |
 
-GPU wins 108/108 sweep cells (100%) vs SPAMS. No OOM on any config.
+GPU wins 142/147 sweep cells (96.6%) vs SPAMS. The 5 losses are tiny configs (N≤128, B≤100). No OOM on any config.
