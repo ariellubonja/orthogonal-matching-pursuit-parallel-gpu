@@ -2,6 +2,7 @@ import matplotlib
 matplotlib.use('Agg')
 matplotlib.rcParams['font.family'] = 'serif'
 matplotlib.rcParams['font.serif'] = ['Times New Roman', 'Times', 'DejaVu Serif']
+matplotlib.rcParams['mathtext.fontset'] = 'dejavuserif'
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
@@ -46,7 +47,7 @@ LABELS = {
 
 fig, axes = plt.subplots(1, 3, figsize=(16, 5))
 fig.suptitle('OMP Benchmark Results — Xeon 8559C + RTX PRO 6000 Blackwell (AWS g7e.8xlarge)',
-             fontsize=13, fontweight='bold', y=1.01)
+             fontsize=17, fontweight='bold', y=1.01)
 
 # ── Panel 1: GPU vs SPAMS speedup heatmap (S=32, from sweep) ────────────────
 ax = axes[0]
@@ -72,25 +73,25 @@ im = ax.imshow(mat, cmap=cmap, norm=LogNorm(vmin=0.05, vmax=10),
                aspect='auto', origin='lower')
 
 ax.set_xticks(range(len(B_values)))
-ax.set_xticklabels(B_values, fontsize=8)
+ax.set_xticklabels(B_values, fontsize=12)
 ax.set_yticks(range(len(N_values)))
-ax.set_yticklabels(N_values, fontsize=8)
-ax.set_xlabel('B (n_samples)', fontsize=9)
-ax.set_ylabel('N (n_components)', fontsize=9)
-ax.set_title('GPU speedup over SPAMS (S=32)', fontsize=11, fontweight='bold')
+ax.set_yticklabels(N_values, fontsize=12)
+ax.set_xlabel('B (n_samples)', fontsize=13)
+ax.set_ylabel('N (n_components)', fontsize=13)
+ax.set_title('GPU speedup over SPAMS (S=32)', fontsize=15, fontweight='bold')
 
 for i in range(len(N_values)):
     for j in range(len(B_values)):
         val = mat[i, j]
         if not np.isnan(val):
             color = 'white' if val > 3 or val < 0.3 else 'black'
-            ax.text(j, i, f'{val:.1f}x', ha='center', va='center', fontsize=6.5,
+            ax.text(j, i, f'{val:.1f}x', ha='center', va='center', fontsize=10.5,
                     fontweight='bold', color=color)
         else:
-            ax.text(j, i, 'OOM', ha='center', va='center', fontsize=6, color='#999999')
+            ax.text(j, i, '—', ha='center', va='center', fontsize=10, color='#999999')
 
 cbar = fig.colorbar(im, ax=ax, shrink=0.8)
-cbar.set_label('GPU / SPAMS', fontsize=9)
+cbar.set_label('GPU / SPAMS', fontsize=13)
 
 # ── Panel 2: Speedup vs sklearn across sweep (S=32, selected algs) ──────────
 ax = axes[1]
@@ -121,12 +122,13 @@ for alg in algs_to_plot:
 ax.axhline(1.0, color=COLORS['sklearn'], linestyle='--', linewidth=1, label='sklearn (1x)')
 ax.set_xscale('log', base=2)
 ax.set_yscale('log')
-ax.set_xlabel('N (n_components)', fontsize=10)
-ax.set_ylabel('Median speedup vs sklearn', fontsize=10)
-ax.set_title(f'Speedup vs N (S={S}, median across B)', fontsize=11, fontweight='bold')
+ax.set_xlabel('N (n_components)', fontsize=14)
+ax.set_ylabel('Median speedup vs sklearn', fontsize=14)
+ax.set_title(f'Speedup vs N (S={S}, median across B)', fontsize=15, fontweight='bold')
 ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: str(int(x))))
 ax.set_xticks(N_values)
-ax.legend(fontsize=8.5)
+ax.tick_params(labelsize=12)
+ax.legend(fontsize=12.5)
 ax.grid(True, which='both', alpha=0.3)
 
 # ── Panel 3: Speedup bar chart — realistic benchmarks ───────────────────────
@@ -137,7 +139,7 @@ x = np.arange(n)
 bar_w = 0.2
 
 bar_algs = [
-    ('spams',   COLORS['spams'],  1),  # index into realistic tuple
+    ('spams',   COLORS['spams'],  2),  # index into realistic tuple
     ('v0_cpu',  COLORS['v0_cpu'], 3),
     ('v0_gpu',  COLORS['v0_gpu'], 5),
 ]
@@ -156,17 +158,19 @@ for j, (key, col, idx) in enumerate(bar_algs):
     for bar, sp in zip(bars, speedups):
         if sp > 0:
             ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.3,
-                    f'{sp:.1f}x', ha='center', va='bottom', fontsize=7.5, fontweight='bold')
+                    f'{sp:.1f}x', ha='center', va='bottom', fontsize=11.5, fontweight='bold')
         else:
             ax.text(bar.get_x() + bar.get_width() / 2, 0.5,
-                    'OOM', ha='center', va='bottom', fontsize=7, color='#999999')
+                    'OOM', ha='center', va='bottom', fontsize=11, color='#999999')
 
 ax.axhline(1.0, color='black', linestyle='--', linewidth=1, alpha=0.5)
+ax.set_yscale('log')
 ax.set_xticks(x)
-ax.set_xticklabels(bench_labels, fontsize=9)
-ax.set_ylabel('Speedup vs sklearn', fontsize=10)
-ax.set_title('Speedup — realistic benchmarks', fontsize=11, fontweight='bold')
-ax.legend(fontsize=8.5)
+ax.set_xticklabels(bench_labels, fontsize=13)
+ax.set_ylabel('Speedup vs sklearn (log scale)', fontsize=14)
+ax.set_title('Speedup — realistic benchmarks', fontsize=15, fontweight='bold')
+ax.tick_params(labelsize=12)
+ax.legend(fontsize=12.5)
 ax.grid(True, axis='y', alpha=0.3)
 
 plt.tight_layout()
