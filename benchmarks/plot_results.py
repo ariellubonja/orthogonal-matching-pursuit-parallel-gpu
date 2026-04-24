@@ -13,11 +13,16 @@ import glob
 # ── Load sweep data for panels 1-2 ──────────────────────────────────────────
 
 results_dir = os.path.join(os.path.dirname(__file__), 'results')
-sweep_files = sorted(glob.glob(os.path.join(results_dir, '*sweep_*.json')),
-                     key=os.path.getmtime)
+aws_sweep_files = sorted(glob.glob(os.path.join(results_dir, 'aws_sweep_*.json')),
+                         key=lambda p: (os.path.getmtime(p), p))
+sweep_files = aws_sweep_files or sorted(
+    glob.glob(os.path.join(results_dir, '*sweep_*.json')),
+    key=lambda p: (os.path.getmtime(p), p),
+)
 if not sweep_files:
     print("No sweep JSON found. Run: python benchmarks/benchmarks.py sweep")
     exit(1)
+print(f"Loading sweep: {sweep_files[-1]}")
 with open(sweep_files[-1]) as f:
     sweep = json.load(f)
 
@@ -266,11 +271,11 @@ for alg in algs_to_plot:
     ax_a.plot(ns, medians, color=COLORS[alg], marker=markers[alg],
               label=LABELS[alg], linewidth=2, markersize=8)
 
-ax_a.axhline(1.0, color=COLORS['sklearn'], linestyle='--', linewidth=1, label='sklearn (1x)')
+ax_a.axhline(1.0, color=COLORS['sklearn'], linestyle='--', linewidth=1)
 ax_a.set_xscale('log', base=2)
 ax_a.set_yscale('log')
 ax_a.set_xlabel('N (n_components)', fontsize=14)
-ax_a.set_ylabel('Speedup vs sklearn', fontsize=14)
+ax_a.set_ylabel('Speedup vs. Scikit-Learn', fontsize=14)
 ax_a.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: str(int(x))))
 ax_a.set_xticks(N_values)
 ax_a.tick_params(labelsize=12)
@@ -278,7 +283,7 @@ ax_a.legend(fontsize=12.5)
 fig_a.tight_layout()
 for ext in ['png', 'pdf']:
     out_path = os.path.join(results_dir, f'benchmark_paper_sweep.{ext}')
-    fig_a.savefig(out_path, dpi=150, bbox_inches='tight')
+    fig_a.savefig(out_path, dpi=150)
     print(f"Saved to {out_path}")
 
 # ── Panel (b): realistic bars ─────────────────────────────────────────────────
@@ -312,5 +317,5 @@ ax_b.tick_params(labelsize=12)
 fig_b.tight_layout()
 for ext in ['png', 'pdf']:
     out_path = os.path.join(results_dir, f'benchmark_paper_realistic.{ext}')
-    fig_b.savefig(out_path, dpi=150, bbox_inches='tight')
+    fig_b.savefig(out_path, dpi=150)
     print(f"Saved to {out_path}")
