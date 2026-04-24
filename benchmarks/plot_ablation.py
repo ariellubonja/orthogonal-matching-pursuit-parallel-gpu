@@ -2,7 +2,9 @@ import matplotlib
 matplotlib.use('Agg')
 matplotlib.rcParams['font.family'] = 'serif'
 matplotlib.rcParams['font.serif'] = ['Times New Roman', 'Times', 'DejaVu Serif']
+matplotlib.rcParams['mathtext.fontset'] = 'dejavuserif'
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 import numpy as np
 import json
 import os
@@ -23,9 +25,9 @@ ABLATION_COLORS = {
 }
 
 CONFIG_LABELS = {
-    'image_patches': 'Image patches\n(256×1024, S=32, B=5K)',
-    'face_recognition': 'Face recog.\n(8064×1207, S=30, B=1.2K)',
-    'audio': 'Audio\n(512×2048, S=64, B=5K)',
+    'image_patches': 'Image patches\n256×1024, S=32',
+    'face_recognition': 'Face recog.\n8064×1207, S=30',
+    'audio': 'Audio\n512×2048, S=64',
 }
 
 
@@ -63,50 +65,106 @@ def plot_ablation_bars(data, output_dir):
     configs = list(results.keys())
     ablations = ['a1', 'a2', 'a3']
 
-    has_gpu = any(f'a1_batched_gpu' in results[c] for c in configs)
-    devices = ['cpu', 'gpu'] if has_gpu else ['cpu']
+    has_gpu = any('a1_batched_gpu' in results[c] for c in configs)
 
-    fig, axes = plt.subplots(1, len(devices), figsize=(7 * len(devices), 5), squeeze=False)
+    cpu_speedups = compute_speedups(results, 'cpu')
+    gpu_speedups = compute_speedups(results, 'gpu') if has_gpu else None
 
-    for dev_idx, device in enumerate(devices):
-        ax = axes[0][dev_idx]
-        speedups = compute_speedups(results, device)
+    fig, ax = plt.subplots(1, 1, figsize=(11, 6))
 
-        x = np.arange(len(configs))
-        width = 0.25
-        offsets = [-width, 0, width]
+    x = np.arange(len(configs))
+
+    if has_gpu:
+        bar_width = 0.13
+        group_offsets = [-0.28, 0.0, 0.28]
 
         for i, ab in enumerate(ablations):
-            vals = [speedups[cfg].get(ab, 0) for cfg in configs]
-            bars = ax.bar(x + offsets[i], vals, width,
-                         label=ABLATION_LABELS[ab], color=ABLATION_COLORS[ab],
-                         edgecolor='white', linewidth=0.5)
+            cpu_x = x + group_offsets[i] - bar_width / 2 - 0.005
+            gpu_x = x + group_offsets[i] + bar_width / 2 + 0.005
+            cpu_vals = [cpu_speedups[cfg].get(ab, 0) for cfg in configs]
+            gpu_vals = [gpu_speedups[cfg].get(ab, 0) for cfg in configs]
+
+            cpu_bars = ax.bar(cpu_x, cpu_vals, bar_width,
+                              color=ABLATION_COLORS[ab], hatch='///',
+                              edgecolor='white', linewidth=0.5)
+            gpu_bars = ax.bar(gpu_x, gpu_vals, bar_width,
+                              color=ABLATION_COLORS[ab],
+                              edgecolor='white', linewidth=0.5)
+
+            for bars, vals in [(cpu_bars, cpu_vals), (gpu_bars, gpu_vals)]:
+                for bar, val in zip(bars, vals):
+                    if val > 0:
+                        label = f'{val:.1f}x'
+                        y_pos = max(bar.get_height(), 0.08)
+                        ax.text(bar.get_x() + bar.get_width() / 2, y_pos * 1.15,
+                                label, ha='center', va='bottom',
+                                fontsize=18, fontweight='bold')
+    else:
+        bar_width = 0.25
+        offsets = [-bar_width, 0, bar_width]
+        for i, ab in enumerate(ablations):
+            vals = [cpu_speedups[cfg].get(ab, 0) for cfg in configs]
+            bars = ax.bar(x + offsets[i], vals, bar_width,
+                          color=ABLATION_COLORS[ab], hatch='///',
+                          edgecolor='white', linewidth=0.5)
             for bar, val in zip(bars, vals):
                 if val > 0:
                     label = f'{val:.1f}x'
                     y_pos = max(bar.get_height(), 0.08)
                     ax.text(bar.get_x() + bar.get_width() / 2, y_pos * 1.15,
-                            label, ha='center', va='bottom', fontsize=7, fontweight='bold')
+                            label, ha='center', va='bottom',
+                            fontsize=18, fontweight='bold')
 
-        ax.set_xticks(x)
-        ax.set_xticklabels([CONFIG_LABELS.get(c, c) for c in configs], fontsize=8)
-        ax.set_ylabel('Speedup from optimization (>1 = helps)', fontsize=10)
-        ax.set_title(f'{device.upper()} — Ablation: speedup from each optimization',
-                     fontsize=11, fontweight='bold')
-        ax.axhline(y=1, color='red', linestyle='--', linewidth=1.0, alpha=0.7)
-        ax.set_yscale('log')
-        all_vals_flat = [speedups[cfg].get(ab, 0) for cfg in configs for ab in ablations if speedups[cfg].get(ab, 0) > 0]
-        if all_vals_flat:
-            ax.set_ylim(bottom=min(all_vals_flat) * 0.5, top=max(all_vals_flat) * 2)
-        ax.legend(fontsize=8, loc='upper left')
-        ax.grid(axis='y', alpha=0.3)
+    ax.set_xticks(x)
+    ax.set_xticklabels([CONFIG_LABELS.get(c, c) for c in configs], fontsize=30)
+    ax.set_ylabel('Speedup', fontsize=32)
+    ax.set_yscale('log')
+    ax.tick_params(axis='y', labelsize=31)
+
+    all_vals_flat = []
+    for cfg in configs:
+        for ab in ablations:
+            v_cpu = cpu_speedups[cfg].get(ab, 0)
+            if v_cpu > 0:
+                all_vals_flat.append(v_cpu)
+            if has_gpu:
+                v_gpu = gpu_speedups[cfg].get(ab, 0)
+                if v_gpu > 0:
+                    all_vals_flat.append(v_gpu)
+    if all_vals_flat:
+        ax.set_ylim(bottom=min(all_vals_flat) * 0.5, top=max(all_vals_flat) * 2)
+
+    method_handles = [
+        Patch(facecolor=ABLATION_COLORS['a1'], edgecolor='white', label=ABLATION_LABELS['a1']),
+        Patch(facecolor=ABLATION_COLORS['a2'], edgecolor='white', label=ABLATION_LABELS['a2']),
+        Patch(facecolor=ABLATION_COLORS['a3'], edgecolor='white', label=ABLATION_LABELS['a3']),
+    ]
+    extra_artists = []
+    if has_gpu:
+        device_handles = [
+            Patch(facecolor='#666666', edgecolor='white', hatch='///', label='CPU'),
+            Patch(facecolor='#666666', edgecolor='white', label='GPU'),
+        ]
+        methods_legend = ax.legend(handles=method_handles, fontsize=20,
+                                   loc='lower center', bbox_to_anchor=(0.5, 1.18),
+                                   ncol=3, frameon=False)
+        ax.add_artist(methods_legend)
+        device_legend = ax.legend(handles=device_handles, fontsize=20,
+                                  loc='lower center', bbox_to_anchor=(0.5, 1.02),
+                                  ncol=2, frameon=False)
+        extra_artists = [methods_legend, device_legend]
+    else:
+        ax.legend(handles=method_handles, fontsize=20,
+                  loc='lower center', bbox_to_anchor=(0.5, 1.02),
+                  ncol=3, frameon=False)
 
     plt.tight_layout()
     heatmap_dir = os.path.join(output_dir, 'heatmaps')
     os.makedirs(heatmap_dir, exist_ok=True)
     for ext in ['png', 'pdf']:
         out_path = os.path.join(heatmap_dir, f'ablation_bars.{ext}')
-        plt.savefig(out_path, dpi=150, bbox_inches='tight')
+        plt.savefig(out_path, dpi=150, bbox_inches='tight',
+                    bbox_extra_artists=extra_artists)
         print(f"Saved {out_path}")
     plt.close(fig)
 
